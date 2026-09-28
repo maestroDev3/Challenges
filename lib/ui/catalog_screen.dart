@@ -5,6 +5,7 @@ import '../domain/catalog.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import 'editor_screen.dart';
+import 'rule_selector.dart';
 import 'theme.dart';
 
 typedef ChallengeStarted = Future<void> Function(ActiveChallenge challenge);
@@ -85,8 +86,8 @@ class CatalogScreen extends StatelessWidget {
       builder: (sheetContext) => _StartSheet(
         template: t,
         running: running,
-        onStart: (reminder) async {
-          final c = await repository.start(t, reminder);
+        onStart: (reminder, rule) async {
+          final c = await repository.start(t, reminder, rule: rule);
           await onStarted?.call(c);
         },
         onEdit: t.isCustom
@@ -215,7 +216,7 @@ class _StartSheet extends StatefulWidget {
 
   final ChallengeTemplate template;
   final bool running;
-  final Future<void> Function(ReminderTime reminder) onStart;
+  final Future<void> Function(ReminderTime reminder, StreakRule rule) onStart;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -225,6 +226,7 @@ class _StartSheet extends StatefulWidget {
 
 class _StartSheetState extends State<_StartSheet> {
   late ReminderTime _reminder = defaultReminderFor(widget.template.id);
+  StreakRule _rule = StreakRule.relaxed;
   bool _busy = false;
 
   Future<void> _pickTime() async {
@@ -239,7 +241,7 @@ class _StartSheetState extends State<_StartSheet> {
 
   Future<void> _start() async {
     setState(() => _busy = true);
-    await widget.onStart(_reminder);
+    await widget.onStart(_reminder, _rule);
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -273,6 +275,13 @@ class _StartSheetState extends State<_StartSheet> {
               trailing: Text(_reminder.toString(), style: text.titleMedium),
               onTap: widget.running ? null : _pickTime,
             ),
+            if (!widget.running) ...[
+              const SizedBox(height: 8),
+              RuleSelector(
+                value: _rule,
+                onChanged: (r) => setState(() => _rule = r),
+              ),
+            ],
             const SizedBox(height: 16),
             FilledButton(
               onPressed: widget.running || _busy ? null : _start,
