@@ -100,8 +100,14 @@ class LocalChallengeRepository implements ChallengeRepository {
       if (c.template.id == template.id) return c;
     }
     final now = _clock();
+    final taken = {for (final c in [...store.active, ...store.archived]) c.id};
+    final base = '${template.id}-${now.microsecondsSinceEpoch}';
+    var id = base;
+    for (var n = 2; taken.contains(id); n++) {
+      id = '$base-$n';
+    }
     final c = ActiveChallenge(
-      id: '${template.id}-${now.microsecondsSinceEpoch}',
+      id: id,
       template: template,
       startedOn: dayOf(now),
       reminder: reminder,
