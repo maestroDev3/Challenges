@@ -18,3 +18,9 @@ const _months = [
 
 /// Monat mit Jahr, z. B. „Oktober 2026“.
 String formatMonth(DateTime d) => '${_months[d.month - 1]} ${d.year}';
+
+/// Restzeit als „13:22“ (Stunden:Minuten).
+String formatRemaining(Duration d) {
+  final minutes = d.inMinutes;
+  return '${minutes ~/ 60}:${(minutes % 60).toString().padLeft(2, '0')}';
+}
