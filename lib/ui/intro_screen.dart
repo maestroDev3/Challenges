@@ -74,7 +74,7 @@ class _IntroScreenState extends State<IntroScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   RitualLogo(
-                    size: 132,
+                    size: 112,
                     progress: reduceMotion ? 1.0 : _ring.value,
                   ),
                   const SizedBox(height: 56),
@@ -104,7 +104,8 @@ class _IntroScreenState extends State<IntroScreen>
                               color: RitualColors.gold,
                               fontStyle: FontStyle.italic,
                               fontWeight: FontWeight.w400,
-                              height: 1.35,
+                              fontSize: 21,
+                              height: 1.4,
                             ),
                           ),
                       ],
@@ -164,8 +165,9 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final stroke = size.width * 0.025;
-    final radius = size.width / 2 - stroke * 2.2;
+    final stroke = size.width * 0.014;
+    final dot = stroke * 2.4;
+    final radius = size.width / 2 - dot;
     final center = size.center(Offset.zero);
     final rect = Rect.fromCircle(center: center, radius: radius);
     final track = Paint()
@@ -191,7 +193,7 @@ class _RingPainter extends CustomPainter {
     final end = start + sweep;
     canvas.drawCircle(
       center + Offset(math.cos(end), math.sin(end)) * radius,
-      stroke * 2.1,
+      dot,
       Paint()..color = RitualColors.gold,
     );
   }
