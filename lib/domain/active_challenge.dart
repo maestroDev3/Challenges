@@ -355,7 +355,8 @@ class ActiveChallenge {
         } else {
           streak = 0;
           run = 0;
-          if (rule == StreakRule.strict) {
+          // Neuer Versuch nur, wenn der aktuelle schon Fortschritt hatte.
+          if (rule == StreakRule.strict && attemptDone > 0) {
             attempt++;
             attemptDone = 0;
           }

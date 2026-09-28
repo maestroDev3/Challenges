@@ -126,7 +126,8 @@ class _ArchiveCard extends StatelessWidget {
                     children: [
                       Text('Beste Streak ${challenge.bestStreak}',
                           style: text.bodyMedium),
-                      Text('${challenge.doneDays} Tage erledigt',
+                      Text(
+                          '${challenge.doneDays} ${challenge.doneDays == 1 ? 'Tag' : 'Tage'} erledigt',
                           style: TextStyle(color: scheme.onSurfaceVariant)),
                     ],
                   ),
