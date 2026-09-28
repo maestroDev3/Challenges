@@ -53,13 +53,24 @@ List<ActiveChallenge> _demo() => [
     ];
 
 Future<void> _pump(WidgetTester tester, Brightness b,
-    FakeChallengeRepository repo) async {
+    FakeChallengeRepository repo,
+    {DynamicSchemeVariant variant = DynamicSchemeVariant.tonalSpot}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.625;
   addTearDown(tester.view.reset);
-  final base = buildTheme(b);
+  final base = buildTheme(b, variant: variant);
+  // Im Test-Renderer gibt es keinen System-Font: Button-Stil explizit auf Roboto.
   final theme = base.copyWith(
     textTheme: base.textTheme.apply(fontFamilyFallback: ['NotoColorEmoji']),
+    filledButtonTheme: FilledButtonThemeData(
+      style: base.filledButtonTheme.style!.copyWith(
+        textStyle: const WidgetStatePropertyAll(TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        )),
+      ),
+    ),
   );
   await tester.pumpWidget(MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -100,6 +111,18 @@ void main() {
       await tester.tap(find.text('Entdecken').last);
       await tester.pumpAndSettle();
       await _shot('2_entdecken$suffix');
+    });
+  }
+
+  for (final (name, v) in [
+    ('fidelity', DynamicSchemeVariant.fidelity),
+    ('vibrant', DynamicSchemeVariant.vibrant),
+  ]) {
+    testWidgets('variante_$name', (tester) async {
+      await _pump(tester, Brightness.light,
+          FakeChallengeRepository(initial: _demo()),
+          variant: v);
+      await _shot('6_variante_$name');
     });
   }
 
