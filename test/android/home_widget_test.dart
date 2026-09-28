@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-const main = 'android/app/src/main';
+const appMain = 'android/app/src/main';
 
 void main() {
   test('Widget-Provider und Hintergrund-Empfänger sind registriert', () {
-    final manifest = File('$main/AndroidManifest.xml').readAsStringSync();
+    final manifest = File('$appMain/AndroidManifest.xml').readAsStringSync();
     expect(manifest, contains('.RitualWidgetProvider'));
     expect(manifest, contains('android.appwidget.action.APPWIDGET_UPDATE'));
     expect(manifest, contains('@xml/ritual_widget_info'));
@@ -19,15 +19,15 @@ void main() {
 
   test('Provider, Layout und Widget-Info existieren', () {
     final provider = File(
-            '$main/kotlin/de/maestrodev/challenges/RitualWidgetProvider.kt')
+            '$appMain/kotlin/de/maestrodev/challenges/RitualWidgetProvider.kt')
         .readAsStringSync();
     expect(provider, contains('class RitualWidgetProvider'));
     expect(provider, contains('ritual://check?id='));
-    final layout = File('$main/res/layout/ritual_widget.xml').readAsStringSync();
+    final layout = File('$appMain/res/layout/ritual_widget.xml').readAsStringSync();
     for (var i = 0; i < 4; i++) {
       expect(layout, contains('@+id/row_$i'));
       expect(layout, contains('@+id/check_$i'));
     }
-    expect(File('$main/res/xml/ritual_widget_info.xml').existsSync(), isTrue);
+    expect(File('$appMain/res/xml/ritual_widget_info.xml').existsSync(), isTrue);
   });
 }
