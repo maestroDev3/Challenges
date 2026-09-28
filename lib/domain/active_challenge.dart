@@ -14,6 +14,8 @@ enum CheckInStatus { done, missed }
 
 enum DayStatus { done, missed, open }
 
+enum ChallengeStatus { active, completed, ended }
+
 class ReminderTime {
   const ReminderTime(this.hour, this.minute);
   final int hour;
@@ -52,6 +54,8 @@ class ActiveChallenge {
     required this.startedOn,
     required this.reminder,
     this.checkIns = const [],
+    this.status = ChallengeStatus.active,
+    this.finishedOn,
   });
 
   final String id;
@@ -59,17 +63,47 @@ class ActiveChallenge {
   final DateTime startedOn;
   final ReminderTime reminder;
   final List<CheckIn> checkIns;
+  final ChallengeStatus status;
+  final DateTime? finishedOn;
 
   ChallengeKind get kind => template.kind;
 
-  ActiveChallenge copyWith({ReminderTime? reminder, List<CheckIn>? checkIns}) =>
+  bool get isArchived => status != ChallengeStatus.active;
+
+  ActiveChallenge copyWith({
+    ChallengeTemplate? template,
+    ReminderTime? reminder,
+    List<CheckIn>? checkIns,
+    ChallengeStatus? status,
+    DateTime? finishedOn,
+  }) =>
       ActiveChallenge(
         id: id,
-        template: template,
+        template: template ?? this.template,
         startedOn: startedOn,
         reminder: reminder ?? this.reminder,
         checkIns: checkIns ?? this.checkIns,
+        status: status ?? this.status,
+        finishedOn: finishedOn ?? this.finishedOn,
       );
+
+  /// Archiviert die Challenge: „geschafft“, wenn das Ziel erreicht ist,
+  /// sonst „beendet“.
+  ActiveChallenge finish(DateTime now) => copyWith(
+        status:
+            isCompleted ? ChallengeStatus.completed : ChallengeStatus.ended,
+        finishedOn: dayOf(now),
+      );
+
+  /// True, wenn das Ziel erreicht ist und die Challenge automatisch ins
+  /// Archiv wandern soll (X Tage oder einmalig).
+  bool shouldAutoFinish(DateTime today) =>
+      !isArchived &&
+      isCompleted &&
+      switch (kind) {
+        DailyKind(days: _?) || OneTimeKind() => true,
+        _ => false,
+      };
 
   CheckIn? checkInOn(DateTime day) {
     final d = dayOf(day);
@@ -87,6 +121,7 @@ class ActiveChallenge {
     int? minutes,
     String? note,
   }) {
+    if (isArchived) return this;
     final d = dayOf(day);
     final existing = checkInOn(d);
     var total = minutes;
