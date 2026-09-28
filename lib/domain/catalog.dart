@@ -1,3 +1,4 @@
+import 'active_challenge.dart';
 import 'challenge.dart';
 
 const challengeCatalog = <ChallengeTemplate>[
@@ -94,3 +95,15 @@ ChallengeTemplate? templateById(String id) {
   }
   return null;
 }
+
+/// Sinnvolle Standard-Uhrzeit für die Erinnerung je Challenge.
+ReminderTime defaultReminderFor(String templateId) => switch (templateId) {
+      'wake-5am' => const ReminderTime(5, 0),
+      'morning-routine' => const ReminderTime(6, 0),
+      'cold-shower' => const ReminderTime(7, 0),
+      'eye-gaze' => const ReminderTime(20, 0),
+      'excuse-journal' => const ReminderTime(21, 0),
+      'meditate-sleep' => const ReminderTime(22, 0),
+      'nature-2h' => const ReminderTime(18, 0),
+      _ => const ReminderTime(9, 0),
+    };
