@@ -8,47 +8,95 @@ import '../domain/catalog.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 
+/// Speichert alles als JSON in shared_preferences.
+///
+/// Format v2: `{version, templates: [...], challenges: [...]}`. Daten aus v1
+/// (nur aktive Katalog-Challenges) werden beim Lesen übernommen.
 class LocalChallengeRepository implements ChallengeRepository {
   LocalChallengeRepository(this._prefs, {Clock? clock})
       : _clock = clock ?? DateTime.now;
 
-  static const _key = 'active_challenges_v1';
+  static const _keyV1 = 'active_challenges_v1';
+  static const _keyV2 = 'challenges_v2';
 
   final SharedPreferences _prefs;
   final Clock _clock;
-  final _changes = StreamController<List<ActiveChallenge>>.broadcast();
+  final _changes = StreamController<ChallengeStore>.broadcast();
 
-  @override
-  Future<List<ActiveChallenge>> active() async {
+  // ---------- Lesen ----------
+
+  Future<ChallengeStore> _load() async {
     // Hintergrund-Isolate (Benachrichtigungs-Aktionen) schreiben ebenfalls.
     await _prefs.reload();
-    final raw = _prefs.getString(_key);
-    if (raw == null) return [];
-    return [
-      for (final e in jsonDecode(raw) as List)
-        ?_fromJson(e as Map<String, dynamic>),
+    final raw = _prefs.getString(_keyV2);
+    if (raw == null) return _loadV1();
+    final json = jsonDecode(raw) as Map<String, dynamic>;
+    final templates = [
+      for (final t in (json['templates'] as List).cast<Map<String, dynamic>>())
+        _templateFromJson(t),
     ];
+    final byId = {for (final t in templates) t.id: t};
+    final challenges = [
+      for (final c in (json['challenges'] as List).cast<Map<String, dynamic>>())
+        ?_challengeFromJson(c, byId),
+    ];
+    return ChallengeStore(
+      active: [for (final c in challenges) if (!c.isArchived) c],
+      archived: [for (final c in challenges) if (c.isArchived) c],
+      customTemplates: templates,
+    );
+  }
+
+  ChallengeStore _loadV1() {
+    final raw = _prefs.getString(_keyV1);
+    if (raw == null) return const ChallengeStore();
+    return ChallengeStore(active: [
+      for (final c in (jsonDecode(raw) as List).cast<Map<String, dynamic>>())
+        ?_challengeFromJson(c, const {}),
+    ]);
   }
 
   @override
+  Future<List<ActiveChallenge>> active() async => (await _load()).active;
+
+  @override
+  Future<List<ActiveChallenge>> archived() async => (await _load()).archived;
+
+  @override
+  Future<List<ChallengeTemplate>> customTemplates() async =>
+      (await _load()).customTemplates;
+
+  @override
   Future<ActiveChallenge?> byId(String id) async {
-    for (final c in await active()) {
+    final store = await _load();
+    for (final c in [...store.active, ...store.archived]) {
       if (c.id == id) return c;
     }
     return null;
   }
 
   @override
-  Stream<List<ActiveChallenge>> watch() async* {
-    yield await active();
+  Stream<List<ActiveChallenge>> watch() => watchStore().map((s) => s.active);
+
+  @override
+  Stream<ChallengeStore> watchStore() async* {
+    yield await _load();
     yield* _changes.stream;
   }
 
   @override
+  Future<void> refresh() async => _changes.add(await _load());
+
+  // ---------- Schreiben ----------
+
+  @override
   Future<ActiveChallenge> start(
-      ChallengeTemplate template, ReminderTime reminder) async {
-    final all = await active();
-    for (final c in all) {
+    ChallengeTemplate template,
+    ReminderTime reminder, {
+    StreakRule rule = StreakRule.relaxed,
+  }) async {
+    final store = await _load();
+    for (final c in store.active) {
       if (c.template.id == template.id) return c;
     }
     final now = _clock();
@@ -57,41 +105,166 @@ class LocalChallengeRepository implements ChallengeRepository {
       template: template,
       startedOn: dayOf(now),
       reminder: reminder,
+      rule: rule,
     );
-    await _write([...all, c]);
+    await _write(store, active: [...store.active, c]);
     return c;
   }
 
   @override
   Future<void> save(ActiveChallenge challenge) async {
-    final all = await active();
-    await _write([
-      for (final c in all) c.id == challenge.id ? challenge : c,
-    ]);
+    final store = await _load();
+    await _write(
+      store,
+      active: [
+        for (final c in store.active)
+          if (c.id != challenge.id) c else if (!challenge.isArchived) challenge,
+      ],
+      archived: [
+        for (final c in store.archived)
+          if (c.id != challenge.id) c,
+        if (challenge.isArchived) challenge,
+      ],
+    );
   }
 
   @override
-  Future<void> stop(String id) async {
-    final all = await active();
-    await _write([
-      for (final c in all)
-        if (c.id != id) c,
-    ]);
+  Future<ActiveChallenge?> finish(String id) async {
+    final store = await _load();
+    for (final c in store.active) {
+      if (c.id == id) {
+        final done = c.finish(_clock());
+        await _write(
+          store,
+          active: [for (final a in store.active) if (a.id != id) a],
+          archived: [...store.archived, done],
+        );
+        return done;
+      }
+    }
+    return null;
   }
 
   @override
-  Future<void> refresh() async => _changes.add(await active());
-
-  Future<void> _write(List<ActiveChallenge> all) async {
-    await _prefs.setString(_key, jsonEncode([for (final c in all) _toJson(c)]));
-    _changes.add(all);
+  Future<void> delete(String id) async {
+    final store = await _load();
+    await _write(
+      store,
+      active: [for (final c in store.active) if (c.id != id) c],
+      archived: [for (final c in store.archived) if (c.id != id) c],
+    );
   }
 
-  static Map<String, dynamic> _toJson(ActiveChallenge c) => {
+  @override
+  Future<void> saveTemplate(ChallengeTemplate template) async {
+    final store = await _load();
+    final exists = store.customTemplates.any((t) => t.id == template.id);
+    await _write(
+      store,
+      templates: exists
+          ? [
+              for (final t in store.customTemplates)
+                t.id == template.id ? template : t,
+            ]
+          : [...store.customTemplates, template],
+      active: [
+        for (final c in store.active)
+          c.template.id == template.id ? c.copyWith(template: template) : c,
+      ],
+    );
+  }
+
+  @override
+  Future<void> deleteTemplate(String id) async {
+    final store = await _load();
+    if (store.active.any((c) => c.template.id == id)) {
+      throw StateError('Vorlage wird von einer laufenden Challenge genutzt');
+    }
+    await _write(store,
+        templates: [for (final t in store.customTemplates) if (t.id != id) t]);
+  }
+
+  Future<void> _write(
+    ChallengeStore store, {
+    List<ActiveChallenge>? active,
+    List<ActiveChallenge>? archived,
+    List<ChallengeTemplate>? templates,
+  }) async {
+    final next = ChallengeStore(
+      active: active ?? store.active,
+      archived: archived ?? store.archived,
+      customTemplates: templates ?? store.customTemplates,
+    );
+    await _prefs.setString(
+      _keyV2,
+      jsonEncode({
+        'version': 2,
+        'templates': [for (final t in next.customTemplates) _templateToJson(t)],
+        'challenges': [
+          for (final c in [...next.active, ...next.archived]) _challengeToJson(c),
+        ],
+      }),
+    );
+    await _prefs.remove(_keyV1);
+    _changes.add(next);
+  }
+
+  // ---------- JSON ----------
+
+  static Map<String, dynamic> _templateToJson(ChallengeTemplate t) => {
+        'id': t.id,
+        'title': t.title,
+        'description': t.description,
+        'emoji': t.emoji,
+        'kind': switch (t.kind) {
+          DailyKind(days: final d) => {'type': 'daily', 'days': d},
+          OneTimeKind(window: final w, date: final d) => {
+              'type': 'oneTime',
+              'hours': w.inHours,
+              'date': d?.toIso8601String(),
+            },
+          WeeklyGoalKind(target: final n, unit: final u) =>
+            {'type': 'weekly', 'target': n, 'unit': u.name},
+          JournalKind() => {'type': 'journal'},
+        },
+      };
+
+  static ChallengeTemplate _templateFromJson(Map<String, dynamic> j) {
+    final k = j['kind'] as Map<String, dynamic>;
+    final ChallengeKind kind = switch (k['type']) {
+      'daily' => DailyKind(days: k['days'] as int?),
+      'oneTime' => OneTimeKind(
+          Duration(hours: k['hours'] as int),
+          date: k['date'] == null ? null : DateTime.parse(k['date'] as String),
+        ),
+      'weekly' => WeeklyGoalKind(
+          k['target'] as int,
+          unit: WeeklyUnit.values.byName(k['unit'] as String),
+        ),
+      _ => const JournalKind(),
+    };
+    return ChallengeTemplate(
+      id: j['id'] as String,
+      title: j['title'] as String,
+      description: j['description'] as String? ?? '',
+      emoji: j['emoji'] as String? ?? '⭐',
+      kind: kind,
+    );
+  }
+
+  static Map<String, dynamic> _challengeToJson(ActiveChallenge c) => {
         'id': c.id,
         'template': c.template.id,
+        if (c.template.isCustom) 'customTemplate': _templateToJson(c.template),
         'startedOn': c.startedOn.toIso8601String(),
         'reminder': [c.reminder.hour, c.reminder.minute],
+        'status': c.status.name,
+        if (c.finishedOn case final f?) 'finishedOn': f.toIso8601String(),
+        'rule': c.rule.name,
+        'pauses': [
+          for (final p in c.pauses)
+            [p.from.toIso8601String(), p.until.toIso8601String()],
+        ],
         'checkIns': [
           for (final ci in c.checkIns)
             {
@@ -103,15 +276,33 @@ class LocalChallengeRepository implements ChallengeRepository {
         ],
       };
 
-  static ActiveChallenge? _fromJson(Map<String, dynamic> j) {
-    final template = templateById(j['template'] as String);
+  static ActiveChallenge? _challengeFromJson(
+    Map<String, dynamic> j,
+    Map<String, ChallengeTemplate> customTemplates,
+  ) {
+    final templateId = j['template'] as String;
+    final embedded = j['customTemplate'] as Map<String, dynamic>?;
+    final template = customTemplates[templateId] ??
+        templateById(templateId) ??
+        (embedded == null ? null : _templateFromJson(embedded));
     if (template == null) return null;
     final reminder = (j['reminder'] as List).cast<int>();
+    final finishedOn = j['finishedOn'] as String?;
     return ActiveChallenge(
       id: j['id'] as String,
       template: template,
       startedOn: DateTime.parse(j['startedOn'] as String),
       reminder: ReminderTime(reminder[0], reminder[1]),
+      status: ChallengeStatus.values.byName(j['status'] as String? ?? 'active'),
+      finishedOn: finishedOn == null ? null : DateTime.parse(finishedOn),
+      rule: StreakRule.values.byName(j['rule'] as String? ?? 'relaxed'),
+      pauses: [
+        for (final p in (j['pauses'] as List? ?? const []).cast<List>())
+          PauseRange(
+            from: DateTime.parse(p[0] as String),
+            until: DateTime.parse(p[1] as String),
+          ),
+      ],
       checkIns: [
         for (final ci in (j['checkIns'] as List).cast<Map<String, dynamic>>())
           CheckIn(

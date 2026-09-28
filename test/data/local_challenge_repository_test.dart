@@ -202,7 +202,7 @@ void main() {
       final repo = await newRepo();
       await repo.saveTemplate(sport);
       final c = await repo.start(sport, const ReminderTime(18, 0));
-      expect(() => repo.deleteTemplate(sport.id), throwsStateError);
+      await expectLater(repo.deleteTemplate(sport.id), throwsStateError);
 
       await repo.finish(c.id);
       await repo.deleteTemplate(sport.id);

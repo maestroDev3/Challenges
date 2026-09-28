@@ -42,7 +42,7 @@ class TodayScreen extends StatelessWidget {
                     today: clock(),
                     onSave: repository.save,
                     onStop: (c) async {
-                      await repository.stop(c.id);
+                      await repository.delete(c.id);
                       await onStopped?.call(c);
                     },
                   ),
