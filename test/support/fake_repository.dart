@@ -57,6 +57,9 @@ class FakeChallengeRepository implements ChallengeRepository {
   }
 
   @override
+  Future<void> refresh() async => _changes.add(List.of(_items));
+
+  @override
   Future<void> stop(String id) async {
     _items.removeWhere((c) => c.id == id);
     _changes.add(List.of(_items));
