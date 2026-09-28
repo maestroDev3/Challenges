@@ -110,4 +110,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(ChallengeDetailScreen), findsOneWidget);
   });
+
+  testWidgets('zeigt erreichte Abzeichen', (tester) async {
+    var c = ActiveChallenge(
+      id: 'm',
+      template: templateById('meditate-sleep')!,
+      startedOn: DateTime(2026, 9, 20),
+      reminder: const ReminderTime(22, 0),
+    );
+    for (var i = 0; i < 8; i++) {
+      c = c.checkIn(DateTime(2026, 9, 20 + i), CheckInStatus.done);
+    }
+    await tester.pumpApp(ChallengeDetailScreen(challenge: c, clock: () => today));
+    expect(find.text('Abzeichen'), findsOneWidget);
+    expect(find.text('7 Tage'), findsOneWidget);
+  });
 }
