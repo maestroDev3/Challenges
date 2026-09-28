@@ -511,7 +511,12 @@ class ChallengeCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'noch ${formatRemaining(challenge.remaining(today) ?? Duration.zero)} h',
-                        style: text.titleLarge?.copyWith(color: scheme.primary),
+                        style: text.titleLarge?.copyWith(
+                          color: scheme.primary,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w500,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                       ),
                     ),
                     TextButton(
@@ -917,6 +922,8 @@ class _SessionRow extends StatelessWidget {
                     },
                     style: text.titleLarge?.copyWith(
                       color: scheme.primary,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w500,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
