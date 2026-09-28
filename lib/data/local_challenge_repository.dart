@@ -222,6 +222,7 @@ class LocalChallengeRepository implements ChallengeRepository {
         'title': t.title,
         'description': t.description,
         'emoji': t.emoji,
+        if (t.steps.isNotEmpty) 'steps': t.steps,
         'kind': switch (t.kind) {
           DailyKind(days: final d) => {'type': 'daily', 'days': d},
           OneTimeKind(window: final w, date: final d) => {
@@ -255,6 +256,7 @@ class LocalChallengeRepository implements ChallengeRepository {
       description: j['description'] as String? ?? '',
       emoji: j['emoji'] as String? ?? '⭐',
       kind: kind,
+      steps: (j['steps'] as List? ?? const []).cast<String>(),
     );
   }
 
@@ -267,6 +269,11 @@ class LocalChallengeRepository implements ChallengeRepository {
         'status': c.status.name,
         if (c.finishedOn case final f?) 'finishedOn': f.toIso8601String(),
         'rule': c.rule.name,
+        if (c.stepLog.isNotEmpty)
+          'stepLog': {
+            for (final e in c.stepLog.entries)
+              e.key.toIso8601String(): e.value.toList()..sort(),
+          },
         'pauses': [
           for (final p in c.pauses)
             [p.from.toIso8601String(), p.until.toIso8601String()],
@@ -302,6 +309,10 @@ class LocalChallengeRepository implements ChallengeRepository {
       status: ChallengeStatus.values.byName(j['status'] as String? ?? 'active'),
       finishedOn: finishedOn == null ? null : DateTime.parse(finishedOn),
       rule: StreakRule.values.byName(j['rule'] as String? ?? 'relaxed'),
+      stepLog: {
+        for (final e in (j['stepLog'] as Map<String, dynamic>? ?? const {}).entries)
+          DateTime.parse(e.key): (e.value as List).cast<int>().toSet(),
+      },
       pauses: [
         for (final p in (j['pauses'] as List? ?? const []).cast<List>())
           PauseRange(

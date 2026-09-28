@@ -415,6 +415,12 @@ class ChallengeCard extends StatelessWidget {
               firstDay: dayOf(challenge.startedOn),
               onTapDay: (day) => _correct(context, day),
             ),
+            if (challenge.template.steps.isNotEmpty && !paused)
+              _Checklist(
+                steps: challenge.template.steps,
+                done: challenge.stepsDoneOn(today),
+                onToggle: (i) => onSave(challenge.toggleStep(today, i)),
+              ),
             const SizedBox(height: 12),
             if (challenge.isCompleted)
               Padding(
@@ -582,6 +588,43 @@ class _WeekRow extends StatelessWidget {
                     size: 14, color: scheme.primary),
               },
             ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tägliche Schritte zum Abhaken (z. B. Morgenroutine).
+class _Checklist extends StatelessWidget {
+  const _Checklist({
+    required this.steps,
+    required this.done,
+    required this.onToggle,
+  });
+
+  final List<String> steps;
+  final Set<int> done;
+  final ValueChanged<int> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, right: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Schritte ${done.length}/${steps.length}',
+              style: TextStyle(color: scheme.onSurfaceVariant)),
+          for (final (i, step) in steps.indexed)
+            CheckboxListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              value: done.contains(i),
+              onChanged: (_) => onToggle(i),
+              title: Text(step),
             ),
         ],
       ),

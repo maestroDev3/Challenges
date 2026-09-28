@@ -94,6 +94,7 @@ class ActiveChallenge {
     this.finishedOn,
     this.pauses = const [],
     this.rule = StreakRule.relaxed,
+    this.stepLog = const {},
   });
 
   final String id;
@@ -105,6 +106,9 @@ class ActiveChallenge {
   final DateTime? finishedOn;
   final List<PauseRange> pauses;
   final StreakRule rule;
+
+  /// Abgehakte Schritte je Tag (nur bei Vorlagen mit Schritten).
+  final Map<DateTime, Set<int>> stepLog;
 
   ChallengeKind get kind => template.kind;
 
@@ -118,6 +122,7 @@ class ActiveChallenge {
     DateTime? finishedOn,
     List<PauseRange>? pauses,
     StreakRule? rule,
+    Map<DateTime, Set<int>>? stepLog,
   }) =>
       ActiveChallenge(
         id: id,
@@ -129,6 +134,7 @@ class ActiveChallenge {
         finishedOn: finishedOn ?? this.finishedOn,
         pauses: pauses ?? this.pauses,
         rule: rule ?? this.rule,
+        stepLog: stepLog ?? this.stepLog,
       );
 
   /// Archiviert die Challenge: „geschafft“, wenn das Ziel erreicht ist,
@@ -180,7 +186,38 @@ class ActiveChallenge {
         if (c.day != d) c,
       CheckIn(day: d, status: status, minutes: total, note: note),
     ]..sort((a, b) => a.day.compareTo(b.day));
-    return copyWith(checkIns: updated);
+    return copyWith(checkIns: updated, stepLog: _stepsFor(d, status));
+  }
+
+  /// Hält die Checkliste passend zum Tagesstatus: erledigt = alle Schritte,
+  /// verpasst/leer = keine.
+  Map<DateTime, Set<int>>? _stepsFor(DateTime d, CheckInStatus? status) {
+    if (template.steps.isEmpty) return null;
+    final log = {...stepLog};
+    if (status == CheckInStatus.done) {
+      log[d] = {for (var i = 0; i < template.steps.length; i++) i};
+    } else {
+      log.remove(d);
+    }
+    return log;
+  }
+
+  Set<int> stepsDoneOn(DateTime day) => stepLog[dayOf(day)] ?? const {};
+
+  /// Hakt einen Schritt ab oder wieder ab. Sind alle Schritte erledigt, ist
+  /// der Tag erledigt; sonst ist er offen.
+  ActiveChallenge toggleStep(DateTime day, int index) {
+    if (isArchived || index < 0 || index >= template.steps.length) return this;
+    final d = dayOf(day);
+    final done = {...stepsDoneOn(d)};
+    if (!done.remove(index)) done.add(index);
+    final complete = done.length == template.steps.length;
+    final checkIns = [
+      for (final c in this.checkIns)
+        if (c.day != d) c,
+      if (complete) CheckIn(day: d, status: CheckInStatus.done),
+    ]..sort((a, b) => a.day.compareTo(b.day));
+    return copyWith(checkIns: checkIns, stepLog: {...stepLog, d: done});
   }
 
   int get doneDays =>
@@ -242,7 +279,7 @@ class ActiveChallenge {
       if (status != null)
         CheckIn(day: d, status: status, minutes: minutes, note: note),
     ]..sort((a, b) => a.day.compareTo(b.day));
-    return copyWith(checkIns: updated);
+    return copyWith(checkIns: updated, stepLog: _stepsFor(d, status));
   }
 
   /// Pausiert die Challenge von [from] bis einschließlich [until].
