@@ -54,8 +54,9 @@ class TodayScreen extends StatelessWidget {
   }
 
   Future<void> _stopSession(BuildContext context, ActiveChallenge c) async {
+    final saved = _save(context, c.stopSession(clock()));
     await scheduler?.clearSession(c);
-    await _save(context, c.stopSession(clock()));
+    await saved;
   }
 
   Future<void> _finish(ActiveChallenge c) async {
