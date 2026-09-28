@@ -52,6 +52,10 @@ Regeln:
 
 ## Technik
 
+**Verbindlich:** Vor jeder Arbeit an `.dart`-Dateien, Tests, `pubspec.yaml` oder
+Android-Konfiguration den Skill `.claude/skills/flutter-dart/SKILL.md` laden und
+befolgen (Architektur, State, Stil, Widgets, Tests, Definition of Done).
+
 - Flutter (stable), Dart, nur Android als Zielplattform.
 - Struktur: `lib/domain` (reine Dart-Logik, keine Flutter-Imports),
   `lib/data` (Repositories, Persistenz), `lib/ui` (Screens, Widgets).
