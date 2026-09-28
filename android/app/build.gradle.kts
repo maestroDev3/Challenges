@@ -30,11 +30,22 @@ android {
         versionName = flutter.versionName
     }
 
+    // Schlüssel nur für private Testinstallationen (Sideload), bewusst im Repo,
+    // damit jede CI-Version über die vorherige installiert werden kann.
+    // Vor einer Play-Store-Veröffentlichung durch einen geheimen Schlüssel ersetzen.
+    signingConfigs {
+        create("sideload") {
+            storeFile = file("sideload.p12")
+            storeType = "PKCS12"
+            storePassword = "challenges-sideload"
+            keyAlias = "challenges"
+            keyPassword = "challenges-sideload"
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("sideload")
         }
     }
 }

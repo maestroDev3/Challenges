@@ -59,8 +59,19 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build apk --debug
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
-          name: challenges-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: challenges-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+      # Auf main: APK als Release „latest“ veröffentlichen (direkter Download am Handy)
+      - name: Release latest
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk challenges.apk
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest challenges.apk --target "$GITHUB_SHA" \
+            --title "Challenges (neueste Version)" \
+            --notes "Automatisch gebaut aus ${GITHUB_SHA::7}. Zum Installieren challenges.apk am Handy herunterladen und öffnen."
