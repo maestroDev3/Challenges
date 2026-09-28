@@ -12,7 +12,7 @@ DateTime _weekStart(DateTime day) =>
 
 enum CheckInStatus { done, missed }
 
-enum DayStatus { done, missed, open }
+enum DayStatus { done, missed, open, paused }
 
 enum ChallengeStatus { active, completed, ended }
 
@@ -47,6 +47,21 @@ class CheckIn {
   final String? note;
 }
 
+/// Pausenzeitraum (inklusive beider Tage).
+class PauseRange {
+  PauseRange({required DateTime from, required DateTime until})
+      : from = dayOf(from),
+        until = dayOf(until);
+
+  final DateTime from;
+  final DateTime until;
+
+  bool contains(DateTime day) {
+    final d = dayOf(day);
+    return !d.isBefore(from) && !d.isAfter(until);
+  }
+}
+
 class ActiveChallenge {
   const ActiveChallenge({
     required this.id,
@@ -56,6 +71,7 @@ class ActiveChallenge {
     this.checkIns = const [],
     this.status = ChallengeStatus.active,
     this.finishedOn,
+    this.pauses = const [],
   });
 
   final String id;
@@ -65,6 +81,7 @@ class ActiveChallenge {
   final List<CheckIn> checkIns;
   final ChallengeStatus status;
   final DateTime? finishedOn;
+  final List<PauseRange> pauses;
 
   ChallengeKind get kind => template.kind;
 
@@ -76,6 +93,7 @@ class ActiveChallenge {
     List<CheckIn>? checkIns,
     ChallengeStatus? status,
     DateTime? finishedOn,
+    List<PauseRange>? pauses,
   }) =>
       ActiveChallenge(
         id: id,
@@ -85,6 +103,7 @@ class ActiveChallenge {
         checkIns: checkIns ?? this.checkIns,
         status: status ?? this.status,
         finishedOn: finishedOn ?? this.finishedOn,
+        pauses: pauses ?? this.pauses,
       );
 
   /// Archiviert die Challenge: „geschafft“, wenn das Ziel erreicht ist,
@@ -174,57 +193,128 @@ class ActiveChallenge {
   bool _weekGoalMet(DateTime anyDayInWeek) =>
       weekValue(anyDayInWeek) >= (kind as WeeklyGoalKind).target;
 
-  int currentStreak(DateTime today) {
+  /// Trägt einen Tag der letzten 7 Tage nach, ändert oder entfernt ihn
+  /// ([status] == null). Wirft [ArgumentError] für Tage in der Zukunft,
+  /// vor dem Start oder älter als 7 Tage.
+  ActiveChallenge correct(
+    DateTime day,
+    CheckInStatus? status, {
+    required DateTime today,
+    int? minutes,
+    String? note,
+  }) {
+    final d = dayOf(day);
     final t = dayOf(today);
-    if (kind is WeeklyGoalKind) {
-      var week = _weekStart(t);
-      if (!_weekGoalMet(week)) week = week.subtract(const Duration(days: 7));
-      var n = 0;
-      while (!week.isBefore(_weekStart(dayOf(startedOn))) &&
-          _weekGoalMet(week)) {
-        n++;
-        week = week.subtract(const Duration(days: 7));
-      }
-      return n;
+    if (d.isAfter(t) ||
+        d.isBefore(dayOf(startedOn)) ||
+        t.difference(d).inDays > 6) {
+      throw ArgumentError.value(day, 'day', 'nur die letzten 7 Tage seit Start');
     }
-    var d = checkInOn(t) == null ? t.subtract(const Duration(days: 1)) : t;
-    var n = 0;
-    while (checkInOn(d)?.status == CheckInStatus.done) {
-      n++;
-      d = d.subtract(const Duration(days: 1));
-    }
-    return n;
+    if (isArchived) return this;
+    final updated = [
+      for (final c in checkIns)
+        if (c.day != d) c,
+      if (status != null)
+        CheckIn(day: d, status: status, minutes: minutes, note: note),
+    ]..sort((a, b) => a.day.compareTo(b.day));
+    return copyWith(checkIns: updated);
   }
 
-  int get bestStreak {
-    if (kind is WeeklyGoalKind) {
-      if (checkIns.isEmpty) return 0;
-      var week = _weekStart(checkIns.first.day);
-      final last = _weekStart(checkIns.last.day);
-      var best = 0, run = 0;
-      while (!week.isAfter(last)) {
-        run = _weekGoalMet(week) ? run + 1 : 0;
-        if (run > best) best = run;
-        week = week.add(const Duration(days: 7));
-      }
-      return best;
+  /// Pausiert die Challenge von [from] bis einschließlich [until].
+  ActiveChallenge pause({required DateTime from, required DateTime until}) {
+    if (dayOf(until).isBefore(dayOf(from))) {
+      throw ArgumentError.value(until, 'until', 'liegt vor dem Beginn');
     }
-    var best = 0, run = 0;
-    DateTime? prev;
-    for (final c in checkIns) {
-      if (c.status != CheckInStatus.done) {
-        run = 0;
-        prev = null;
-        continue;
-      }
-      final consecutive =
-          prev != null && c.day.difference(prev).inDays == 1;
-      run = consecutive ? run + 1 : 1;
-      prev = c.day;
-      if (run > best) best = run;
-    }
-    return best;
+    return copyWith(pauses: [...pauses, PauseRange(from: from, until: until)]);
   }
+
+  /// Beendet laufende und künftige Pausen ab [today].
+  ActiveChallenge resume(DateTime today) {
+    final t = dayOf(today);
+    final yesterday = t.subtract(const Duration(days: 1));
+    return copyWith(pauses: [
+      for (final p in pauses)
+        if (p.from.isBefore(t))
+          p.until.isBefore(t) ? p : PauseRange(from: p.from, until: yesterday),
+    ]);
+  }
+
+  bool isPaused(DateTime day) => pauses.any((p) => p.contains(day));
+
+  /// Letzter Pausentag, falls [today] pausiert ist.
+  DateTime? pausedUntil(DateTime today) {
+    for (final p in pauses) {
+      if (p.contains(today)) return p.until;
+    }
+    return null;
+  }
+
+  int currentStreak(DateTime today) => _streaks(today).current;
+
+  int get bestStreak => _streaks(_lastDay).best;
+
+  DateTime get _firstDay {
+    var first = dayOf(startedOn);
+    for (final c in checkIns) {
+      if (c.day.isBefore(first)) first = c.day;
+    }
+    return first;
+  }
+
+  DateTime get _lastDay {
+    var last = _firstDay;
+    for (final c in checkIns) {
+      if (c.day.isAfter(last)) last = c.day;
+    }
+    return last;
+  }
+
+  /// Geht alle Tage (bzw. Wochen) vom Start bis [today] durch.
+  /// Pausierte Tage sind neutral; ein offener heutiger Tag (bzw. die
+  /// laufende Woche) bricht die Streak noch nicht.
+  ({int current, int best}) _streaks(DateTime today) {
+    final t = dayOf(today);
+    if (kind is OneTimeKind) {
+      final n = isCompleted ? 1 : 0;
+      return (current: n, best: n);
+    }
+    if (kind is WeeklyGoalKind) return _weekStreaks(t);
+    final byDay = {for (final c in checkIns) c.day: c.status};
+    var streak = 0, best = 0;
+    for (var d = _firstDay;
+        !d.isAfter(t);
+        d = d.add(const Duration(days: 1))) {
+      if (isPaused(d)) continue;
+      final status = byDay[d];
+      if (status == CheckInStatus.done) {
+        streak++;
+        if (streak > best) best = streak;
+      } else if (status == CheckInStatus.missed || d.isBefore(t)) {
+        streak = 0;
+      }
+    }
+    return (current: streak, best: best);
+  }
+
+  ({int current, int best}) _weekStreaks(DateTime today) {
+    final current = _weekStart(today);
+    var streak = 0, best = 0;
+    for (var w = _weekStart(_firstDay);
+        !w.isAfter(current);
+        w = w.add(const Duration(days: 7))) {
+      if (_weekGoalMet(w)) {
+        streak++;
+        if (streak > best) best = streak;
+      } else if (w != current && !_weekHasPause(w)) {
+        streak = 0;
+      }
+    }
+    return (current: streak, best: best);
+  }
+
+  bool _weekHasPause(DateTime weekStart) => List.generate(
+          7, (i) => weekStart.add(Duration(days: i)))
+      .any(isPaused);
 
   /// Fortschritt 0..1 oder null, wenn die Challenge kein Ende hat.
   double? progress(DateTime today) => switch (kind) {
@@ -247,11 +337,14 @@ class ActiveChallenge {
     final t = dayOf(today);
     return [
       for (var i = 6; i >= 0; i--)
-        switch (checkInOn(t.subtract(Duration(days: i)))?.status) {
-          CheckInStatus.done => DayStatus.done,
-          CheckInStatus.missed => DayStatus.missed,
-          null => DayStatus.open,
-        },
+        _dayStatus(t.subtract(Duration(days: i))),
     ];
   }
+
+  DayStatus _dayStatus(DateTime day) =>
+      switch (checkInOn(day)?.status) {
+        CheckInStatus.done => DayStatus.done,
+        CheckInStatus.missed => DayStatus.missed,
+        null => isPaused(day) ? DayStatus.paused : DayStatus.open,
+      };
 }

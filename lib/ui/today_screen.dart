@@ -291,6 +291,7 @@ class _WeekRow extends StatelessWidget {
                   DayStatus.done => scheme.primary,
                   DayStatus.missed => scheme.errorContainer,
                   DayStatus.open => scheme.surfaceContainerHighest,
+                  DayStatus.paused => scheme.tertiaryContainer,
                 },
                 border: i == days.length - 1
                     ? Border.all(color: scheme.primary, width: 2)
@@ -302,6 +303,8 @@ class _WeekRow extends StatelessWidget {
                 DayStatus.missed => Icon(Icons.close,
                     size: 16, color: scheme.onErrorContainer),
                 DayStatus.open => null,
+                DayStatus.paused => Icon(Icons.pause,
+                    size: 14, color: scheme.onTertiaryContainer),
               },
             ),
         ],
