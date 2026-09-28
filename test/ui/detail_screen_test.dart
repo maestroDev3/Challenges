@@ -45,10 +45,25 @@ void main() {
     expect(find.bySemanticsLabel('Do, 08.10.: verpasst'), findsOneWidget);
     expect(find.bySemanticsLabel('Fr, 09.10.: offen'), findsOneWidget);
 
+    semantics.dispose();
+  });
+
+  testWidgets('Monate wechseln, aber nicht vor den Start oder nach heute',
+      (tester) async {
+    final c = ActiveChallenge(
+      id: 'x',
+      template: templateById('wake-5am')!,
+      startedOn: DateTime(2026, 9, 20),
+      reminder: const ReminderTime(5, 0),
+    );
+    await tester.pumpApp(ChallengeDetailScreen(challenge: c, clock: () => today));
+    IconButton button(String tip) => tester.widget<IconButton>(
+        find.ancestor(of: find.byTooltip(tip), matching: find.byType(IconButton)));
+    expect(button('Nächster Monat').onPressed, isNull);
     await tester.tap(find.byTooltip('Voriger Monat'));
     await tester.pumpAndSettle();
     expect(find.text('September 2026'), findsOneWidget);
-    semantics.dispose();
+    expect(button('Voriger Monat').onPressed, isNull);
   });
 
   testWidgets('Journal-Einträge erscheinen neueste zuerst', (tester) async {
@@ -61,7 +76,8 @@ void main() {
     c = c.checkIn(day(0), CheckInStatus.done, note: 'Müde');
     c = c.checkIn(day(2), CheckInStatus.done, note: 'Keine Zeit');
     await tester.pumpApp(ChallengeDetailScreen(challenge: c, clock: () => today));
-    await tester.scrollUntilVisible(find.text('Müde'), 200);
+    await tester.scrollUntilVisible(find.text('Müde'), 200,
+        scrollable: find.byType(Scrollable).first);
     expect(tester.getTopLeft(find.text('Keine Zeit')).dy,
         lessThan(tester.getTopLeft(find.text('Müde')).dy));
   });
