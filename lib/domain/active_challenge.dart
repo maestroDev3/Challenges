@@ -90,8 +90,8 @@ class ActiveChallenge {
     final d = dayOf(day);
     final existing = checkInOn(d);
     var total = minutes;
-    if (kind is WeeklyGoalKind &&
-        existing != null &&
+    if (kind case WeeklyGoalKind(unit: WeeklyUnit.minutes)
+        when existing != null &&
         status == CheckInStatus.done &&
         existing.status == CheckInStatus.done) {
       total = (existing.minutes ?? 0) + (minutes ?? 0);
@@ -118,8 +118,26 @@ class ActiveChallenge {
         .fold(0, (sum, c) => sum + (c.minutes ?? 0));
   }
 
+  /// Anzahl erledigter Tage in der Woche von [today] (Mo–So).
+  int doneDaysInWeek(DateTime today) {
+    final start = _weekStart(dayOf(today));
+    final end = start.add(const Duration(days: 7));
+    return checkIns
+        .where((c) =>
+            c.status == CheckInStatus.done &&
+            !c.day.isBefore(start) &&
+            c.day.isBefore(end))
+        .length;
+  }
+
+  /// Erreichter Wert in der Woche: Minuten oder Anzahl Tage je nach Einheit.
+  int weekValue(DateTime today) => switch (kind) {
+        WeeklyGoalKind(unit: WeeklyUnit.times) => doneDaysInWeek(today),
+        _ => minutesInWeek(today),
+      };
+
   bool _weekGoalMet(DateTime anyDayInWeek) =>
-      minutesInWeek(anyDayInWeek) >= (kind as WeeklyGoalKind).minutes;
+      weekValue(anyDayInWeek) >= (kind as WeeklyGoalKind).target;
 
   int currentStreak(DateTime today) {
     final t = dayOf(today);
@@ -178,8 +196,8 @@ class ActiveChallenge {
         DailyKind(days: final days?) => (doneDays / days).clamp(0.0, 1.0),
         DailyKind() => null,
         OneTimeKind() => doneDays > 0 ? 1.0 : 0.0,
-        WeeklyGoalKind(minutes: final goal) =>
-          (minutesInWeek(today) / goal).clamp(0.0, 1.0),
+        WeeklyGoalKind(target: final goal) =>
+          (weekValue(today) / goal).clamp(0.0, 1.0),
         JournalKind() => null,
       };
 

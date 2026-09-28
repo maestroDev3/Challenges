@@ -111,7 +111,7 @@ class ChallengeCard extends StatelessWidget {
         if (note == null || note.trim().isEmpty) return;
         await onSave(
             challenge.checkIn(today, CheckInStatus.done, note: note.trim()));
-      case WeeklyGoalKind():
+      case WeeklyGoalKind(unit: WeeklyUnit.minutes):
         final raw = await _ask(context,
             title: 'Wie viele Minuten warst du draußen?',
             hint: 'Minuten',
@@ -134,7 +134,8 @@ class ChallengeCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final status = challenge.checkInOn(today)?.status;
     final progress = challenge.progress(today);
-    final isWeekly = challenge.kind is WeeklyGoalKind;
+    final kind = challenge.kind;
+    final isWeekly = kind is WeeklyGoalKind && kind.unit == WeeklyUnit.minutes;
 
     return Card(
       child: Padding(
@@ -228,7 +229,9 @@ class ChallengeCard extends StatelessWidget {
 
   String? _progressLabel() => switch (challenge.kind) {
         DailyKind(days: final d?) => '${challenge.doneDays}/$d',
-        WeeklyGoalKind(minutes: final m) =>
+        WeeklyGoalKind(unit: WeeklyUnit.times, target: final n) =>
+          '${challenge.doneDaysInWeek(today)}/$n×',
+        WeeklyGoalKind(target: final m) =>
           '${challenge.minutesInWeek(today)}/$m min',
         OneTimeKind() => challenge.isCompleted ? null : 'einmalig',
         _ => null,
