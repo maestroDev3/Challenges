@@ -4,7 +4,6 @@ import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../domain/active_challenge.dart';
-import '../domain/challenge.dart';
 import '../domain/reminders.dart';
 
 typedef NotificationResponseHandler = void Function(NotificationResponse);
@@ -66,11 +65,16 @@ class LocalNotificationScheduler implements ReminderScheduler {
 
   @override
   Future<void> schedule(ActiveChallenge challenge) async {
+    final id = notificationIdFor(challenge.id);
+    final when = firstReminder(challenge, DateTime.now());
+    if (when == null) {
+      await _plugin.cancel(id: id);
+      return;
+    }
     final exact = await _ensurePermissions();
     final t = challenge.template;
-    final isOneTime = t.kind is OneTimeKind;
-    final (body, actions) = switch (t.kind) {
-      JournalKind() => (
+    final (body, actions) = switch (reminderActionsFor(t.kind)) {
+      ReminderActions.journalInput => (
           'Welche Ausrede hattest du heute?',
           const [
             AndroidNotificationAction(
@@ -80,11 +84,11 @@ class LocalNotificationScheduler implements ReminderScheduler {
             ),
           ],
         ),
-      WeeklyGoalKind() => (
-          'Zeit für die Natur – ohne Handy. Trag deine Minuten in der App ein.',
+      ReminderActions.none => (
+          'Trag deine Minuten in der App ein.',
           const <AndroidNotificationAction>[],
         ),
-      _ => (
+      ReminderActions.doneMissed => (
           'Hast du es heute geschafft?',
           const [
             AndroidNotificationAction(actionDone, '✓ Erledigt'),
@@ -93,10 +97,9 @@ class LocalNotificationScheduler implements ReminderScheduler {
         ),
     };
 
-    final when = nextReminder(DateTime.now(), challenge.reminder);
-    await _plugin.cancel(id: notificationIdFor(challenge.id));
+    await _plugin.cancel(id: id);
     await _plugin.zonedSchedule(
-      id: notificationIdFor(challenge.id),
+      id: id,
       title: '${t.emoji} ${t.title}',
       body: body,
       payload: challenge.id,
@@ -116,7 +119,8 @@ class LocalNotificationScheduler implements ReminderScheduler {
       androidScheduleMode: exact
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents: isOneTime ? null : DateTimeComponents.time,
+      matchDateTimeComponents:
+          reminderRepeats(challenge) ? DateTimeComponents.time : null,
     );
   }
 
