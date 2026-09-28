@@ -37,6 +37,7 @@ void main() {
     expect(repo.items.single.checkInOn(today), isNull);
 
     await tester.tap(find.text('Bett machen'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Tag planen'));
     await tester.pumpAndSettle();
     expect(repo.items.single.checkInOn(today)!.status, CheckInStatus.done);
