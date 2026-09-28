@@ -10,3 +10,11 @@ const _weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 /// Kurzer Wochentag mit Datum, z. B. „Sa, 24.10.“.
 String formatWeekdayDate(DateTime d) =>
     '${_weekdays[d.weekday - 1]}, ${formatDate(d)}';
+
+const _months = [
+  'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+];
+
+/// Monat mit Jahr, z. B. „Oktober 2026“.
+String formatMonth(DateTime d) => '${_months[d.month - 1]} ${d.year}';

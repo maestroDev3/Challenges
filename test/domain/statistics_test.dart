@@ -65,7 +65,7 @@ void main() {
       expect(c.statusOn(day(0), today: day(9)), DayStatus.done);
       expect(c.statusOn(day(7), today: day(9)), DayStatus.joker);
       expect(c.statusOn(day(9), today: day(9)), DayStatus.open);
-      expect(c.week(day(9))[5], DayStatus.joker);
+      expect(c.week(day(9))[4], DayStatus.joker);
     });
 
     test('pausiert und verpasst', () {
