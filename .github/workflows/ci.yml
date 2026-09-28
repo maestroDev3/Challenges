@@ -76,5 +76,5 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk challenges.apk
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest challenges.apk --target "$GITHUB_SHA" \
-            --title "Challenges (neueste Version)" \
+            --title "Ritual (neueste Version)" \
             --notes "Automatisch gebaut aus ${GITHUB_SHA::7}. Zum Installieren challenges.apk am Handy herunterladen und öffnen."
