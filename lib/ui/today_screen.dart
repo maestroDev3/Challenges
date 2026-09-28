@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
+import '../domain/milestones.dart';
 import '../domain/reminders.dart';
 import 'archive_screen.dart';
 import 'detail_screen.dart';
@@ -25,11 +26,18 @@ class TodayScreen extends StatelessWidget {
 
   /// Speichert und archiviert automatisch, wenn das Ziel erreicht ist.
   Future<void> _save(BuildContext context, ActiveChallenge c) async {
+    final before = await repository.byId(c.id);
     await repository.save(c);
-    if (!c.shouldAutoFinish(clock())) return;
-    final done = await repository.finish(c.id);
-    await scheduler?.cancel(c);
-    if (done != null && context.mounted) await showCelebration(context, done);
+    if (c.shouldAutoFinish(clock())) {
+      final done = await repository.finish(c.id);
+      await scheduler?.cancel(c);
+      if (done != null && context.mounted) await showCelebration(context, done);
+      return;
+    }
+    final milestone = before == null ? null : milestoneReached(before, c);
+    if (milestone != null && context.mounted) {
+      await showMilestone(context, c, milestone);
+    }
   }
 
   /// Pausieren/Fortsetzen: Erinnerung neu planen (erster Termin nach der Pause).

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
+import '../domain/milestones.dart';
 import 'format.dart';
 import 'theme.dart';
 
@@ -78,6 +79,22 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 _Stat(label: 'Joker', value: '🛡️ ${c.jokers(_end)}'),
             ],
           ),
+          if (badges(c).isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text('Abzeichen', style: text.titleLarge),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final m in badges(c))
+                  Chip(
+                    avatar: const Text('🏅'),
+                    label: Text('$m Tage'),
+                  ),
+              ],
+            ),
+          ],
           if (kind is WeeklyGoalKind) ...[
             const SizedBox(height: 16),
             Text(
