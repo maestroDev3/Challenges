@@ -102,6 +102,7 @@ void main() {
     expect(find.text('Kalt duschen'), findsOneWidget);
     expect(find.text('05.10. – 23.10.'), findsOneWidget);
     expect(find.text('Beste Streak 3'), findsOneWidget);
+    expect(find.text('4 Tage erledigt'), findsOneWidget);
 
     await tester.tap(find.text('Nochmal starten'));
     await tester.pumpAndSettle();
@@ -131,5 +132,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('Nochmal starten'), findsOneWidget);
+  });
+
+  testWidgets('Einzahl: „1 Tag erledigt“', (tester) async {
+    final finished = running('silence-24h', doneDaysAgo: [3]).finish(daysAgo(3));
+    await tester.pumpApp(HomeShell(
+        repository: FakeChallengeRepository(archived: [finished], today: today),
+        clock: () => today));
+    await tester.tap(find.byTooltip('Erledigt'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 Tag erledigt'), findsOneWidget);
   });
 }
