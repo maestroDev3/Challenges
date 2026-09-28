@@ -16,6 +16,25 @@ enum DayStatus { done, missed, open, paused }
 
 enum ChallengeStatus { active, completed, ended }
 
+/// Umgang mit Fehltagen.
+/// - [relaxed]: Fehltag setzt nur die Streak auf 0.
+/// - [joker]: pro 7 erledigten Einheiten am Stück ein Joker (max. 2), der
+///   einen Fehltag abfängt (Streak bleibt, Tag zählt nicht).
+/// - [strict]: Fehltag startet einen neuen Versuch bei Tag 1.
+enum StreakRule { relaxed, joker, strict }
+
+const _jokerEvery = 7;
+const _maxJokers = 2;
+
+typedef _Evaluation = ({
+  int current,
+  int best,
+  int jokers,
+  int attempt,
+  int attemptDone,
+  List<DateTime> jokerDays,
+});
+
 class ReminderTime {
   const ReminderTime(this.hour, this.minute);
   final int hour;
@@ -72,6 +91,7 @@ class ActiveChallenge {
     this.status = ChallengeStatus.active,
     this.finishedOn,
     this.pauses = const [],
+    this.rule = StreakRule.relaxed,
   });
 
   final String id;
@@ -82,6 +102,7 @@ class ActiveChallenge {
   final ChallengeStatus status;
   final DateTime? finishedOn;
   final List<PauseRange> pauses;
+  final StreakRule rule;
 
   ChallengeKind get kind => template.kind;
 
@@ -94,6 +115,7 @@ class ActiveChallenge {
     ChallengeStatus? status,
     DateTime? finishedOn,
     List<PauseRange>? pauses,
+    StreakRule? rule,
   }) =>
       ActiveChallenge(
         id: id,
@@ -104,6 +126,7 @@ class ActiveChallenge {
         status: status ?? this.status,
         finishedOn: finishedOn ?? this.finishedOn,
         pauses: pauses ?? this.pauses,
+        rule: rule ?? this.rule,
       );
 
   /// Archiviert die Challenge: „geschafft“, wenn das Ziel erreicht ist,
@@ -249,9 +272,18 @@ class ActiveChallenge {
     return null;
   }
 
-  int currentStreak(DateTime today) => _streaks(today).current;
+  int currentStreak(DateTime today) => _evaluate(today).current;
 
-  int get bestStreak => _streaks(_lastDay).best;
+  int get bestStreak => _evaluate(_lastDay).best;
+
+  /// Verfügbare Joker (nur bei [StreakRule.joker]).
+  int jokers(DateTime today) => _evaluate(today).jokers;
+
+  /// Tage (bzw. Wochenanfänge), die ein Joker gerettet hat.
+  List<DateTime> jokerDays(DateTime today) => _evaluate(today).jokerDays;
+
+  /// Aktueller Versuch (nur bei [StreakRule.strict] größer als 1).
+  int attempt(DateTime today) => _evaluate(today).attempt;
 
   DateTime get _firstDay {
     var first = dayOf(startedOn);
@@ -269,47 +301,75 @@ class ActiveChallenge {
     return last;
   }
 
-  /// Geht alle Tage (bzw. Wochen) vom Start bis [today] durch.
-  /// Pausierte Tage sind neutral; ein offener heutiger Tag (bzw. die
-  /// laufende Woche) bricht die Streak noch nicht.
-  ({int current, int best}) _streaks(DateTime today) {
+  /// Geht alle Tage (bzw. Wochen) vom Start bis [today] durch und wendet
+  /// die [rule] an. Pausierte Tage sind neutral; ein offener heutiger Tag
+  /// (bzw. die laufende Woche) zählt noch nicht als Fehltag.
+  _Evaluation _evaluate(DateTime today) {
     final t = dayOf(today);
     if (kind is OneTimeKind) {
-      final n = isCompleted ? 1 : 0;
-      return (current: n, best: n);
+      final n = doneDays > 0 ? 1 : 0;
+      return (
+        current: n,
+        best: n,
+        jokers: 0,
+        attempt: 1,
+        attemptDone: n,
+        jokerDays: const <DateTime>[],
+      );
     }
-    if (kind is WeeklyGoalKind) return _weekStreaks(t);
+    final weekly = kind is WeeklyGoalKind;
+    final step = Duration(days: weekly ? 7 : 1);
+    final end = weekly ? _weekStart(t) : t;
     final byDay = {for (final c in checkIns) c.day: c.status};
-    var streak = 0, best = 0;
-    for (var d = _firstDay;
-        !d.isAfter(t);
-        d = d.add(const Duration(days: 1))) {
-      if (isPaused(d)) continue;
-      final status = byDay[d];
-      if (status == CheckInStatus.done) {
-        streak++;
-        if (streak > best) best = streak;
-      } else if (status == CheckInStatus.missed || d.isBefore(t)) {
-        streak = 0;
-      }
-    }
-    return (current: streak, best: best);
-  }
 
-  ({int current, int best}) _weekStreaks(DateTime today) {
-    final current = _weekStart(today);
-    var streak = 0, best = 0;
-    for (var w = _weekStart(_firstDay);
-        !w.isAfter(current);
-        w = w.add(const Duration(days: 7))) {
-      if (_weekGoalMet(w)) {
+    var streak = 0, best = 0, run = 0, jokers = 0, attempt = 1, attemptDone = 0;
+    final jokerDays = <DateTime>[];
+    for (var u = weekly ? _weekStart(_firstDay) : _firstDay;
+        !u.isAfter(end);
+        u = u.add(step)) {
+      final bool done;
+      final bool failed;
+      if (weekly) {
+        done = _weekGoalMet(u);
+        failed = !done && u != end && !_weekHasPause(u);
+      } else {
+        if (isPaused(u)) continue;
+        final status = byDay[u];
+        done = status == CheckInStatus.done;
+        failed = status == CheckInStatus.missed || (status == null && u != end);
+      }
+      if (done) {
         streak++;
+        run++;
+        attemptDone++;
         if (streak > best) best = streak;
-      } else if (w != current && !_weekHasPause(w)) {
-        streak = 0;
+        if (rule == StreakRule.joker &&
+            run % _jokerEvery == 0 &&
+            jokers < _maxJokers) {
+          jokers++;
+        }
+      } else if (failed) {
+        if (rule == StreakRule.joker && jokers > 0) {
+          jokers--;
+          jokerDays.add(u);
+        } else {
+          streak = 0;
+          run = 0;
+          if (rule == StreakRule.strict) {
+            attempt++;
+            attemptDone = 0;
+          }
+        }
       }
     }
-    return (current: streak, best: best);
+    return (
+      current: streak,
+      best: best,
+      jokers: jokers,
+      attempt: attempt,
+      attemptDone: attemptDone,
+      jokerDays: jokerDays,
+    );
   }
 
   bool _weekHasPause(DateTime weekStart) => List.generate(
@@ -318,7 +378,8 @@ class ActiveChallenge {
 
   /// Fortschritt 0..1 oder null, wenn die Challenge kein Ende hat.
   double? progress(DateTime today) => switch (kind) {
-        DailyKind(days: final days?) => (doneDays / days).clamp(0.0, 1.0),
+        DailyKind(days: final days?) =>
+          (_countedDays(today) / days).clamp(0.0, 1.0),
         DailyKind() => null,
         OneTimeKind() => doneDays > 0 ? 1.0 : 0.0,
         WeeklyGoalKind(target: final goal) =>
@@ -327,10 +388,16 @@ class ActiveChallenge {
       };
 
   bool get isCompleted => switch (kind) {
-        DailyKind(days: final days?) => doneDays >= days,
+        DailyKind(days: final days?) => _countedDays(_lastDay) >= days,
         OneTimeKind() => doneDays > 0,
         _ => false,
       };
+
+  /// Erledigte Tage, die zum Ziel zählen: bei [StreakRule.strict] nur im
+  /// aktuellen Versuch, sonst alle.
+  int _countedDays(DateTime today) => rule == StreakRule.strict
+      ? _evaluate(today).attemptDone
+      : doneDays;
 
   /// Status der letzten 7 Tage, ältester zuerst.
   List<DayStatus> week(DateTime today) {
