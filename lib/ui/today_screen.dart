@@ -6,6 +6,7 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
 import 'archive_screen.dart';
+import 'format.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -28,6 +29,12 @@ class TodayScreen extends StatelessWidget {
     final done = await repository.finish(c.id);
     await scheduler?.cancel(c);
     if (done != null && context.mounted) await showCelebration(context, done);
+  }
+
+  /// Pausieren/Fortsetzen: Erinnerung neu planen (erster Termin nach der Pause).
+  Future<void> _reschedule(ActiveChallenge c) async {
+    await repository.save(c);
+    await scheduler?.schedule(c);
   }
 
   Future<void> _finish(ActiveChallenge c) async {
@@ -101,6 +108,7 @@ class TodayScreen extends StatelessWidget {
                     onSave: (c) => _save(context, c),
                     onFinish: _finish,
                     onDelete: (c) => _delete(context, c),
+                    onPauseChanged: _reschedule,
                   ),
                 ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -153,6 +161,7 @@ class ChallengeCard extends StatelessWidget {
     required this.onSave,
     required this.onFinish,
     required this.onDelete,
+    required this.onPauseChanged,
   });
 
   final ActiveChallenge challenge;
@@ -160,6 +169,111 @@ class ChallengeCard extends StatelessWidget {
   final Future<void> Function(ActiveChallenge) onSave;
   final Future<void> Function(ActiveChallenge) onFinish;
   final Future<void> Function(ActiveChallenge) onDelete;
+
+  /// Challenge wurde pausiert oder fortgesetzt.
+  final Future<void> Function(ActiveChallenge) onPauseChanged;
+
+  Future<void> _pause(BuildContext context) async {
+    final t = dayOf(today);
+    final choice = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ListTile(
+              title: Text('Pausieren'),
+              subtitle: Text(
+                  'Für Krankheit oder Urlaub: Pausentage brechen die Streak nicht, Erinnerungen ruhen.'),
+            ),
+            for (final (days, label) in const [
+              (1, 'Nur heute'),
+              (3, '3 Tage'),
+              (7, '1 Woche'),
+            ])
+              ListTile(
+                leading: const Icon(Icons.pause_circle_outline),
+                title: Text(label),
+                onTap: () => Navigator.pop(context, days),
+              ),
+            ListTile(
+              leading: const Icon(Icons.event_outlined),
+              title: const Text('Bis Datum …'),
+              onTap: () => Navigator.pop(context, 0),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (choice == null || !context.mounted) return;
+    DateTime? until;
+    if (choice == 0) {
+      until = await showDatePicker(
+        context: context,
+        initialDate: t.add(const Duration(days: 3)),
+        firstDate: t,
+        lastDate: t.add(const Duration(days: 90)),
+      );
+    } else {
+      until = t.add(Duration(days: choice - 1));
+    }
+    if (until == null) return;
+    await onPauseChanged(challenge.pause(from: t, until: until));
+  }
+
+  Future<void> _correct(BuildContext context, DateTime day) async {
+    final minutesKind = challenge.kind is WeeklyGoalKind &&
+        (challenge.kind as WeeklyGoalKind).unit == WeeklyUnit.minutes;
+    final choice = await showModalBottomSheet<_DayChoice>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(formatWeekdayDate(day)),
+              subtitle: const Text('Tag nachtragen oder korrigieren'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.check_rounded),
+              title: const Text('Erledigt'),
+              onTap: () => Navigator.pop(context, _DayChoice.done),
+            ),
+            ListTile(
+              leading: const Icon(Icons.close_rounded),
+              title: const Text('Nicht erledigt'),
+              onTap: () => Navigator.pop(context, _DayChoice.missed),
+            ),
+            ListTile(
+              leading: const Icon(Icons.radio_button_unchecked),
+              title: const Text('Leer'),
+              onTap: () => Navigator.pop(context, _DayChoice.empty),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (choice == null || !context.mounted) return;
+    int? minutes;
+    if (choice == _DayChoice.done && minutesKind) {
+      minutes = int.tryParse(await _ask(context,
+              title: 'Wie viele Minuten?', hint: 'Minuten', number: true) ??
+          '');
+      if (minutes == null || minutes <= 0) return;
+    }
+    await onSave(challenge.correct(
+      day,
+      switch (choice) {
+        _DayChoice.done => CheckInStatus.done,
+        _DayChoice.missed => CheckInStatus.missed,
+        _DayChoice.empty => null,
+      },
+      today: today,
+      minutes: minutes,
+    ));
+  }
 
   Future<void> _done(BuildContext context) async {
     switch (challenge.kind) {
@@ -194,8 +308,13 @@ class ChallengeCard extends StatelessWidget {
     final progress = challenge.progress(today);
     final kind = challenge.kind;
     final isWeekly = kind is WeeklyGoalKind && kind.unit == WeeklyUnit.minutes;
+    final pausedUntil = challenge.pausedUntil(today);
+    final paused = pausedUntil != null;
+    final jokers = challenge.rule == StreakRule.joker ? challenge.jokers(today) : null;
+    final attempt = challenge.attempt(today);
 
     return Card(
+      color: paused ? scheme.surfaceContainerLowest : null,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 8, 16),
         child: Column(
@@ -221,6 +340,14 @@ class ChallengeCard extends StatelessWidget {
                           if (_progressLabel() case final label?)
                             Text(label,
                                 style: TextStyle(color: scheme.onSurfaceVariant)),
+                          if (jokers != null)
+                            Tooltip(
+                              message: 'Joker',
+                              child: Text('🛡️ $jokers', style: text.titleSmall),
+                            ),
+                          if (attempt > 1)
+                            Text('Versuch $attempt',
+                                style: TextStyle(color: scheme.onSurfaceVariant)),
                         ],
                       ),
                     ],
@@ -229,11 +356,21 @@ class ChallengeCard extends StatelessWidget {
                 PopupMenuButton<String>(
                   tooltip: 'Mehr',
                   onSelected: (action) => switch (action) {
+                    'pause' => _pause(context),
                     'finish' => onFinish(challenge),
                     _ => onDelete(challenge),
                   },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(
+                  itemBuilder: (_) => [
+                    if (!paused)
+                      const PopupMenuItem(
+                        value: 'pause',
+                        child: ListTile(
+                          leading: Icon(Icons.pause_circle_outline),
+                          title: Text('Pausieren'),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    const PopupMenuItem(
                       value: 'finish',
                       child: ListTile(
                         leading: Icon(Icons.flag_outlined),
@@ -241,7 +378,7 @@ class ChallengeCard extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
-                    PopupMenuItem(
+                    const PopupMenuItem(
                       value: 'delete',
                       child: ListTile(
                         leading: Icon(Icons.delete_outline),
@@ -254,7 +391,12 @@ class ChallengeCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _WeekRow(days: challenge.week(today)),
+            _WeekRow(
+              days: challenge.week(today),
+              today: dayOf(today),
+              firstDay: dayOf(challenge.startedOn),
+              onTapDay: (day) => _correct(context, day),
+            ),
             const SizedBox(height: 12),
             if (challenge.isCompleted)
               Padding(
@@ -263,7 +405,27 @@ class ChallengeCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: text.titleMedium?.copyWith(color: scheme.primary)),
               ),
-            if (status != null && !isWeekly)
+            if (paused)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Pausiert bis ${formatDate(pausedUntil)}',
+                        style: text.titleSmall,
+                      ),
+                    ),
+                    FilledButton.tonalIcon(
+                      style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                      onPressed: () => onPauseChanged(challenge.resume(today)),
+                      icon: const Icon(Icons.play_arrow_rounded),
+                      label: const Text('Fortsetzen'),
+                    ),
+                  ],
+                ),
+              ),
+            if (!paused && status != null && !isWeekly)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8, right: 8),
                 child: Text(
@@ -274,6 +436,7 @@ class ChallengeCard extends StatelessWidget {
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ),
+            if (!paused)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Row(
@@ -305,7 +468,8 @@ class ChallengeCard extends StatelessWidget {
   }
 
   String? _progressLabel() => switch (challenge.kind) {
-        DailyKind(days: final d?) => '${challenge.doneDays}/$d',
+        DailyKind(days: final d?) =>
+          '${((challenge.progress(today) ?? 0) * d).round()}/$d',
         WeeklyGoalKind(unit: WeeklyUnit.times, target: final n) =>
           '${challenge.doneDaysInWeek(today)}/$n×',
         WeeklyGoalKind(target: final m) =>
@@ -346,9 +510,17 @@ class _ProgressRing extends StatelessWidget {
 }
 
 class _WeekRow extends StatelessWidget {
-  const _WeekRow({required this.days});
+  const _WeekRow({
+    required this.days,
+    required this.today,
+    required this.firstDay,
+    required this.onTapDay,
+  });
 
   final List<DayStatus> days;
+  final DateTime today;
+  final DateTime firstDay;
+  final ValueChanged<DateTime> onTapDay;
 
   @override
   Widget build(BuildContext context) {
@@ -359,7 +531,12 @@ class _WeekRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           for (final (i, d) in days.indexed)
-            Container(
+            _Dot(
+              key: Key('day-$i'),
+              day: today.subtract(Duration(days: days.length - 1 - i)),
+              firstDay: firstDay,
+              onTap: onTapDay,
+              child: Container(
               width: 28,
               height: 28,
               decoration: BoxDecoration(
@@ -384,7 +561,38 @@ class _WeekRow extends StatelessWidget {
                     size: 14, color: scheme.onTertiaryContainer),
               },
             ),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+/// Antippbarer Tag der Wochenleiste (nur ab Start der Challenge).
+class _Dot extends StatelessWidget {
+  const _Dot({
+    super.key,
+    required this.day,
+    required this.firstDay,
+    required this.onTap,
+    required this.child,
+  });
+
+  final DateTime day;
+  final DateTime firstDay;
+  final ValueChanged<DateTime> onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = !day.isBefore(firstDay);
+    return Semantics(
+      button: enabled,
+      label: formatWeekdayDate(day),
+      child: InkResponse(
+        radius: 22,
+        onTap: enabled ? () => onTap(day) : null,
+        child: Padding(padding: const EdgeInsets.all(4), child: child),
       ),
     );
   }
@@ -459,3 +667,6 @@ Future<String?> _ask(
     ),
   );
 }
+
+/// Auswahl im Nachtrage-Sheet (null bedeutet „abgebrochen“).
+enum _DayChoice { done, missed, empty }

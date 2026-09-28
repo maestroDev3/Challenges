@@ -140,7 +140,10 @@ void main() {
             doneDaysAgo: [1, 2, 3, 4, 5, 6, 7],
             rule: StreakRule.joker),
         running('no-sugar',
-            doneDaysAgo: [3, 4], missedDaysAgo: [2], rule: StreakRule.strict),
+            startedDaysAgo: 3,
+            doneDaysAgo: [2, 3],
+            missedDaysAgo: [1],
+            rule: StreakRule.strict),
       ]);
       await pumpToday(tester, repo);
       expect(find.text('🛡️ 1'), findsOneWidget);

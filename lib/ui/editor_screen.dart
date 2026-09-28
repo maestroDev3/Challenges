@@ -6,6 +6,7 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import 'catalog_screen.dart';
 import 'format.dart';
+import 'rule_selector.dart';
 
 /// Auswahl für eigene Challenges – bewusst kurz gehalten.
 const editorEmojis = [
@@ -48,6 +49,7 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   WeeklyUnit _unit = WeeklyUnit.times;
   late DateTime _date = dayOf(widget.clock()).add(const Duration(days: 1));
   ReminderTime _reminder = const ReminderTime(9, 0);
+  StreakRule _rule = StreakRule.relaxed;
   bool _busy = false;
 
   bool get _isEdit => widget.initial != null;
@@ -122,7 +124,8 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
     setState(() => _busy = true);
     await widget.repository.saveTemplate(template);
     if (!_isEdit) {
-      final c = await widget.repository.start(template, _reminder);
+      final c =
+          await widget.repository.start(template, _reminder, rule: _rule);
       await widget.onStarted?.call(c);
     }
     if (mounted) Navigator.of(context).pop();
@@ -210,6 +213,15 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
             const SizedBox(height: 16),
             ..._kindFields(text),
             const SizedBox(height: 8),
+            if (!_isEdit) ...[
+              Text('Regel bei Fehltagen', style: text.titleSmall),
+              const SizedBox(height: 8),
+              RuleSelector(
+                value: _rule,
+                onChanged: (r) => setState(() => _rule = r),
+              ),
+              const SizedBox(height: 8),
+            ],
             if (!_isEdit)
               ListTile(
                 contentPadding: EdgeInsets.zero,
