@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
+import '../domain/reminders.dart';
 import 'catalog_screen.dart';
 import 'today_screen.dart';
 
@@ -10,14 +11,14 @@ class HomeShell extends StatefulWidget {
     super.key,
     required this.repository,
     this.clock = DateTime.now,
-    this.onStarted,
-    this.onStopped,
+    this.scheduler,
   });
 
   final ChallengeRepository repository;
   final Clock clock;
-  final ChallengeStarted? onStarted;
-  final Future<void> Function(ActiveChallenge challenge)? onStopped;
+
+  /// Plant/storniert Erinnerungen; null in Tests ohne Erinnerungen.
+  final ReminderScheduler? scheduler;
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -54,13 +55,13 @@ class _HomeShellState extends State<HomeShell> {
             repository: widget.repository,
             clock: widget.clock,
             onDiscover: () => setState(() => _tab = 1),
-            onStopped: widget.onStopped,
+            scheduler: widget.scheduler,
           ),
           CatalogScreen(
             repository: widget.repository,
             clock: widget.clock,
             onStarted: (c) async {
-              await widget.onStarted?.call(c);
+              await widget.scheduler?.schedule(c);
               if (mounted) setState(() => _tab = 0);
             },
           ),

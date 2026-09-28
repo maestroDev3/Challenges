@@ -18,11 +18,7 @@ class ChallengesApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
-      home: HomeShell(
-        repository: repository,
-        onStarted: (c) async => scheduler?.schedule(c),
-        onStopped: (c) async => scheduler?.cancel(c),
-      ),
+      home: HomeShell(repository: repository, scheduler: scheduler),
     );
   }
 }

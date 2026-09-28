@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
+import '../domain/reminders.dart';
+import 'archive_screen.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -11,13 +13,53 @@ class TodayScreen extends StatelessWidget {
     required this.repository,
     required this.onDiscover,
     this.clock = DateTime.now,
-    this.onStopped,
+    this.scheduler,
   });
 
   final ChallengeRepository repository;
   final VoidCallback onDiscover;
   final Clock clock;
-  final Future<void> Function(ActiveChallenge challenge)? onStopped;
+  final ReminderScheduler? scheduler;
+
+  /// Speichert und archiviert automatisch, wenn das Ziel erreicht ist.
+  Future<void> _save(BuildContext context, ActiveChallenge c) async {
+    await repository.save(c);
+    if (!c.shouldAutoFinish(clock())) return;
+    final done = await repository.finish(c.id);
+    await scheduler?.cancel(c);
+    if (done != null && context.mounted) await showCelebration(context, done);
+  }
+
+  Future<void> _finish(ActiveChallenge c) async {
+    await repository.finish(c.id);
+    await scheduler?.cancel(c);
+  }
+
+  Future<void> _delete(BuildContext context, ActiveChallenge c) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Challenge löschen?'),
+        content: Text(
+            '„${c.template.title}“ und der ganze Verlauf werden endgültig gelöscht. '
+            'Zum Aufbewahren lieber „Abschließen“.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Abbrechen'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Löschen'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await repository.delete(c.id);
+    await scheduler?.cancel(c);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +70,23 @@ class TodayScreen extends StatelessWidget {
           final items = snapshot.data ?? const <ActiveChallenge>[];
           return CustomScrollView(
             slivers: [
-              const SliverAppBar.large(title: Text('Heute')),
+              SliverAppBar.large(
+                title: const Text('Heute'),
+                actions: [
+                  IconButton(
+                    tooltip: 'Erledigt',
+                    icon: const Icon(Icons.emoji_events_outlined),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ArchiveScreen(
+                          repository: repository,
+                          scheduler: scheduler,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               if (snapshot.hasData && items.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
@@ -40,11 +98,9 @@ class TodayScreen extends StatelessWidget {
                   itemBuilder: (context, i) => ChallengeCard(
                     challenge: items[i],
                     today: clock(),
-                    onSave: repository.save,
-                    onStop: (c) async {
-                      await repository.delete(c.id);
-                      await onStopped?.call(c);
-                    },
+                    onSave: (c) => _save(context, c),
+                    onFinish: _finish,
+                    onDelete: (c) => _delete(context, c),
                   ),
                 ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -95,13 +151,15 @@ class ChallengeCard extends StatelessWidget {
     required this.challenge,
     required this.today,
     required this.onSave,
-    required this.onStop,
+    required this.onFinish,
+    required this.onDelete,
   });
 
   final ActiveChallenge challenge;
   final DateTime today;
   final Future<void> Function(ActiveChallenge) onSave;
-  final Future<void> Function(ActiveChallenge) onStop;
+  final Future<void> Function(ActiveChallenge) onFinish;
+  final Future<void> Function(ActiveChallenge) onDelete;
 
   Future<void> _done(BuildContext context) async {
     switch (challenge.kind) {
@@ -169,9 +227,28 @@ class ChallengeCard extends StatelessWidget {
                   ),
                 ),
                 PopupMenuButton<String>(
-                  onSelected: (_) => onStop(challenge),
+                  tooltip: 'Mehr',
+                  onSelected: (action) => switch (action) {
+                    'finish' => onFinish(challenge),
+                    _ => onDelete(challenge),
+                  },
                   itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'stop', child: Text('Challenge beenden')),
+                    PopupMenuItem(
+                      value: 'finish',
+                      child: ListTile(
+                        leading: Icon(Icons.flag_outlined),
+                        title: Text('Abschließen'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete_outline),
+                        title: Text('Löschen'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
                   ],
                 ),
               ],
