@@ -24,7 +24,7 @@ class LocalChallengeRepository implements ChallengeRepository {
     if (raw == null) return [];
     return [
       for (final e in jsonDecode(raw) as List)
-        if (_fromJson(e as Map<String, dynamic>) case final c?) c,
+        ?_fromJson(e as Map<String, dynamic>),
     ];
   }
 
