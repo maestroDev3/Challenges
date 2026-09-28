@@ -1,0 +1,27 @@
+name: Scaffold Flutter project
+
+# Einmalig: erzeugt die Flutter-Projektdateien (Android) und committet sie.
+# Bestehende Dateien werden von `flutter create` nicht überschrieben.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scaffold:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter create --org de.maestrodev --project-name challenges --platforms android .
+      - run: flutter pub get && flutter test
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: Flutter-Projekt generiert (flutter create)" || echo "nothing to commit"
+          git push
