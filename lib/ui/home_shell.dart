@@ -58,6 +58,7 @@ class _HomeShellState extends State<HomeShell> {
           ),
           CatalogScreen(
             repository: widget.repository,
+            clock: widget.clock,
             onStarted: (c) async {
               await widget.onStarted?.call(c);
               if (mounted) setState(() => _tab = 0);
