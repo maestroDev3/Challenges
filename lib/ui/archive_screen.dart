@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
+import 'detail_screen.dart';
 import 'format.dart';
 import 'theme.dart';
 
@@ -81,7 +82,12 @@ class _ArchiveCard extends StatelessWidget {
     final completed = challenge.status == ChallengeStatus.completed;
     final end = challenge.finishedOn ?? challenge.startedOn;
     return Card(
-      child: Padding(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => ChallengeDetailScreen(challenge: challenge),
+        )),
+        child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,6 +147,7 @@ class _ArchiveCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

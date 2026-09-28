@@ -12,7 +12,9 @@ DateTime _weekStart(DateTime day) =>
 
 enum CheckInStatus { done, missed }
 
-enum DayStatus { done, missed, open, paused }
+/// Status eines Tages für Wochenleiste und Kalender.
+/// [joker]: verpasst, aber von einem Joker gerettet.
+enum DayStatus { done, missed, open, paused, joker }
 
 enum ChallengeStatus { active, completed, ended }
 
@@ -403,16 +405,61 @@ class ActiveChallenge {
   /// Status der letzten 7 Tage, ältester zuerst.
   List<DayStatus> week(DateTime today) {
     final t = dayOf(today);
+    final saved = _jokerSet(t);
     return [
       for (var i = 6; i >= 0; i--)
-        _dayStatus(t.subtract(Duration(days: i))),
+        _dayStatus(t.subtract(Duration(days: i)), saved),
     ];
   }
 
-  DayStatus _dayStatus(DateTime day) =>
-      switch (checkInOn(day)?.status) {
-        CheckInStatus.done => DayStatus.done,
-        CheckInStatus.missed => DayStatus.missed,
-        null => isPaused(day) ? DayStatus.paused : DayStatus.open,
-      };
+  /// Status eines beliebigen Tages (für den Kalender).
+  DayStatus statusOn(DateTime day, {required DateTime today}) =>
+      _dayStatus(dayOf(day), _jokerSet(dayOf(today)));
+
+  Set<DateTime> _jokerSet(DateTime today) =>
+      kind is WeeklyGoalKind ? const {} : jokerDays(today).toSet();
+
+  DayStatus _dayStatus(DateTime day, Set<DateTime> saved) {
+    if (saved.contains(day)) return DayStatus.joker;
+    return switch (checkInOn(day)?.status) {
+      CheckInStatus.done => DayStatus.done,
+      CheckInStatus.missed => DayStatus.missed,
+      null => isPaused(day) ? DayStatus.paused : DayStatus.open,
+    };
+  }
+
+  /// Anteil erledigter an fälligen Tagen (bzw. erreichter an vergangenen
+  /// Wochen). Pausen zählen nicht; heute zählt erst mit Eintrag. Null ohne
+  /// fällige Tage oder bei einmaligen Challenges.
+  double? successRate(DateTime today) {
+    final t = dayOf(today);
+    if (kind is OneTimeKind) return null;
+    if (kind is WeeklyGoalKind) {
+      var met = 0, due = 0;
+      final current = _weekStart(t);
+      for (var w = _weekStart(_firstDay);
+          w.isBefore(current);
+          w = w.add(const Duration(days: 7))) {
+        if (_weekHasPause(w) && !_weekGoalMet(w)) continue;
+        due++;
+        if (_weekGoalMet(w)) met++;
+      }
+      return due == 0 ? null : met / due;
+    }
+    var done = 0, due = 0;
+    for (var d = _firstDay; !d.isAfter(t); d = d.add(const Duration(days: 1))) {
+      if (isPaused(d)) continue;
+      final status = checkInOn(d)?.status;
+      if (d == t && status == null) continue;
+      due++;
+      if (status == CheckInStatus.done) done++;
+    }
+    return due == 0 ? null : done / due;
+  }
+
+  /// Journal-Einträge mit Text, neueste zuerst.
+  List<CheckIn> get journalEntries => [
+        for (final c in checkIns.reversed)
+          if (c.note case final n? when n.trim().isNotEmpty) c,
+      ];
 }

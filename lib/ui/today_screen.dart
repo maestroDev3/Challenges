@@ -6,6 +6,7 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
 import 'archive_screen.dart';
+import 'detail_screen.dart';
 import 'format.dart';
 
 class TodayScreen extends StatelessWidget {
@@ -320,7 +321,15 @@ class ChallengeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => ChallengeDetailScreen(
+                  challenge: challenge,
+                  clock: () => today,
+                ),
+              )),
+              child: Row(
               children: [
                 _ProgressRing(emoji: challenge.template.emoji, value: progress),
                 const SizedBox(width: 16),
@@ -389,6 +398,7 @@ class ChallengeCard extends StatelessWidget {
                   ],
                 ),
               ],
+            ),
             ),
             const SizedBox(height: 12),
             _WeekRow(
@@ -546,6 +556,7 @@ class _WeekRow extends StatelessWidget {
                   DayStatus.missed => scheme.errorContainer,
                   DayStatus.open => scheme.surfaceContainerHighest,
                   DayStatus.paused => scheme.tertiaryContainer,
+                  DayStatus.joker => scheme.secondaryContainer,
                 },
                 border: i == days.length - 1
                     ? Border.all(color: scheme.primary, width: 2)
@@ -559,6 +570,8 @@ class _WeekRow extends StatelessWidget {
                 DayStatus.open => null,
                 DayStatus.paused => Icon(Icons.pause,
                     size: 14, color: scheme.onTertiaryContainer),
+                DayStatus.joker => Icon(Icons.shield_outlined,
+                    size: 14, color: scheme.primary),
               },
             ),
             ),
