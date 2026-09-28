@@ -46,6 +46,7 @@ const challengeCatalog = <ChallengeTemplate>[
     description: 'Jeden Abend vor dem Einschlafen bewusst zur Ruhe kommen.',
     emoji: '🧘',
     kind: DailyKind(),
+    targetDuration: Duration(minutes: 10),
   ),
   ChallengeTemplate(
     id: 'eye-gaze',
@@ -54,6 +55,7 @@ const challengeCatalog = <ChallengeTemplate>[
         'Zehn Minuten in den Spiegel und dir selbst in die Augen schauen. Aushalten, nicht wegsehen.',
     emoji: '👁️',
     kind: DailyKind(),
+    targetDuration: Duration(minutes: 10),
   ),
   ChallengeTemplate(
     id: 'excuse-journal',

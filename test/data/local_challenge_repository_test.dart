@@ -191,6 +191,24 @@ void main() {
       expect(loaded.stepsDoneOn(now), {0, 2});
     });
 
+    test('laufende Session und Zieldauer überstehen einen Neustart', () async {
+      final repo = await newRepo();
+      final t = ChallengeTemplate.custom(
+          title: 'Lesen',
+          kind: const DailyKind(),
+          targetDuration: const Duration(minutes: 20));
+      await repo.saveTemplate(t);
+      final c = await repo.start(t, const ReminderTime(20, 0));
+      final started = DateTime(2026, 10, 5, 20, 3);
+      await repo.save(c.startSession(started).stopSession(
+              started.add(const Duration(minutes: 5))).startSession(started
+              .add(const Duration(minutes: 10))));
+      final loaded = (await (await newRepo()).active()).single;
+      expect(loaded.template.targetDuration, const Duration(minutes: 20));
+      expect(loaded.sessionStartedAt, started.add(const Duration(minutes: 10)));
+      expect(loaded.activityMinutesOn(started), 5);
+    });
+
     test('Challenge mit eigener Vorlage wird korrekt geladen', () async {
       final repo = await newRepo();
       await repo.saveTemplate(sport);

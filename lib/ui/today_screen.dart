@@ -48,6 +48,17 @@ class TodayScreen extends StatelessWidget {
     await scheduler?.schedule(c);
   }
 
+  Future<void> _startSession(ActiveChallenge c) async {
+    await repository.save(c);
+    await scheduler?.showSession(c);
+  }
+
+  Future<void> _stopSession(BuildContext context, ActiveChallenge c) async {
+    final saved = _save(context, c.stopSession(clock()));
+    await scheduler?.clearSession(c);
+    await saved;
+  }
+
   Future<void> _finish(ActiveChallenge c) async {
     await repository.finish(c.id);
     await scheduler?.cancel(c);
@@ -115,7 +126,11 @@ class TodayScreen extends StatelessWidget {
                   itemCount: items.length,
                   itemBuilder: (context, i) => _Ticker(
                     // Nur laufende Countdowns brauchen eine Live-Anzeige.
-                    active: items[i].windowStartedAt != null,
+                    active: items[i].windowStartedAt != null ||
+                        items[i].sessionStartedAt != null,
+                    interval: items[i].sessionStartedAt != null
+                        ? const Duration(seconds: 1)
+                        : const Duration(seconds: 30),
                     clock: clock,
                     builder: (now) => ChallengeCard(
                       challenge: items[i],
@@ -124,6 +139,8 @@ class TodayScreen extends StatelessWidget {
                       onFinish: _finish,
                       onDelete: (c) => _delete(context, c),
                       onPauseChanged: _reschedule,
+                      onStartSession: _startSession,
+                      onStopSession: (c) => _stopSession(context, c),
                     ),
                   ),
                 ),
@@ -178,6 +195,8 @@ class ChallengeCard extends StatelessWidget {
     required this.onFinish,
     required this.onDelete,
     required this.onPauseChanged,
+    required this.onStartSession,
+    required this.onStopSession,
   });
 
   final ActiveChallenge challenge;
@@ -188,6 +207,10 @@ class ChallengeCard extends StatelessWidget {
 
   /// Challenge wurde pausiert oder fortgesetzt.
   final Future<void> Function(ActiveChallenge) onPauseChanged;
+
+  /// Aktivitäts-Timer starten (neuer Stand) bzw. stoppen (bisheriger Stand).
+  final Future<void> Function(ActiveChallenge) onStartSession;
+  final Future<void> Function(ActiveChallenge) onStopSession;
 
   Future<void> _pause(BuildContext context) async {
     final t = dayOf(today);
@@ -462,6 +485,13 @@ class ChallengeCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            if (!paused && window == null && challenge.template.isTimed)
+              _SessionRow(
+                target: challenge.template.targetDuration,
+                elapsed: challenge.sessionElapsed(today),
+                onStart: () => onStartSession(challenge.startSession(today)),
+                onStop: () => onStopSession(challenge),
               ),
             if (!paused && window == _WindowState.idle)
               Padding(
@@ -795,9 +825,11 @@ class _Ticker extends StatefulWidget {
     required this.active,
     required this.clock,
     required this.builder,
+    this.interval = const Duration(seconds: 30),
   });
 
   final bool active;
+  final Duration interval;
   final Clock clock;
   final Widget Function(DateTime now) builder;
 
@@ -807,6 +839,7 @@ class _Ticker extends StatefulWidget {
 
 class _TickerState extends State<_Ticker> {
   Timer? _timer;
+  Duration? _interval;
 
   @override
   void initState() {
@@ -821,9 +854,13 @@ class _TickerState extends State<_Ticker> {
   }
 
   void _sync() {
+    if (_timer != null && _interval != widget.interval) {
+      _timer?.cancel();
+      _timer = null;
+    }
     if (widget.active && _timer == null) {
-      _timer = Timer.periodic(
-          const Duration(seconds: 30), (_) => setState(() {}));
+      _interval = widget.interval;
+      _timer = Timer.periodic(widget.interval, (_) => setState(() {}));
     } else if (!widget.active) {
       _timer?.cancel();
       _timer = null;
@@ -838,4 +875,68 @@ class _TickerState extends State<_Ticker> {
 
   @override
   Widget build(BuildContext context) => widget.builder(widget.clock());
+}
+
+/// Aktivitäts-Timer auf der Karte: „Starten“ bzw. laufende Zeit und „Stopp“.
+class _SessionRow extends StatelessWidget {
+  const _SessionRow({
+    required this.target,
+    required this.elapsed,
+    required this.onStart,
+    required this.onStop,
+  });
+
+  final Duration? target;
+  final Duration? elapsed;
+  final VoidCallback onStart;
+  final VoidCallback onStop;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final running = elapsed;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8, bottom: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: running == null
+                ? Text(
+                    switch (target) {
+                      final t? => 'Ziel: ${t.inMinutes} min',
+                      null => 'Zeit mitlaufen lassen',
+                    },
+                    style: TextStyle(color: scheme.onSurfaceVariant),
+                  )
+                : Text(
+                    switch (target) {
+                      final t? =>
+                        '${formatStopwatch(running)} / ${formatStopwatch(t)}',
+                      null => formatStopwatch(running),
+                    },
+                    style: text.titleLarge?.copyWith(
+                      color: scheme.primary,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+          ),
+          if (running == null)
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+              onPressed: onStart,
+              icon: const Icon(Icons.timer_outlined),
+              label: const Text('Starten'),
+            )
+          else
+            FilledButton.icon(
+              style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+              onPressed: onStop,
+              icon: const Icon(Icons.stop_rounded),
+              label: const Text('Stopp'),
+            ),
+        ],
+      ),
+    );
+  }
 }

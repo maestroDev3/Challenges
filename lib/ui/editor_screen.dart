@@ -45,6 +45,8 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   final _weeklyTimes = TextEditingController(text: '3');
   final _weeklyMinutes = TextEditingController(text: '120');
   final _newStep = TextEditingController();
+  late final _target = TextEditingController(
+      text: widget.initial?.targetDuration?.inMinutes.toString() ?? '');
   late final List<String> _steps = [...?widget.initial?.steps];
   late String _emoji = widget.initial?.emoji ?? editorEmojis.first;
   _KindChoice _kind = _KindChoice.ongoing;
@@ -87,6 +89,7 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
       _weeklyTimes,
       _weeklyMinutes,
       _newStep,
+      _target,
     ]) {
       c.dispose();
     }
@@ -122,6 +125,12 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
         description: _description.text,
         kind: kind,
         steps: _steps,
+        targetDuration: switch (int.tryParse(_target.text)) {
+          final m? when m > 0 &&
+              (_kind == _KindChoice.ongoing || _kind == _KindChoice.days) =>
+            Duration(minutes: m),
+          _ => null,
+        },
       );
     } on ArgumentError {
       return null;
@@ -315,9 +324,19 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   List<Widget> _kindFields(TextTheme text) => switch (_kind) {
         _KindChoice.ongoing => [
             Text('Jeden Tag, ohne Enddatum.', style: text.bodyMedium),
+            const SizedBox(height: 12),
+            _NumberField(
+                controller: _target,
+                label: 'Zieldauer in Minuten (optional)',
+                hint: 'Mit Timer: erledigt, sobald die Zeit erreicht ist'),
           ],
         _KindChoice.days => [
             _NumberField(controller: _days, label: 'Anzahl Tage', hint: '1–365'),
+            const SizedBox(height: 12),
+            _NumberField(
+                controller: _target,
+                label: 'Zieldauer in Minuten (optional)',
+                hint: 'Mit Timer: erledigt, sobald die Zeit erreicht ist'),
           ],
         _KindChoice.weekly => [
             SegmentedButton<WeeklyUnit>(

@@ -4,11 +4,18 @@ import 'challenge_repository.dart';
 
 const actionDone = 'done';
 const actionMissed = 'missed';
+const actionStop = 'stop';
 
 /// Plant und storniert Erinnerungen (Plattform-Implementierung in lib/data).
 abstract interface class ReminderScheduler {
   Future<void> schedule(ActiveChallenge challenge);
   Future<void> cancel(ActiveChallenge challenge);
+
+  /// Laufende Benachrichtigung mit Stoppuhr und „Stopp“ (und Signal bei
+  /// erreichter Zieldauer).
+  Future<void> showSession(ActiveChallenge challenge);
+
+  Future<void> clearSession(ActiveChallenge challenge);
 }
 
 /// Stabile, positive 31-Bit-Id pro Challenge (FNV-1a), unabhängig vom
@@ -71,6 +78,14 @@ Future<bool> handleNotificationAction(
   required DateTime now,
   String? input,
 }) async {
+  if (actionId == actionStop && payload != null) {
+    final c = await repository.byId(payload);
+    if (c == null || c.sessionStartedAt == null) return false;
+    final stopped = c.stopSession(now);
+    await repository.save(stopped);
+    if (stopped.shouldAutoFinish(now)) await repository.finish(stopped.id);
+    return true;
+  }
   final status = switch (actionId) {
     actionDone => CheckInStatus.done,
     actionMissed => CheckInStatus.missed,

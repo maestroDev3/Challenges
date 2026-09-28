@@ -96,6 +96,8 @@ class ActiveChallenge {
     this.rule = StreakRule.relaxed,
     this.stepLog = const {},
     this.windowStartedAt,
+    this.sessionStartedAt,
+    this.activityLog = const {},
   });
 
   final String id;
@@ -115,6 +117,12 @@ class ActiveChallenge {
   /// fasten); null, solange nicht gestartet.
   final DateTime? windowStartedAt;
 
+  /// Start der laufenden Aktivität („Ich bin gerade dabei“) oder null.
+  final DateTime? sessionStartedAt;
+
+  /// Mit dem Timer erfasste Minuten je Tag.
+  final Map<DateTime, int> activityLog;
+
   ChallengeKind get kind => template.kind;
 
   bool get isArchived => status != ChallengeStatus.active;
@@ -130,6 +138,9 @@ class ActiveChallenge {
     Map<DateTime, Set<int>>? stepLog,
     DateTime? windowStartedAt,
     bool clearWindow = false,
+    DateTime? sessionStartedAt,
+    bool clearSession = false,
+    Map<DateTime, int>? activityLog,
   }) =>
       ActiveChallenge(
         id: id,
@@ -144,7 +155,58 @@ class ActiveChallenge {
         stepLog: stepLog ?? this.stepLog,
         windowStartedAt:
             clearWindow ? null : windowStartedAt ?? this.windowStartedAt,
+        sessionStartedAt:
+            clearSession ? null : sessionStartedAt ?? this.sessionStartedAt,
+        activityLog: activityLog ?? this.activityLog,
       );
+
+  /// Startet den Aktivitäts-Timer; läuft schon einer, ändert sich nichts.
+  ActiveChallenge startSession(DateTime now) =>
+      isArchived || sessionStartedAt != null
+          ? this
+          : copyWith(sessionStartedAt: now);
+
+  Duration? sessionElapsed(DateTime now) => switch (sessionStartedAt) {
+        final start? => now.difference(start).isNegative
+            ? Duration.zero
+            : now.difference(start),
+        null => null,
+      };
+
+  /// Zeitpunkt, an dem die Zieldauer erreicht ist (für das Signal).
+  DateTime? get sessionTargetEnd => switch ((sessionStartedAt, template.targetDuration)) {
+        (final start?, final target?) => start.add(target),
+        _ => null,
+      };
+
+  int activityMinutesOn(DateTime day) => activityLog[dayOf(day)] ?? 0;
+
+  /// Beendet den Timer und schreibt die Minuten gut: Wochenziel in Minuten
+  /// addiert sie; mit Zieldauer ist der Tag erledigt, sobald sie erreicht
+  /// ist; sonst zählt die Aktivität als erledigt.
+  ActiveChallenge stopSession(DateTime now) {
+    final start = sessionStartedAt;
+    if (start == null) return this;
+    final minutes = now.difference(start).inMinutes;
+    final day = dayOf(start);
+    final total = activityMinutesOn(day) + (minutes < 0 ? 0 : minutes);
+    var c = copyWith(
+      clearSession: true,
+      activityLog: {...activityLog, day: total},
+    );
+    final target = template.targetDuration;
+    if (kind case WeeklyGoalKind(unit: WeeklyUnit.minutes)) {
+      if (minutes > 0) c = c.checkIn(day, CheckInStatus.done, minutes: minutes);
+    } else if (target != null) {
+      if (total >= target.inMinutes &&
+          c.checkInOn(day)?.status != CheckInStatus.done) {
+        c = c.checkIn(day, CheckInStatus.done);
+      }
+    } else if (minutes > 0) {
+      c = c.checkIn(day, CheckInStatus.done);
+    }
+    return c;
+  }
 
   Duration? get _window => switch (kind) {
         OneTimeKind(window: final w) => w,
