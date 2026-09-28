@@ -7,6 +7,7 @@ import 'package:challenges/domain/active_challenge.dart';
 import 'package:challenges/domain/catalog.dart';
 import 'package:challenges/domain/challenge.dart';
 import 'package:challenges/ui/home_shell.dart';
+import 'package:challenges/ui/intro_screen.dart';
 import 'package:challenges/ui/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -162,6 +163,24 @@ void main() {
     await tester.tap(find.byTooltip('Erledigt'));
     await tester.pumpAndSettle();
     await _shot('5_archiv');
+  });
+
+  testWidgets('intro', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: buildTheme(),
+      home: MediaQuery(
+        data: const MediaQueryData(
+            size: Size(1080 / 2.625, 2340 / 2.625), disableAnimations: true),
+        child: IntroScreen(onDone: () {}),
+      ),
+    ));
+    await tester.pump(const Duration(milliseconds: 100));
+    await _shot('0_intro');
+    await tester.pumpAndSettle();
   });
 
   testWidgets('leer', (tester) async {
