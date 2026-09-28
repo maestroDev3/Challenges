@@ -3,6 +3,27 @@
 Flutter-App (Android) für persönliche Challenges, später mit Freunden.
 Claude arbeitet in diesem Repo **autonom**. Diese Datei ist verbindlich.
 
+## Struktur: Epic → Story → Task
+
+Alles lebt in GitHub-Issues, verknüpft über Sub-Issues:
+
+| Ebene | Label | Inhalt |
+|---|---|---|
+| Epic | `epic` | Großes Ziel; Stories als Sub-Issues, Reihenfolge in der Beschreibung |
+| Story | `story` | Für den Nutzer sichtbares Feature; Tasks als Sub-Issues |
+| Task | `task` | Genau ein PR, TDD, testbare Akzeptanzkriterien |
+
+Status einer Story (Label, genau eins; erledigt = geschlossen):
+- `backlog` – Idee, grob beschrieben, **noch keine Tasks**
+- `ready` – verfeinert, Tasks mit Akzeptanzkriterien stehen
+- `in-progress` – wird gerade umgesetzt (immer nur eine Story gleichzeitig)
+
+Regeln:
+- Tasks werden erst geschrieben, wenn eine Story von `backlog` nach `ready` wechselt.
+- Neue Ideen des Nutzers landen als `backlog`-Story im passenden Epic.
+- Welche Story als Nächstes umgesetzt wird, entscheidet der Nutzer; ohne Vorgabe die
+  nächste `ready`-Story laut Reihenfolge im Epic.
+
 ## Workflow: Story → Sub-Issues
 
 1. Jede fachliche Anforderung ist eine **Story** (Issue mit Label `story`).
