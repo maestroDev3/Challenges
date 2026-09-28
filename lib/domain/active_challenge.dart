@@ -95,6 +95,7 @@ class ActiveChallenge {
     this.pauses = const [],
     this.rule = StreakRule.relaxed,
     this.stepLog = const {},
+    this.windowStartedAt,
   });
 
   final String id;
@@ -110,6 +111,10 @@ class ActiveChallenge {
   /// Abgehakte Schritte je Tag (nur bei Vorlagen mit Schritten).
   final Map<DateTime, Set<int>> stepLog;
 
+  /// Startzeitpunkt des Zeitfensters bei einmaligen Challenges (z. B. 24 h
+  /// fasten); null, solange nicht gestartet.
+  final DateTime? windowStartedAt;
+
   ChallengeKind get kind => template.kind;
 
   bool get isArchived => status != ChallengeStatus.active;
@@ -123,6 +128,8 @@ class ActiveChallenge {
     List<PauseRange>? pauses,
     StreakRule? rule,
     Map<DateTime, Set<int>>? stepLog,
+    DateTime? windowStartedAt,
+    bool clearWindow = false,
   }) =>
       ActiveChallenge(
         id: id,
@@ -135,7 +142,47 @@ class ActiveChallenge {
         pauses: pauses ?? this.pauses,
         rule: rule ?? this.rule,
         stepLog: stepLog ?? this.stepLog,
+        windowStartedAt:
+            clearWindow ? null : windowStartedAt ?? this.windowStartedAt,
       );
+
+  Duration? get _window => switch (kind) {
+        OneTimeKind(window: final w) => w,
+        _ => null,
+      };
+
+  /// Startet das Zeitfenster jetzt (nur einmalige Challenges).
+  ActiveChallenge startWindow(DateTime now) =>
+      _window == null || isArchived ? this : copyWith(windowStartedAt: now);
+
+  /// Bricht das Zeitfenster ab („nicht gestartet“).
+  ActiveChallenge cancelWindow() => copyWith(clearWindow: true);
+
+  DateTime? get windowEnd => switch ((windowStartedAt, _window)) {
+        (final start?, final window?) => start.add(window),
+        _ => null,
+      };
+
+  /// Verbleibende Zeit (nie negativ) oder null, wenn nicht gestartet.
+  Duration? remaining(DateTime now) {
+    final end = windowEnd;
+    if (end == null) return null;
+    final left = end.difference(now);
+    return left.isNegative ? Duration.zero : left;
+  }
+
+  /// Anteil des verstrichenen Zeitfensters (0..1) oder null.
+  double? windowProgress(DateTime now) {
+    final start = windowStartedAt, window = _window;
+    if (start == null || window == null) return null;
+    final elapsed = now.difference(start).inSeconds / window.inSeconds;
+    return elapsed.clamp(0.0, 1.0);
+  }
+
+  bool windowEnded(DateTime now) {
+    final end = windowEnd;
+    return end != null && !now.isBefore(end);
+  }
 
   /// Archiviert die Challenge: „geschafft“, wenn das Ziel erreicht ist,
   /// sonst „beendet“.

@@ -48,6 +48,9 @@ bool reminderRepeats(ActiveChallenge c) => c.kind is! OneTimeKind;
 DateTime? firstReminder(ActiveChallenge c, DateTime now) {
   if (c.isArchived || c.isCompleted) return null;
   final time = c.reminder;
+  if (c.windowEnd case final end?) {
+    return end.isAfter(now) ? end : null;
+  }
   if (c.kind case OneTimeKind(date: final date?)) {
     final at = DateTime(date.year, date.month, date.day, time.hour, time.minute);
     return at.isAfter(now) ? at : null;

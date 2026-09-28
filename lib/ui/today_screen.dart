@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -111,13 +113,18 @@ class TodayScreen extends StatelessWidget {
               else
                 SliverList.builder(
                   itemCount: items.length,
-                  itemBuilder: (context, i) => ChallengeCard(
-                    challenge: items[i],
-                    today: clock(),
-                    onSave: (c) => _save(context, c),
-                    onFinish: _finish,
-                    onDelete: (c) => _delete(context, c),
-                    onPauseChanged: _reschedule,
+                  itemBuilder: (context, i) => _Ticker(
+                    // Nur laufende Countdowns brauchen eine Live-Anzeige.
+                    active: items[i].windowStartedAt != null,
+                    clock: clock,
+                    builder: (now) => ChallengeCard(
+                      challenge: items[i],
+                      today: now,
+                      onSave: (c) => _save(context, c),
+                      onFinish: _finish,
+                      onDelete: (c) => _delete(context, c),
+                      onPauseChanged: _reschedule,
+                    ),
                   ),
                 ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -314,8 +321,15 @@ class ChallengeCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final status = challenge.checkInOn(today)?.status;
-    final progress = challenge.progress(today);
+    final progress = challenge.windowProgress(today) ?? challenge.progress(today);
     final kind = challenge.kind;
+    final window = kind is OneTimeKind && !challenge.isCompleted
+        ? (challenge.windowStartedAt == null
+            ? _WindowState.idle
+            : challenge.windowEnded(today)
+                ? _WindowState.ended
+                : _WindowState.running)
+        : null;
     final isWeekly = kind is WeeklyGoalKind && kind.unit == WeeklyUnit.minutes;
     final pausedUntil = challenge.pausedUntil(today);
     final paused = pausedUntil != null;
@@ -449,6 +463,40 @@ class ChallengeCard extends StatelessWidget {
                   ],
                 ),
               ),
+            if (!paused && window == _WindowState.idle)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilledButton.icon(
+                  onPressed: () =>
+                      onPauseChanged(challenge.startWindow(today)),
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Jetzt starten'),
+                ),
+              ),
+            if (!paused && window == _WindowState.running)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'noch ${formatRemaining(challenge.remaining(today) ?? Duration.zero)} h',
+                        style: text.titleLarge?.copyWith(color: scheme.primary),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => onPauseChanged(challenge.cancelWindow()),
+                      child: const Text('Abbrechen'),
+                    ),
+                  ],
+                ),
+              ),
+            if (!paused && window == _WindowState.ended)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8, right: 8),
+                child: Text('Geschafft?',
+                    textAlign: TextAlign.center, style: text.titleLarge),
+              ),
             if (!paused && status != null && !isWeekly)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8, right: 8),
@@ -460,7 +508,8 @@ class ChallengeCard extends StatelessWidget {
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ),
-            if (!paused)
+            if (!paused &&
+                (window == null || window == _WindowState.ended))
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Row(
@@ -498,7 +547,9 @@ class ChallengeCard extends StatelessWidget {
           '${challenge.doneDaysInWeek(today)}/$n×',
         WeeklyGoalKind(target: final m) =>
           '${challenge.minutesInWeek(today)}/$m min',
-        OneTimeKind() => challenge.isCompleted ? null : 'einmalig',
+        OneTimeKind() => challenge.isCompleted || challenge.windowStartedAt != null
+            ? null
+            : 'einmalig',
         _ => null,
       };
 }
@@ -734,3 +785,57 @@ Future<String?> _ask(
 
 /// Auswahl im Nachtrage-Sheet (null bedeutet „abgebrochen“).
 enum _DayChoice { done, missed, empty }
+
+enum _WindowState { idle, running, ended }
+
+/// Baut [builder] alle 30 Sekunden neu mit der aktuellen Zeit, solange
+/// [active] ist (z. B. für laufende Countdowns).
+class _Ticker extends StatefulWidget {
+  const _Ticker({
+    required this.active,
+    required this.clock,
+    required this.builder,
+  });
+
+  final bool active;
+  final Clock clock;
+  final Widget Function(DateTime now) builder;
+
+  @override
+  State<_Ticker> createState() => _TickerState();
+}
+
+class _TickerState extends State<_Ticker> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_Ticker old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    if (widget.active && _timer == null) {
+      _timer = Timer.periodic(
+          const Duration(seconds: 30), (_) => setState(() {}));
+    } else if (!widget.active) {
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(widget.clock());
+}

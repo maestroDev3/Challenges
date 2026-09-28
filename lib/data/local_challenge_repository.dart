@@ -269,6 +269,7 @@ class LocalChallengeRepository implements ChallengeRepository {
         'status': c.status.name,
         if (c.finishedOn case final f?) 'finishedOn': f.toIso8601String(),
         'rule': c.rule.name,
+        if (c.windowStartedAt case final w?) 'windowStartedAt': w.toIso8601String(),
         if (c.stepLog.isNotEmpty)
           'stepLog': {
             for (final e in c.stepLog.entries)
@@ -309,6 +310,10 @@ class LocalChallengeRepository implements ChallengeRepository {
       status: ChallengeStatus.values.byName(j['status'] as String? ?? 'active'),
       finishedOn: finishedOn == null ? null : DateTime.parse(finishedOn),
       rule: StreakRule.values.byName(j['rule'] as String? ?? 'relaxed'),
+      windowStartedAt: switch (j['windowStartedAt']) {
+        final String w => DateTime.parse(w),
+        _ => null,
+      },
       stepLog: {
         for (final e in (j['stepLog'] as Map<String, dynamic>? ?? const {}).entries)
           DateTime.parse(e.key): (e.value as List).cast<int>().toSet(),
