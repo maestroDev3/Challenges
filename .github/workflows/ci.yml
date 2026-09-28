@@ -32,7 +32,7 @@ jobs:
         if: steps.guard.outputs.ok == 'true'
         run: flutter analyze 2>&1 | tee analyze.log; exit ${PIPESTATUS[0]}
       - name: Test
-        if: steps.guard.outputs.ok == 'true'
+        if: always() && steps.guard.outputs.ok == 'true'
         run: flutter test --reporter expanded 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
       # Fehlerausgabe als Commit-Kommentar, damit sie über die API lesbar ist
       - name: Report failure
