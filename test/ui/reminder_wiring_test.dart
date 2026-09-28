@@ -28,11 +28,11 @@ void main() {
     expect(scheduler.scheduleCalls, 1);
     expect(scheduler.scheduled, {repo.items.single.id});
 
-    // zurück auf „Heute“ und über das Menü beenden
+    // zurück auf „Heute“ und über das Menü abschließen
     final id = repo.items.single.id;
     await tester.tap(find.byType(PopupMenuButton<String>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Challenge beenden'));
+    await tester.tap(find.text('Abschließen'));
     await tester.pumpAndSettle();
 
     expect(scheduler.cancelled, [id]);
