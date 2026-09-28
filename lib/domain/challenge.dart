@@ -43,6 +43,7 @@ class ChallengeTemplate {
     required this.description,
     required this.emoji,
     required this.kind,
+    this.steps = const [],
   });
 
   /// Eigene Challenge des Nutzers. Wirft [ArgumentError] bei ungültigen Werten.
@@ -52,6 +53,7 @@ class ChallengeTemplate {
     String emoji = '⭐',
     String description = '',
     String? id,
+    List<String> steps = const [],
   }) {
     final t = title.trim();
     if (t.isEmpty) throw ArgumentError.value(title, 'title', 'darf nicht leer sein');
@@ -73,6 +75,10 @@ class ChallengeTemplate {
       description: description.trim(),
       emoji: emoji.isEmpty ? '⭐' : emoji,
       kind: kind,
+      steps: [
+        for (final s in steps)
+          if (s.trim().isNotEmpty) s.trim(),
+      ],
     );
   }
 
@@ -87,6 +93,10 @@ class ChallengeTemplate {
   final String emoji;
   final ChallengeKind kind;
 
+  /// Optionale Schritte (Checkliste); der Tag ist erledigt, wenn alle
+  /// Schritte abgehakt sind.
+  final List<String> steps;
+
   bool get isCustom => id.startsWith(customPrefix);
 
   ChallengeTemplate copyWith({
@@ -94,6 +104,7 @@ class ChallengeTemplate {
     String? description,
     String? emoji,
     ChallengeKind? kind,
+    List<String>? steps,
   }) =>
       ChallengeTemplate.custom(
         id: id,
@@ -101,6 +112,7 @@ class ChallengeTemplate {
         description: description ?? this.description,
         emoji: emoji ?? this.emoji,
         kind: kind ?? this.kind,
+        steps: steps ?? this.steps,
       );
 
   /// Kurzes Label für Chips, z. B. „30 Tage“, „24 h“, „2 h/Woche“.

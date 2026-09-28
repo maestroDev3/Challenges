@@ -17,6 +17,12 @@ const challengeCatalog = <ChallengeTemplate>[
         '30 Tage lang jeden Morgen deine feste Routine durchziehen, bevor der Tag dich übernimmt.',
     emoji: '🌅',
     kind: DailyKind(days: 30),
+    steps: [
+      'Ein Glas Wasser trinken',
+      'Bett machen',
+      '5 Minuten dehnen',
+      'Tag planen',
+    ],
   ),
   ChallengeTemplate(
     id: 'cold-shower',
