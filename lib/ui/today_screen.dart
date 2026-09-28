@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
-import 'theme.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
