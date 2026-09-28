@@ -179,6 +179,18 @@ void main() {
           templates.map((t) => t.kindLabel));
     });
 
+    test('Schritte und abgehakte Schritte werden gespeichert', () async {
+      final repo = await newRepo();
+      final routine = ChallengeTemplate.custom(
+          title: 'Routine', kind: const DailyKind(), steps: ['A', 'B', 'C']);
+      await repo.saveTemplate(routine);
+      final c = await repo.start(routine, const ReminderTime(6, 0));
+      await repo.save(c.toggleStep(now, 0).toggleStep(now, 2));
+      final loaded = (await (await newRepo()).active()).single;
+      expect(loaded.template.steps, ['A', 'B', 'C']);
+      expect(loaded.stepsDoneOn(now), {0, 2});
+    });
+
     test('Challenge mit eigener Vorlage wird korrekt geladen', () async {
       final repo = await newRepo();
       await repo.saveTemplate(sport);
