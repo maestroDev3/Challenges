@@ -20,6 +20,8 @@ class LocalChallengeRepository implements ChallengeRepository {
 
   @override
   Future<List<ActiveChallenge>> active() async {
+    // Hintergrund-Isolate (Benachrichtigungs-Aktionen) schreiben ebenfalls.
+    await _prefs.reload();
     final raw = _prefs.getString(_key);
     if (raw == null) return [];
     return [
@@ -76,6 +78,9 @@ class LocalChallengeRepository implements ChallengeRepository {
         if (c.id != id) c,
     ]);
   }
+
+  @override
+  Future<void> refresh() async => _changes.add(await active());
 
   Future<void> _write(List<ActiveChallenge> all) async {
     await _prefs.setString(_key, jsonEncode([for (final c in all) _toJson(c)]));

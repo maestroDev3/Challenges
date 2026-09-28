@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../domain/challenge_repository.dart';
-import 'catalog_screen.dart';
+import '../domain/reminders.dart';
 import 'home_shell.dart';
 import 'theme.dart';
 
 class ChallengesApp extends StatelessWidget {
-  const ChallengesApp({super.key, required this.repository, this.onStarted});
+  const ChallengesApp({super.key, required this.repository, this.scheduler});
 
   final ChallengeRepository repository;
-  final ChallengeStarted? onStarted;
+  final ReminderScheduler? scheduler;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,11 @@ class ChallengesApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
-      home: HomeShell(repository: repository, onStarted: onStarted),
+      home: HomeShell(
+        repository: repository,
+        onStarted: (c) async => scheduler?.schedule(c),
+        onStopped: (c) async => scheduler?.cancel(c),
+      ),
     );
   }
 }

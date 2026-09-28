@@ -18,4 +18,8 @@ abstract interface class ChallengeRepository {
   Future<void> save(ActiveChallenge challenge);
 
   Future<void> stop(String id);
+
+  /// Liest den Stand neu (z. B. nach Änderungen aus einer Benachrichtigung
+  /// im Hintergrund) und emittiert ihn an `watch()`.
+  Future<void> refresh();
 }
