@@ -39,7 +39,7 @@ Future<void> main() async {
     ),
     onBackgroundResponse: onNotificationActionInBackground,
   );
-  await syncReminders(repository, scheduler);
+  await syncReminders(repository, scheduler, now: DateTime.now());
 
   runApp(ChallengesApp(repository: repository, scheduler: scheduler));
 }

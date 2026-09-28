@@ -30,6 +30,35 @@ DateTime nextReminder(DateTime now, ReminderTime time) {
       : DateTime(now.year, now.month, now.day + 1, time.hour, time.minute);
 }
 
+/// Welche Aktionen die Benachrichtigung anbietet.
+enum ReminderActions { doneMissed, journalInput, none }
+
+ReminderActions reminderActionsFor(ChallengeKind kind) => switch (kind) {
+      JournalKind() => ReminderActions.journalInput,
+      WeeklyGoalKind(unit: WeeklyUnit.minutes) => ReminderActions.none,
+      _ => ReminderActions.doneMissed,
+    };
+
+/// Täglich wiederholen (alles außer einmaligen Challenges).
+bool reminderRepeats(ActiveChallenge c) => c.kind is! OneTimeKind;
+
+/// Erster Erinnerungstermin ab [now] oder null, wenn keine Erinnerung nötig
+/// ist. Pausierte Tage werden übersprungen; einmalige Challenges mit Datum
+/// erinnern genau an diesem Tag.
+DateTime? firstReminder(ActiveChallenge c, DateTime now) {
+  if (c.isArchived || c.isCompleted) return null;
+  final time = c.reminder;
+  if (c.kind case OneTimeKind(date: final date?)) {
+    final at = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    return at.isAfter(now) ? at : null;
+  }
+  var at = nextReminder(now, time);
+  for (var i = 0; i < 400 && c.isPaused(at); i++) {
+    at = DateTime(at.year, at.month, at.day + 1, time.hour, time.minute);
+  }
+  return at;
+}
+
 /// Verarbeitet einen Tipp auf „Erledigt“ / „Nicht erledigt“ in der
 /// Benachrichtigung. Gibt true zurück, wenn ein Check-in gespeichert wurde.
 Future<bool> handleNotificationAction(
@@ -46,28 +75,33 @@ Future<bool> handleNotificationAction(
   };
   if (status == null || payload == null) return false;
   final challenge = await repository.byId(payload);
-  if (challenge == null) return false;
+  if (challenge == null || challenge.isArchived) return false;
 
+  final ActiveChallenge updated;
   switch (challenge.kind) {
-    case WeeklyGoalKind():
+    case WeeklyGoalKind(unit: WeeklyUnit.minutes):
       return false;
     case JournalKind() when status == CheckInStatus.done:
       final note = input?.trim() ?? '';
       if (note.isEmpty) return false;
-      await repository.save(challenge.checkIn(now, status, note: note));
-      return true;
+      updated = challenge.checkIn(now, status, note: note);
     default:
-      await repository.save(challenge.checkIn(now, status));
-      return true;
+      updated = challenge.checkIn(now, status);
   }
+  await repository.save(updated);
+  if (updated.shouldAutoFinish(now)) await repository.finish(updated.id);
+  return true;
 }
 
-/// Plant Erinnerungen für alle laufenden Challenges neu und storniert
-/// die von abgeschlossenen.
+/// Plant Erinnerungen für alle aktiven Challenges neu (pausierte ab dem
+/// ersten Tag nach der Pause) und storniert die, die keine mehr brauchen.
 Future<void> syncReminders(
-    ChallengeRepository repository, ReminderScheduler scheduler) async {
+  ChallengeRepository repository,
+  ReminderScheduler scheduler, {
+  required DateTime now,
+}) async {
   for (final c in await repository.active()) {
-    if (c.isCompleted) {
+    if (firstReminder(c, now) == null) {
       await scheduler.cancel(c);
     } else {
       await scheduler.schedule(c);
