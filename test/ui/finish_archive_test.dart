@@ -117,4 +117,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Noch nichts abgeschlossen'), findsOneWidget);
   });
+
+  testWidgets('Archiv passt auf Handybreite (360 dp)', (tester) async {
+    final finished = running('cold-shower', doneDaysAgo: [3, 4, 5, 8])
+        .finish(daysAgo(2));
+    await tester.pumpApp(
+      HomeShell(
+          repository: FakeChallengeRepository(archived: [finished], today: today),
+          clock: () => today),
+      size: const Size(360, 780),
+    );
+    await tester.tap(find.byTooltip('Erledigt'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Nochmal starten'), findsOneWidget);
+  });
 }
