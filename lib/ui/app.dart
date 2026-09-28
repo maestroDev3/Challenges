@@ -14,10 +14,11 @@ class ChallengesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Challenges',
+      title: 'Ritual',
       debugShowCheckedModeBanner: false,
-      theme: buildTheme(Brightness.light),
-      darkTheme: buildTheme(Brightness.dark),
+      theme: buildTheme(),
+      darkTheme: buildTheme(),
+      themeMode: ThemeMode.dark,
       home: HomeShell(repository: repository, scheduler: scheduler),
     );
   }

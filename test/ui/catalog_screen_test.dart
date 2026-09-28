@@ -12,7 +12,7 @@ Future<void> pumpCatalog(WidgetTester tester, FakeChallengeRepository repo) asyn
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(MaterialApp(
-    theme: buildTheme(Brightness.light),
+    theme: buildTheme(),
     home: CatalogScreen(repository: repo),
   ));
   await tester.pumpAndSettle();
