@@ -3,9 +3,15 @@ import 'package:flutter/material.dart';
 /// Warmes Orange als einzige Akzentfarbe – passend zur Streak-Flamme.
 const seedColor = Color(0xFFFF6B35);
 
-ThemeData buildTheme(Brightness brightness) {
-  final scheme =
-      ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness);
+ThemeData buildTheme(
+  Brightness brightness, {
+  DynamicSchemeVariant variant = DynamicSchemeVariant.tonalSpot,
+}) {
+  final scheme = ColorScheme.fromSeed(
+    seedColor: seedColor,
+    brightness: brightness,
+    dynamicSchemeVariant: variant,
+  );
   return ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
