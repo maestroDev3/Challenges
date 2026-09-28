@@ -119,12 +119,19 @@ class _ArchiveCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                Text('Beste Streak ${challenge.bestStreak}',
-                    style: text.bodyMedium),
-                const SizedBox(width: 16),
-                Text('${challenge.doneDays} Tage erledigt',
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
-                const Spacer(),
+                Expanded(
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 2,
+                    children: [
+                      Text('Beste Streak ${challenge.bestStreak}',
+                          style: text.bodyMedium),
+                      Text(
+                          '${challenge.doneDays} ${challenge.doneDays == 1 ? 'Tag' : 'Tage'} erledigt',
+                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
                 TextButton.icon(
                   onPressed: onRestart,
                   icon: const Icon(Icons.replay),

@@ -9,13 +9,12 @@ extension PumpApp on WidgetTester {
   Future<void> pumpApp(
     Widget child, {
     Size size = const Size(900, 2400),
-    Brightness brightness = Brightness.light,
   }) async {
     view.physicalSize = size;
     view.devicePixelRatio = 1.0;
     addTearDown(view.reset);
     await pumpWidget(MaterialApp(
-      theme: buildTheme(brightness),
+      theme: buildTheme(),
       home: child,
     ));
     await pumpAndSettle();

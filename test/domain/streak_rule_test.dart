@@ -54,6 +54,13 @@ void main() {
       expect(c.attempt(day(3)), 2); // Tag 2 verpasst
     });
 
+    test('mehrere Fehltage ohne Fortschritt sind ein Versuch', () {
+      final c = start('no-sugar', StreakRule.strict, done: [0, 1], missed: [2]);
+      expect(c.attempt(day(6)), 2); // Tage 3–5 leer: kein weiterer Versuch
+      final never = start('no-sugar', StreakRule.strict);
+      expect(never.attempt(day(10)), 1); // noch nie angefangen
+    });
+
     test('geschafft erst nach N Tagen am Stück im aktuellen Versuch', () {
       final strict = start('no-sugar', StreakRule.strict,
           done: [...range(0, 14), ...range(16, 21)], missed: [15]);
