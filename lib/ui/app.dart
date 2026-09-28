@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/challenge_repository.dart';
 import 'catalog_screen.dart';
+import 'home_shell.dart';
 import 'theme.dart';
 
 class ChallengesApp extends StatelessWidget {
@@ -17,7 +18,7 @@ class ChallengesApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
-      home: CatalogScreen(repository: repository, onStarted: onStarted),
+      home: HomeShell(repository: repository, onStarted: onStarted),
     );
   }
 }
