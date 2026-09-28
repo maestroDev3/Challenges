@@ -142,7 +142,7 @@ class RitualLogo extends StatelessWidget {
               'R',
               style: TextStyle(
                 fontFamily: ritualSerif,
-                fontSize: size * 0.42,
+                fontSize: size * 0.5,
                 fontWeight: FontWeight.w500,
                 color: RitualColors.gold,
                 height: 1,
