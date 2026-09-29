@@ -211,6 +211,36 @@ void main() {
           templates.map((t) => t.kindLabel));
     });
 
+    test('Schritte und abgehakte Schritte werden gespeichert', () async {
+      final repo = await newRepo();
+      final routine = ChallengeTemplate.custom(
+          title: 'Routine', kind: const DailyKind(), steps: ['A', 'B', 'C']);
+      await repo.saveTemplate(routine);
+      final c = await repo.start(routine, const ReminderTime(6, 0));
+      await repo.save(c.toggleStep(now, 0).toggleStep(now, 2));
+      final loaded = (await (await newRepo()).active()).single;
+      expect(loaded.template.steps, ['A', 'B', 'C']);
+      expect(loaded.stepsDoneOn(now), {0, 2});
+    });
+
+    test('laufende Session und Zieldauer überstehen einen Neustart', () async {
+      final repo = await newRepo();
+      final t = ChallengeTemplate.custom(
+          title: 'Lesen',
+          kind: const DailyKind(),
+          targetDuration: const Duration(minutes: 20));
+      await repo.saveTemplate(t);
+      final c = await repo.start(t, const ReminderTime(20, 0));
+      final started = DateTime(2026, 10, 5, 20, 3);
+      await repo.save(c.startSession(started).stopSession(
+              started.add(const Duration(minutes: 5))).startSession(started
+              .add(const Duration(minutes: 10))));
+      final loaded = (await (await newRepo()).active()).single;
+      expect(loaded.template.targetDuration, const Duration(minutes: 20));
+      expect(loaded.sessionStartedAt, started.add(const Duration(minutes: 10)));
+      expect(loaded.activityMinutesOn(started), 5);
+    });
+
     test('Wochentage werden gespeichert', () async {
       final repo = await newRepo();
       final t = ChallengeTemplate.custom(
