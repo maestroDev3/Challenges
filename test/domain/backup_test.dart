@@ -82,4 +82,12 @@ void main() {
       expect(repo.items, hasLength(2));
     });
   });
+
+  group('Dateinamen', () {
+    test('Backup und Tabelle tragen das Datum im Namen', () {
+      final now = DateTime(2026, 3, 7, 23, 59);
+      expect(backupFileName(now), 'ritual-backup-2026-03-07.json');
+      expect(exportFileName(now), 'ritual-export-2026-03-07.csv');
+    });
+  });
 }

@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'data/android_backup_files.dart';
 import 'data/home_widget_updater.dart';
 import 'data/local_challenge_repository.dart';
 import 'data/local_notification_scheduler.dart';
@@ -97,5 +98,9 @@ Future<void> main() async {
   await HomeWidget.registerInteractivityCallback(onWidgetTapped);
   repository.watch().listen((_) => _refreshWidget(repository));
 
-  runApp(ChallengesApp(repository: repository, scheduler: scheduler));
+  runApp(ChallengesApp(
+    repository: repository,
+    scheduler: scheduler,
+    backupFiles: const AndroidBackupFiles(),
+  ));
 }
