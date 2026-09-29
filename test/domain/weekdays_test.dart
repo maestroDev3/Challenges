@@ -53,51 +53,44 @@ void main() {
     });
   });
 
-  group('reminderPlan', () {
-    test('täglich', () {
-      final plan = reminderPlan(running(const DailyKind()), now);
-      expect(plan, isA<DailyReminder>());
-      expect((plan as DailyReminder).first, DateTime(2026, 10, 7, 18));
+  group('upcomingReminders', () {
+    test('täglich: konkrete Termine ab heute', () {
+      final list = upcomingReminders(running(const DailyKind()), now);
+      expect(list.take(3), [
+        DateTime(2026, 10, 7, 18),
+        DateTime(2026, 10, 8, 18),
+        DateTime(2026, 10, 9, 18),
+      ]);
+      expect(list, hasLength(maxUpcomingReminders));
     });
 
-    test('Wochentage: je Tag der nächste Termin, wöchentlich wiederholt', () {
-      final plan = reminderPlan(
-          running(const WeeklyGoalKind(3,
-              unit: WeeklyUnit.times, weekdays: {1, 3, 5})),
-          now);
-      expect(plan, isA<WeekdayReminders>());
-      expect((plan as WeekdayReminders).firsts, {
-        1: DateTime(2026, 10, 12, 18),
-        3: DateTime(2026, 10, 7, 18),
-        5: DateTime(2026, 10, 9, 18),
-      });
+    test('pausierte Tage erzeugen keinen Termin – auch nicht heute (#72)', () {
+      final c = running(const DailyKind())
+          .pause(from: day(2), until: day(3)); // Mi–Do
+      expect(upcomingReminders(c, now).first, DateTime(2026, 10, 9, 18));
     });
 
-    test('Wochentage: Pausen werden übersprungen', () {
+    test('Wochentage: nur an geplanten Tagen, Pausen übersprungen', () {
       final c = running(const WeeklyGoalKind(3,
-              unit: WeeklyUnit.times, weekdays: {1, 3, 5}))
-          .pause(from: day(2), until: day(4));
-      final plan = reminderPlan(c, now) as WeekdayReminders;
-      expect(plan.firsts[3], DateTime(2026, 10, 14, 18));
-      expect(plan.firsts[5], DateTime(2026, 10, 16, 18));
-      expect(plan.firsts[1], DateTime(2026, 10, 12, 18));
+          unit: WeeklyUnit.times, weekdays: {1, 3, 5}));
+      expect(upcomingReminders(c, now).take(4), [
+        DateTime(2026, 10, 7, 18),
+        DateTime(2026, 10, 9, 18),
+        DateTime(2026, 10, 12, 18),
+        DateTime(2026, 10, 14, 18),
+      ]);
+      final paused = c.pause(from: day(2), until: day(4));
+      expect(upcomingReminders(paused, now).first, DateTime(2026, 10, 12, 18));
     });
 
-    test('flexibel: heute, solange das Wochenziel offen ist', () {
+    test('flexibel: täglich, solange das Wochenziel offen ist', () {
       var c = running(const WeeklyGoalKind(3, unit: WeeklyUnit.times));
       c = c.checkIn(day(0), CheckInStatus.done);
-      final plan = reminderPlan(c, now);
-      expect(plan, isA<OnceReminder>());
-      expect((plan as OnceReminder).at, DateTime(2026, 10, 7, 18));
-    });
-
-    test('flexibel: Ziel erreicht → erst nächsten Montag', () {
-      var c = running(const WeeklyGoalKind(3, unit: WeeklyUnit.times));
-      for (final d in [0, 1, 2]) {
+      expect(upcomingReminders(c, now).first, DateTime(2026, 10, 7, 18));
+      for (final d in [1, 2]) {
         c = c.checkIn(day(d), CheckInStatus.done);
       }
-      expect((reminderPlan(c, now) as OnceReminder).at,
-          DateTime(2026, 10, 12, 18));
+      expect(upcomingReminders(c, now).first, DateTime(2026, 10, 12, 18));
     });
 
     test('Wochenziel in Minuten verhält sich flexibel', () {
@@ -107,11 +100,10 @@ void main() {
         startedOn: monday,
         reminder: const ReminderTime(18, 0),
       ).checkIn(day(1), CheckInStatus.done, minutes: 120);
-      expect((reminderPlan(c, now) as OnceReminder).at,
-          DateTime(2026, 10, 12, 18));
+      expect(upcomingReminders(c, now).first, DateTime(2026, 10, 12, 18));
     });
 
-    test('einmalig und archiviert', () {
+    test('einmalig: genau ein Termin; archiviert: keiner', () {
       final once = ActiveChallenge(
         id: 'o',
         template: ChallengeTemplate.custom(
@@ -121,10 +113,9 @@ void main() {
         startedOn: monday,
         reminder: const ReminderTime(8, 0),
       );
-      expect((reminderPlan(once, now) as OnceReminder).at,
-          DateTime(2026, 10, 10, 8));
-      expect(reminderPlan(running(const DailyKind()).finish(now), now),
-          isA<NoReminder>());
+      expect(upcomingReminders(once, now), [DateTime(2026, 10, 10, 8)]);
+      expect(upcomingReminders(running(const DailyKind()).finish(now), now),
+          isEmpty);
     });
   });
 }
