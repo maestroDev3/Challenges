@@ -44,6 +44,10 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   final _days = TextEditingController(text: '30');
   final _weeklyTimes = TextEditingController(text: '3');
   final _weeklyMinutes = TextEditingController(text: '120');
+  final _newStep = TextEditingController();
+  late final _target = TextEditingController(
+      text: widget.initial?.targetDuration?.inMinutes.toString() ?? '');
+  late final List<String> _steps = [...?widget.initial?.steps];
   late String _emoji = widget.initial?.emoji ?? editorEmojis.first;
   _KindChoice _kind = _KindChoice.ongoing;
   WeeklyUnit _unit = WeeklyUnit.times;
@@ -82,7 +86,15 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
 
   @override
   void dispose() {
-    for (final c in [_title, _description, _days, _weeklyTimes, _weeklyMinutes]) {
+    for (final c in [
+      _title,
+      _description,
+      _days,
+      _weeklyTimes,
+      _weeklyMinutes,
+      _newStep,
+      _target,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -118,6 +130,13 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
         emoji: _emoji,
         description: _description.text,
         kind: kind,
+        steps: _steps,
+        targetDuration: switch (int.tryParse(_target.text)) {
+          final m? when m > 0 &&
+              (_kind == _KindChoice.ongoing || _kind == _KindChoice.days) =>
+            Duration(minutes: m),
+          _ => null,
+        },
       );
     } on ArgumentError {
       return null;
@@ -154,6 +173,20 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
     }
     if (mounted) Navigator.of(context).pop();
   }
+
+  void _addStep() {
+    final step = _newStep.text.trim();
+    if (step.isEmpty) return;
+    setState(() {
+      _steps.add(step);
+      _newStep.clear();
+    });
+  }
+
+  void _moveUp(int i) => setState(() {
+        final s = _steps.removeAt(i);
+        _steps.insert(i - 1, s);
+      });
 
   Future<void> _pickDate() async {
     final today = dayOf(widget.clock());
@@ -215,6 +248,53 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            Text('Schritte (optional)', style: text.titleSmall),
+            Text('Der Tag ist erledigt, wenn alle Schritte abgehakt sind.',
+                style: text.bodySmall),
+            for (final (i, step) in _steps.indexed)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                leading: Text('${i + 1}.', style: text.titleSmall),
+                title: Text(step),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: '„$step“ nach oben',
+                      onPressed: i == 0 ? null : () => _moveUp(i),
+                      icon: const Icon(Icons.arrow_upward),
+                    ),
+                    IconButton(
+                      tooltip: '„$step“ löschen',
+                      onPressed: () => setState(() => _steps.removeAt(i)),
+                      icon: const Icon(Icons.delete_outline),
+                    ),
+                  ],
+                ),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _newStep,
+                    textCapitalization: TextCapitalization.sentences,
+                    onSubmitted: (_) => _addStep(),
+                    decoration: const InputDecoration(
+                      labelText: 'Neuer Schritt',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  tooltip: 'Schritt hinzufügen',
+                  onPressed: _addStep,
+                  icon: const Icon(Icons.add),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             Text('Art', style: text.titleSmall),
             const SizedBox(height: 8),
             Wrap(
@@ -269,9 +349,19 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   List<Widget> _kindFields(TextTheme text) => switch (_kind) {
         _KindChoice.ongoing => [
             Text('Jeden Tag, ohne Enddatum.', style: text.bodyMedium),
+            const SizedBox(height: 12),
+            _NumberField(
+                controller: _target,
+                label: 'Zieldauer in Minuten (optional)',
+                hint: 'Mit Timer: erledigt, sobald die Zeit erreicht ist'),
           ],
         _KindChoice.days => [
             _NumberField(controller: _days, label: 'Anzahl Tage', hint: '1–365'),
+            const SizedBox(height: 12),
+            _NumberField(
+                controller: _target,
+                label: 'Zieldauer in Minuten (optional)',
+                hint: 'Mit Timer: erledigt, sobald die Zeit erreicht ist'),
           ],
         _KindChoice.weekly => [
             SegmentedButton<WeeklyUnit>(
