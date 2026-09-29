@@ -246,8 +246,12 @@ class LocalChallengeRepository implements ChallengeRepository {
               'hours': w.inHours,
               'date': d?.toIso8601String(),
             },
-          WeeklyGoalKind(target: final n, unit: final u) =>
-            {'type': 'weekly', 'target': n, 'unit': u.name},
+          WeeklyGoalKind(target: final n, unit: final u, weekdays: final w) => {
+              'type': 'weekly',
+              'target': n,
+              'unit': u.name,
+              if (w.isNotEmpty) 'weekdays': [...w]..sort(),
+            },
           JournalKind() => {'type': 'journal'},
         },
       };
@@ -263,6 +267,7 @@ class LocalChallengeRepository implements ChallengeRepository {
       'weekly' => WeeklyGoalKind(
           k['target'] as int,
           unit: WeeklyUnit.values.byName(k['unit'] as String),
+          weekdays: (k['weekdays'] as List? ?? const []).cast<int>().toSet(),
         ),
       _ => const JournalKind(),
     };

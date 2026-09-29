@@ -22,10 +22,17 @@ class OneTimeKind extends ChallengeKind {
 enum WeeklyUnit { minutes, times }
 
 /// Pro Woche ein Ziel erreichen: [target] Minuten oder [target]-mal.
+/// Optional geplante [weekdays] (1 = Mo … 7 = So) für „X-mal“: Erinnerungen
+/// nur an diesen Tagen; erfüllt wird trotzdem pro Woche.
 class WeeklyGoalKind extends ChallengeKind {
-  const WeeklyGoalKind(this.target, {this.unit = WeeklyUnit.minutes});
+  const WeeklyGoalKind(
+    this.target, {
+    this.unit = WeeklyUnit.minutes,
+    this.weekdays = const {},
+  });
   final int target;
   final WeeklyUnit unit;
+  final Set<int> weekdays;
 
   /// Zielminuten (nur sinnvoll bei [WeeklyUnit.minutes]).
   int get minutes => target;
@@ -55,6 +62,17 @@ class ChallengeTemplate {
   }) {
     final t = title.trim();
     if (t.isEmpty) throw ArgumentError.value(title, 'title', 'darf nicht leer sein');
+    if (kind case WeeklyGoalKind(weekdays: final days, unit: final unit)
+        when days.isNotEmpty) {
+      if (unit != WeeklyUnit.times) {
+        throw ArgumentError.value(days, 'weekdays', 'nur bei „X-mal pro Woche“');
+      }
+      if (days.any((d) => d < 1 || d > 7)) {
+        throw ArgumentError.value(days, 'weekdays', '1 (Mo) bis 7 (So)');
+      }
+      kind = WeeklyGoalKind(days.length,
+          unit: WeeklyUnit.times, weekdays: {...days});
+    }
     switch (kind) {
       case DailyKind(days: final d?) when d < 1 || d > 365:
         throw ArgumentError.value(d, 'days', '1–365');
@@ -110,6 +128,9 @@ class ChallengeTemplate {
         OneTimeKind(date: final d?) =>
           'einmalig · ${_two(d.day)}.${_two(d.month)}.',
         OneTimeKind(window: final w) => '${w.inHours} h',
+        WeeklyGoalKind(unit: WeeklyUnit.times, target: final n, weekdays: final w)
+            when w.isNotEmpty =>
+          '$n×/Woche · ${weekdayNames(w)}',
         WeeklyGoalKind(unit: WeeklyUnit.times, target: final n) => '$n×/Woche',
         WeeklyGoalKind(target: final m) =>
           m % 60 == 0 ? '${m ~/ 60} h/Woche' : '$m min/Woche',
@@ -118,3 +139,9 @@ class ChallengeTemplate {
 }
 
 String _two(int n) => n.toString().padLeft(2, '0');
+
+const _weekdayShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+/// „Mo Mi Fr“ für die Tage 1, 3, 5.
+String weekdayNames(Set<int> days) =>
+    ([...days]..sort()).map((d) => _weekdayShort[d - 1]).join(' ');

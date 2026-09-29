@@ -65,12 +65,9 @@ class LocalNotificationScheduler implements ReminderScheduler {
 
   @override
   Future<void> schedule(ActiveChallenge challenge) async {
-    final id = notificationIdFor(challenge.id);
-    final when = firstReminder(challenge, DateTime.now());
-    if (when == null) {
-      await _plugin.cancel(id: id);
-      return;
-    }
+    await cancel(challenge);
+    final plan = reminderPlan(challenge, DateTime.now());
+    if (plan is NoReminder) return;
     final exact = await _ensurePermissions();
     final t = challenge.template;
     final (body, actions) = switch (reminderActionsFor(t.kind)) {
@@ -97,34 +94,56 @@ class LocalNotificationScheduler implements ReminderScheduler {
         ),
     };
 
-    await _plugin.cancel(id: id);
-    await _plugin.zonedSchedule(
-      id: id,
-      title: '${t.emoji} ${t.title}',
-      body: body,
-      payload: challenge.id,
-      scheduledDate: tz.TZDateTime(tz.local, when.year, when.month, when.day,
-          when.hour, when.minute),
-      notificationDetails: NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channel.channelId,
-          _channel.channelName,
-          channelDescription: _channel.channelDescription,
-          importance: _channel.importance,
-          priority: _channel.priority,
-          category: _channel.category,
-          actions: actions,
-        ),
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        _channel.channelId,
+        _channel.channelName,
+        channelDescription: _channel.channelDescription,
+        importance: _channel.importance,
+        priority: _channel.priority,
+        category: _channel.category,
+        actions: actions,
       ),
-      androidScheduleMode: exact
-          ? AndroidScheduleMode.exactAllowWhileIdle
-          : AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents:
-          reminderRepeats(challenge) ? DateTimeComponents.time : null,
     );
+    final mode = exact
+        ? AndroidScheduleMode.exactAllowWhileIdle
+        : AndroidScheduleMode.inexactAllowWhileIdle;
+    Future<void> at(int id, DateTime when, DateTimeComponents? repeat) =>
+        _plugin.zonedSchedule(
+          id: id,
+          title: '${t.emoji} ${t.title}',
+          body: body,
+          payload: challenge.id,
+          scheduledDate: tz.TZDateTime(tz.local, when.year, when.month,
+              when.day, when.hour, when.minute),
+          notificationDetails: details,
+          androidScheduleMode: mode,
+          matchDateTimeComponents: repeat,
+        );
+    final base = notificationIdFor(challenge.id);
+    switch (plan) {
+      case NoReminder():
+        return;
+      case OnceReminder(at: final when):
+        await at(base, when, null);
+      case DailyReminder(first: final when):
+        await at(base, when, DateTimeComponents.time);
+      case WeekdayReminders(firsts: final firsts):
+        for (final MapEntry(key: wd, value: when) in firsts.entries) {
+          await at(_weekdayId(challenge, wd), when,
+              DateTimeComponents.dayOfWeekAndTime);
+        }
+    }
   }
 
+  int _weekdayId(ActiveChallenge c, int weekday) =>
+      notificationIdFor('${c.id}:wd$weekday');
+
   @override
-  Future<void> cancel(ActiveChallenge challenge) =>
-      _plugin.cancel(id: notificationIdFor(challenge.id));
+  Future<void> cancel(ActiveChallenge challenge) async {
+    await _plugin.cancel(id: notificationIdFor(challenge.id));
+    for (var wd = 1; wd <= 7; wd++) {
+      await _plugin.cancel(id: _weekdayId(challenge, wd));
+    }
+  }
 }

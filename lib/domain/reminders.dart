@@ -59,6 +59,70 @@ DateTime? firstReminder(ActiveChallenge c, DateTime now) {
   return at;
 }
 
+/// Wann und wie oft erinnert wird.
+sealed class ReminderPlan {
+  const ReminderPlan();
+}
+
+class NoReminder extends ReminderPlan {
+  const NoReminder();
+}
+
+/// Einmaliger Termin (einmalige Challenge oder flexibles Wochenziel, das
+/// nach jedem Abhaken neu geplant wird).
+class OnceReminder extends ReminderPlan {
+  const OnceReminder(this.at);
+  final DateTime at;
+}
+
+/// Täglich ab [first] zur selben Uhrzeit.
+class DailyReminder extends ReminderPlan {
+  const DailyReminder(this.first);
+  final DateTime first;
+}
+
+/// Wöchentlich an geplanten Tagen: je Wochentag der erste Termin.
+class WeekdayReminders extends ReminderPlan {
+  const WeekdayReminders(this.firsts);
+  final Map<int, DateTime> firsts;
+}
+
+DateTime _at(DateTime d, ReminderTime t) =>
+    DateTime(d.year, d.month, d.day, t.hour, t.minute);
+
+ReminderPlan reminderPlan(ActiveChallenge c, DateTime now) {
+  if (c.isArchived || c.isCompleted) return const NoReminder();
+  final time = c.reminder;
+  switch (c.kind) {
+    case OneTimeKind():
+      final at = firstReminder(c, now);
+      return at == null ? const NoReminder() : OnceReminder(at);
+    case WeeklyGoalKind(weekdays: final days) when days.isNotEmpty:
+      final firsts = <int, DateTime>{};
+      for (final wd in days) {
+        var d = nextReminder(now, time);
+        while (d.weekday != wd) {
+          d = _at(d.add(const Duration(days: 1)), time);
+        }
+        for (var i = 0; i < 60 && c.isPaused(d); i++) {
+          d = _at(d.add(const Duration(days: 7)), time);
+        }
+        firsts[wd] = d;
+      }
+      return WeekdayReminders(firsts);
+    case WeeklyGoalKind(target: final target):
+      var d = nextReminder(now, time);
+      for (var i = 0; i < 400; i++) {
+        if (!c.isPaused(d) && c.weekValue(d) < target) return OnceReminder(d);
+        d = _at(d.add(const Duration(days: 1)), time);
+      }
+      return const NoReminder();
+    default:
+      final first = firstReminder(c, now);
+      return first == null ? const NoReminder() : DailyReminder(first);
+  }
+}
+
 /// Verarbeitet einen Tipp auf „Erledigt“ / „Nicht erledigt“ in der
 /// Benachrichtigung. Gibt true zurück, wenn ein Check-in gespeichert wurde.
 Future<bool> handleNotificationAction(
@@ -101,7 +165,7 @@ Future<void> syncReminders(
   required DateTime now,
 }) async {
   for (final c in await repository.active()) {
-    if (firstReminder(c, now) == null) {
+    if (reminderPlan(c, now) is NoReminder) {
       await scheduler.cancel(c);
     } else {
       await scheduler.schedule(c);
