@@ -124,13 +124,13 @@ class LocalNotificationScheduler implements ReminderScheduler {
     switch (plan) {
       case NoReminder():
         return;
-      case OnceReminder(at: final when):
-        await at(base, when, null);
-      case DailyReminder(first: final when):
-        await at(base, when, DateTimeComponents.time);
+      case OnceReminder(at: final time):
+        await at(base, time, null);
+      case DailyReminder(first: final time):
+        await at(base, time, DateTimeComponents.time);
       case WeekdayReminders(firsts: final firsts):
-        for (final MapEntry(key: wd, value: when) in firsts.entries) {
-          await at(_weekdayId(challenge, wd), when,
+        for (final MapEntry(key: wd, value: time) in firsts.entries) {
+          await at(_weekdayId(challenge, wd), time,
               DateTimeComponents.dayOfWeekAndTime);
         }
     }
