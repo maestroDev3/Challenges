@@ -38,15 +38,15 @@ Future<void> restoreBackup(
 ) async {
   final backup = decodeBackup(content);
   if (scheduler != null) {
-    for (final c in await repository.active()) {
-      await scheduler.cancel(c);
-      await scheduler.clearSession(c);
+    for (final challenge in await repository.active()) {
+      await scheduler.cancel(challenge);
+      await scheduler.clearSession(challenge);
     }
   }
   await repository.replaceAll(backup.store);
   if (scheduler != null) {
-    for (final c in backup.store.active) {
-      await scheduler.schedule(c);
+    for (final challenge in backup.store.active) {
+      await scheduler.schedule(challenge);
     }
   }
 }
