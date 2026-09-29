@@ -50,6 +50,9 @@ abstract interface class ChallengeRepository {
   /// Entfernt eine aktive oder archivierte Challenge endgültig.
   Future<void> delete(String id);
 
+  /// Ersetzt den kompletten Stand, z. B. beim Wiederherstellen eines Backups.
+  Future<void> replaceAll(ChallengeStore store);
+
   Future<List<ChallengeTemplate>> customTemplates();
 
   /// Legt eine eigene Vorlage an oder ändert sie (auch in laufenden Challenges).

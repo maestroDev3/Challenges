@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../domain/active_challenge.dart';
+import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
 import 'catalog_screen.dart';
@@ -12,6 +13,7 @@ class HomeShell extends StatefulWidget {
     required this.repository,
     this.clock = DateTime.now,
     this.scheduler,
+    this.backupFiles,
   });
 
   final ChallengeRepository repository;
@@ -19,6 +21,9 @@ class HomeShell extends StatefulWidget {
 
   /// Plant/storniert Erinnerungen; null in Tests ohne Erinnerungen.
   final ReminderScheduler? scheduler;
+
+  /// Datei-Dialog für „Daten sichern“; null in Tests ohne Dateien.
+  final BackupFiles? backupFiles;
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -56,6 +61,7 @@ class _HomeShellState extends State<HomeShell> {
             clock: widget.clock,
             onDiscover: () => setState(() => _tab = 1),
             scheduler: widget.scheduler,
+            backupFiles: widget.backupFiles,
           ),
           CatalogScreen(
             repository: widget.repository,

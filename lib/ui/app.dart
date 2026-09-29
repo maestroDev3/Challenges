@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
 import 'home_shell.dart';
@@ -8,10 +9,16 @@ import 'intro_screen.dart';
 import 'theme.dart';
 
 class ChallengesApp extends StatelessWidget {
-  const ChallengesApp({super.key, required this.repository, this.scheduler});
+  const ChallengesApp({
+    super.key,
+    required this.repository,
+    this.scheduler,
+    this.backupFiles,
+  });
 
   final ChallengeRepository repository;
   final ReminderScheduler? scheduler;
+  final BackupFiles? backupFiles;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +32,11 @@ class ChallengesApp extends StatelessWidget {
       supportedLocales: const [Locale('de')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: _IntroGate(
-        child: HomeShell(repository: repository, scheduler: scheduler),
+        child: HomeShell(
+          repository: repository,
+          scheduler: scheduler,
+          backupFiles: backupFiles,
+        ),
       ),
     );
   }
