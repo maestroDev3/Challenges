@@ -24,6 +24,43 @@ class ArchiveScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _reopen(BuildContext context, ActiveChallenge c) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final reopened = await repository.reopen(c.id);
+      await scheduler?.schedule(reopened);
+      messenger.showSnackBar(SnackBar(
+          content: Text('„${c.template.title}“ ist wieder unter Heute')));
+    } on StateError {
+      messenger.showSnackBar(SnackBar(
+          content: Text(
+              '„${c.template.title}“ läuft bereits – schließ die laufende zuerst ab.')));
+    }
+  }
+
+  Future<void> _delete(BuildContext context, ActiveChallenge c) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Challenge löschen?'),
+        content: Text(
+            '„${c.template.title}“ und der ganze Verlauf werden endgültig gelöscht.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Abbrechen'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Löschen'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await repository.delete(c.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
@@ -62,6 +99,8 @@ class ArchiveScreen extends StatelessWidget {
             itemBuilder: (context, i) => _ArchiveCard(
               challenge: items[i],
               onRestart: () => _restart(context, items[i]),
+              onReopen: () => _reopen(context, items[i]),
+              onDelete: () => _delete(context, items[i]),
             ),
           );
         },
@@ -71,10 +110,17 @@ class ArchiveScreen extends StatelessWidget {
 }
 
 class _ArchiveCard extends StatelessWidget {
-  const _ArchiveCard({required this.challenge, required this.onRestart});
+  const _ArchiveCard({
+    required this.challenge,
+    required this.onRestart,
+    required this.onReopen,
+    required this.onDelete,
+  });
 
   final ActiveChallenge challenge;
   final VoidCallback onRestart;
+  final VoidCallback onReopen;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +166,29 @@ class _ArchiveCard extends StatelessWidget {
                       ? scheme.primaryContainer
                       : scheme.surfaceContainerHighest,
                   visualDensity: VisualDensity.compact,
+                ),
+                PopupMenuButton<String>(
+                  tooltip: 'Mehr',
+                  onSelected: (action) =>
+                      action == 'reopen' ? onReopen() : onDelete(),
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'reopen',
+                      child: ListTile(
+                        leading: Icon(Icons.undo),
+                        title: Text('Wieder aufnehmen'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete_outline),
+                        title: Text('Löschen'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

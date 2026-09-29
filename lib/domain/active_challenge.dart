@@ -25,6 +25,25 @@ enum ChallengeStatus { active, completed, ended }
 /// - [strict]: Fehltag startet einen neuen Versuch bei Tag 1.
 enum StreakRule { relaxed, joker, strict }
 
+/// Welche Regeln zur Art passen: „Hart“ nur mit Ziel zum Neustarten
+/// (X Tage), einmalige Challenges haben keine Streak und keine Regel.
+Set<StreakRule> allowedRules(ChallengeKind kind) => switch (kind) {
+      DailyKind(days: _?) => const {
+          StreakRule.relaxed,
+          StreakRule.joker,
+          StreakRule.strict,
+        },
+      OneTimeKind() => const {},
+      _ => const {StreakRule.relaxed, StreakRule.joker},
+    };
+
+/// Die gewünschte Regel, falls sie passt, sonst „Locker“.
+StreakRule ruleFor(ChallengeKind kind, StreakRule wanted) =>
+    allowedRules(kind).contains(wanted) ? wanted : StreakRule.relaxed;
+
+/// Einmalige Challenges haben keine Streak.
+bool hasStreak(ChallengeKind kind) => kind is! OneTimeKind;
+
 const _jokerEvery = 7;
 const _maxJokers = 2;
 
@@ -141,6 +160,7 @@ class ActiveChallenge {
     DateTime? sessionStartedAt,
     bool clearSession = false,
     Map<DateTime, int>? activityLog,
+    bool clearFinished = false,
   }) =>
       ActiveChallenge(
         id: id,
@@ -149,7 +169,7 @@ class ActiveChallenge {
         reminder: reminder ?? this.reminder,
         checkIns: checkIns ?? this.checkIns,
         status: status ?? this.status,
-        finishedOn: finishedOn ?? this.finishedOn,
+        finishedOn: clearFinished ? null : finishedOn ?? this.finishedOn,
         pauses: pauses ?? this.pauses,
         rule: rule ?? this.rule,
         stepLog: stepLog ?? this.stepLog,
@@ -253,6 +273,10 @@ class ActiveChallenge {
             isCompleted ? ChallengeStatus.completed : ChallengeStatus.ended,
         finishedOn: dayOf(now),
       );
+
+  /// Holt eine archivierte Challenge mit ganzem Verlauf zurück.
+  ActiveChallenge reopen() =>
+      copyWith(status: ChallengeStatus.active, clearFinished: true);
 
   /// True, wenn das Ziel erreicht ist und die Challenge automatisch ins
   /// Archiv wandern soll (X Tage oder einmalig).

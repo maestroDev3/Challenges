@@ -43,6 +43,10 @@ abstract interface class ChallengeRepository {
   /// Archiviert die Challenge (geschafft oder beendet).
   Future<ActiveChallenge?> finish(String id);
 
+  /// Holt eine archivierte Challenge zurück. Wirft [StateError], wenn
+  /// dieselbe Vorlage bereits läuft oder die Challenge nicht archiviert ist.
+  Future<ActiveChallenge> reopen(String id);
+
   /// Entfernt eine aktive oder archivierte Challenge endgültig.
   Future<void> delete(String id);
 

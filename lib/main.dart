@@ -38,7 +38,30 @@ Future<void> onNotificationActionInBackground(NotificationResponse r) async {
     now: DateTime.now(),
     input: r.input,
   );
+  // Termine nach dem Abhaken neu planen (z. B. Wochenziel erreicht).
+  try {
+    final scheduler = await LocalNotificationScheduler.create(
+      onResponse: (_) {},
+      onBackgroundResponse: onNotificationActionInBackground,
+      askPermissions: false,
+    );
+    await _reschedule(repository, scheduler, r.payload);
+  } on Object catch (_) {
+    // Beim nächsten App-Start wird ohnehin neu geplant.
+  }
   await _refreshWidget(repository);
+}
+
+Future<void> _reschedule(
+    ChallengeRepository repository, ReminderScheduler scheduler, String? id) async {
+  if (id == null) return;
+  final c = await repository.byId(id);
+  if (c == null) return;
+  if (c.isArchived) {
+    await scheduler.cancel(c);
+  } else {
+    await scheduler.schedule(c);
+  }
 }
 
 /// Wird aufgerufen, wenn im Homescreen-Widget ein Haken getippt wird.
@@ -55,14 +78,18 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final repository = LocalChallengeRepository(prefs);
 
-  final scheduler = await LocalNotificationScheduler.create(
-    onResponse: (r) => handleNotificationAction(
-      repository,
-      actionId: r.actionId,
-      payload: r.payload,
-      now: DateTime.now(),
-      input: r.input,
-    ),
+  late final LocalNotificationScheduler scheduler;
+  scheduler = await LocalNotificationScheduler.create(
+    onResponse: (r) async {
+      await handleNotificationAction(
+        repository,
+        actionId: r.actionId,
+        payload: r.payload,
+        now: DateTime.now(),
+        input: r.input,
+      );
+      await _reschedule(repository, scheduler, r.payload);
+    },
     onBackgroundResponse: onNotificationActionInBackground,
   );
   await syncReminders(repository, scheduler, now: DateTime.now());

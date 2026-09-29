@@ -76,7 +76,7 @@ class FakeChallengeRepository implements ChallengeRepository {
       template: template,
       startedOn: dayOf(_now),
       reminder: reminder,
-      rule: rule,
+      rule: ruleFor(template.kind, rule),
     );
     _items.add(c);
     _emit();
@@ -104,6 +104,19 @@ class FakeChallengeRepository implements ChallengeRepository {
     _archived.add(done);
     _emit();
     return done;
+  }
+
+  @override
+  Future<ActiveChallenge> reopen(String id) async {
+    final i = _archived.indexWhere((c) => c.id == id);
+    if (i < 0) throw StateError('Challenge ist nicht archiviert');
+    if (_items.any((c) => c.template.id == _archived[i].template.id)) {
+      throw StateError('Dieselbe Vorlage läuft bereits');
+    }
+    final reopened = _archived.removeAt(i).reopen();
+    _items.add(reopened);
+    _emit();
+    return reopened;
   }
 
   @override

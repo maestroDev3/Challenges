@@ -69,6 +69,42 @@ DateTime? firstReminder(ActiveChallenge c, DateTime now) {
   return at;
 }
 
+/// So viele Termine werden je Challenge im Voraus geplant.
+const maxUpcomingReminders = 14;
+
+DateTime _at(DateTime d, ReminderTime t) =>
+    DateTime(d.year, d.month, d.day, t.hour, t.minute);
+
+/// Die nächsten konkreten Erinnerungstermine ab [now].
+///
+/// Bewusst keine wiederholenden Benachrichtigungen: Android berechnet deren
+/// nächsten Termin selbst und würde Pausen ignorieren (#72). Ausgelassen
+/// werden pausierte Tage, nicht geplante Wochentage und – beim flexiblen
+/// Wochenziel – Tage, an denen das Ziel der Woche schon erreicht ist.
+/// Die Liste wird nach jeder Änderung neu berechnet.
+List<DateTime> upcomingReminders(ActiveChallenge c, DateTime now,
+    {int max = maxUpcomingReminders}) {
+  if (c.isArchived || c.isCompleted) return const [];
+  final kind = c.kind;
+  if (kind is OneTimeKind) {
+    final at = firstReminder(c, now);
+    return at == null ? const [] : [at];
+  }
+  final result = <DateTime>[];
+  var d = nextReminder(now, c.reminder);
+  for (var i = 0; i < 120 && result.length < max; i++) {
+    final due = switch (kind) {
+      WeeklyGoalKind(weekdays: final days) when days.isNotEmpty =>
+        days.contains(d.weekday),
+      WeeklyGoalKind(target: final target) => c.weekValue(d) < target,
+      _ => true,
+    };
+    if (due && !c.isPaused(d)) result.add(d);
+    d = _at(d.add(const Duration(days: 1)), c.reminder);
+  }
+  return result;
+}
+
 /// Verarbeitet einen Tipp auf „Erledigt“ / „Nicht erledigt“ in der
 /// Benachrichtigung. Gibt true zurück, wenn ein Check-in gespeichert wurde.
 Future<bool> handleNotificationAction(
@@ -119,7 +155,7 @@ Future<void> syncReminders(
   required DateTime now,
 }) async {
   for (final c in await repository.active()) {
-    if (firstReminder(c, now) == null) {
+    if (upcomingReminders(c, now).isEmpty) {
       await scheduler.cancel(c);
     } else {
       await scheduler.schedule(c);

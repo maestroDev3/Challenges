@@ -111,7 +111,7 @@ class LocalChallengeRepository implements ChallengeRepository {
       template: template,
       startedOn: dayOf(now),
       reminder: reminder,
-      rule: rule,
+      rule: ruleFor(template.kind, rule),
     );
     await _write(store, active: [...store.active, c]);
     return c;
@@ -149,6 +149,23 @@ class LocalChallengeRepository implements ChallengeRepository {
       }
     }
     return null;
+  }
+
+  @override
+  Future<ActiveChallenge> reopen(String id) async {
+    final store = await _load();
+    final archived = store.archived.where((c) => c.id == id).firstOrNull;
+    if (archived == null) throw StateError('Challenge ist nicht archiviert');
+    if (store.active.any((c) => c.template.id == archived.template.id)) {
+      throw StateError('Dieselbe Vorlage läuft bereits');
+    }
+    final reopened = archived.reopen();
+    await _write(
+      store,
+      active: [...store.active, reopened],
+      archived: [for (final c in store.archived) if (c.id != id) c],
+    );
+    return reopened;
   }
 
   @override
@@ -231,8 +248,12 @@ class LocalChallengeRepository implements ChallengeRepository {
               'hours': w.inHours,
               'date': d?.toIso8601String(),
             },
-          WeeklyGoalKind(target: final n, unit: final u) =>
-            {'type': 'weekly', 'target': n, 'unit': u.name},
+          WeeklyGoalKind(target: final n, unit: final u, weekdays: final w) => {
+              'type': 'weekly',
+              'target': n,
+              'unit': u.name,
+              if (w.isNotEmpty) 'weekdays': [...w]..sort(),
+            },
           JournalKind() => {'type': 'journal'},
         },
       };
@@ -248,6 +269,7 @@ class LocalChallengeRepository implements ChallengeRepository {
       'weekly' => WeeklyGoalKind(
           k['target'] as int,
           unit: WeeklyUnit.values.byName(k['unit'] as String),
+          weekdays: (k['weekdays'] as List? ?? const []).cast<int>().toSet(),
         ),
       _ => const JournalKind(),
     };
@@ -319,7 +341,8 @@ class LocalChallengeRepository implements ChallengeRepository {
       reminder: ReminderTime(reminder[0], reminder[1]),
       status: ChallengeStatus.values.byName(j['status'] as String? ?? 'active'),
       finishedOn: finishedOn == null ? null : DateTime.parse(finishedOn),
-      rule: StreakRule.values.byName(j['rule'] as String? ?? 'relaxed'),
+      rule: ruleFor(template.kind,
+          StreakRule.values.byName(j['rule'] as String? ?? 'relaxed')),
       windowStartedAt: switch (j['windowStartedAt']) {
         final String w => DateTime.parse(w),
         _ => null,
