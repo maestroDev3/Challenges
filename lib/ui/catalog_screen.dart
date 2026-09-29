@@ -275,10 +275,11 @@ class _StartSheetState extends State<_StartSheet> {
               trailing: Text(_reminder.toString(), style: text.titleMedium),
               onTap: widget.running ? null : _pickTime,
             ),
-            if (!widget.running) ...[
+            if (!widget.running && allowedRules(t.kind).isNotEmpty) ...[
               const SizedBox(height: 8),
               RuleSelector(
                 value: _rule,
+                allowed: allowedRules(t.kind),
                 onChanged: (r) => setState(() => _rule = r),
               ),
             ],

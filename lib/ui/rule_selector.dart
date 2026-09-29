@@ -4,10 +4,18 @@ import '../domain/active_challenge.dart';
 
 /// Auswahl der Regel für Fehltage mit kurzer Erklärung.
 class RuleSelector extends StatelessWidget {
-  const RuleSelector({super.key, required this.value, required this.onChanged});
+  const RuleSelector({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.allowed = const {StreakRule.relaxed, StreakRule.joker, StreakRule.strict},
+  });
 
   final StreakRule value;
   final ValueChanged<StreakRule> onChanged;
+
+  /// Nur diese Regeln werden angeboten (siehe `allowedRules`).
+  final Set<StreakRule> allowed;
 
   static String explain(StreakRule rule) => switch (rule) {
         StreakRule.relaxed => 'Ein Fehltag setzt nur die Streak auf 0.',
@@ -23,10 +31,14 @@ class RuleSelector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SegmentedButton<StreakRule>(
-          segments: const [
-            ButtonSegment(value: StreakRule.relaxed, label: Text('Locker')),
-            ButtonSegment(value: StreakRule.joker, label: Text('Joker')),
-            ButtonSegment(value: StreakRule.strict, label: Text('Hart')),
+          segments: [
+            for (final (rule, label) in const [
+              (StreakRule.relaxed, 'Locker'),
+              (StreakRule.joker, 'Joker'),
+              (StreakRule.strict, 'Hart'),
+            ])
+              if (allowed.contains(rule))
+                ButtonSegment(value: rule, label: Text(label)),
           ],
           selected: {value},
           showSelectedIcon: false,

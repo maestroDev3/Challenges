@@ -54,6 +54,7 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   late DateTime _date = dayOf(widget.clock()).add(const Duration(days: 1));
   ReminderTime _reminder = const ReminderTime(9, 0);
   StreakRule _rule = StreakRule.relaxed;
+  final Set<int> _weekdays = {};
   bool _busy = false;
 
   bool get _isEdit => widget.initial != null;
@@ -69,6 +70,9 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
         _kind = _KindChoice.weekly;
         _unit = u;
         (u == WeeklyUnit.times ? _weeklyTimes : _weeklyMinutes).text = '$n';
+        if (widget.initial?.kind case WeeklyGoalKind(weekdays: final w)) {
+          _weekdays.addAll(w);
+        }
       case OneTimeKind(date: final d):
         _kind = _KindChoice.oneTime;
         if (d != null) _date = d;
@@ -113,7 +117,9 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
             _unit == WeeklyUnit.times ? _weeklyTimes : _weeklyMinutes;
         final n = int.tryParse(controller.text);
         if (n == null) return null;
-        kind = WeeklyGoalKind(n, unit: _unit);
+        kind = WeeklyGoalKind(n,
+            unit: _unit,
+            weekdays: _unit == WeeklyUnit.times ? {..._weekdays} : const {});
       case _KindChoice.oneTime:
         kind = OneTimeKind(const Duration(hours: 24), date: _date);
     }
@@ -136,6 +142,24 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
       return null;
     }
   }
+
+  /// Die Art laut Formular (für die passenden Regeln).
+  ChallengeKind get _currentKind => switch (_kind) {
+        _KindChoice.ongoing => const DailyKind(),
+        _KindChoice.days => const DailyKind(days: 1),
+        _KindChoice.weekly => WeeklyGoalKind(1, unit: _unit),
+        _KindChoice.oneTime => const OneTimeKind(Duration(hours: 24)),
+      };
+
+  void _setKind(_KindChoice choice) => setState(() {
+        _kind = choice;
+        _rule = ruleFor(_currentKind, _rule);
+      });
+
+  void _toggleWeekday(int day) => setState(() {
+        if (!_weekdays.remove(day)) _weekdays.add(day);
+        if (_weekdays.isNotEmpty) _weeklyTimes.text = '${_weekdays.length}';
+      });
 
   Future<void> _save() async {
     final template = _buildTemplate();
@@ -286,18 +310,19 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
                   ChoiceChip(
                     label: Text(label),
                     selected: _kind == choice,
-                    onSelected: (_) => setState(() => _kind = choice),
+                    onSelected: (_) => _setKind(choice),
                   ),
               ],
             ),
             const SizedBox(height: 16),
             ..._kindFields(text),
             const SizedBox(height: 8),
-            if (!_isEdit) ...[
+            if (!_isEdit && allowedRules(_currentKind).isNotEmpty) ...[
               Text('Regel bei Fehltagen', style: text.titleSmall),
               const SizedBox(height: 8),
               RuleSelector(
                 value: _rule,
+                allowed: allowedRules(_currentKind),
                 onChanged: (r) => setState(() => _rule = r),
               ),
               const SizedBox(height: 8),
@@ -348,9 +373,35 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
               onSelectionChanged: (s) => setState(() => _unit = s.first),
             ),
             const SizedBox(height: 12),
+            if (_unit == WeeklyUnit.times) ...[
+              Text('An festen Tagen? (optional)', style: text.bodyMedium),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final (i, name) in const [
+                    'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So',
+                  ].indexed)
+                    FilterChip(
+                      label: Text(name),
+                      selected: _weekdays.contains(i + 1),
+                      showCheckmark: false,
+                      onSelected: (_) => _toggleWeekday(i + 1),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
             if (_unit == WeeklyUnit.times)
               _NumberField(
-                  controller: _weeklyTimes, label: 'Mal pro Woche', hint: '1–7')
+                controller: _weeklyTimes,
+                label: 'Mal pro Woche',
+                hint: _weekdays.isEmpty
+                    ? '1–7 · flexibel, wann du willst'
+                    : 'ergibt sich aus den gewählten Tagen',
+                enabled: _weekdays.isEmpty,
+              )
             else
               _NumberField(
                   controller: _weeklyMinutes,
@@ -375,15 +426,18 @@ class _NumberField extends StatelessWidget {
     required this.controller,
     required this.label,
     required this.hint,
+    this.enabled = true,
   });
 
   final TextEditingController controller;
   final String label;
   final String hint;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) => TextField(
         controller: controller,
+        enabled: enabled,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: InputDecoration(

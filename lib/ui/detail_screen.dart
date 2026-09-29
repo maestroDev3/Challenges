@@ -67,8 +67,14 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             spacing: 12,
             runSpacing: 12,
             children: [
-              _Stat(label: 'Streak', value: '🔥 ${c.currentStreak(_end)}'),
-              _Stat(label: 'Beste Streak', value: '${c.bestStreak}'),
+              if (hasStreak(c.kind)) ...[
+                _Stat(label: 'Streak', value: '🔥 ${c.currentStreak(_end)}'),
+                _Stat(label: 'Beste Streak', value: '${c.bestStreak}'),
+              ] else
+                _Stat(
+                  label: 'Ergebnis',
+                  value: c.isCompleted ? 'Geschafft' : 'Offen',
+                ),
               _Stat(
                 label: 'Erfolgsquote',
                 value: rate == null ? '–' : '${(rate * 100).round()} %',

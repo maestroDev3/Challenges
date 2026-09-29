@@ -51,6 +51,16 @@ void main() {
       expect(reloaded.rule, StreakRule.strict);
     });
 
+    test('unpassende Regel wird beim Start und beim Laden zu Locker', () async {
+      final repo = await newRepo();
+      final c = await repo.start(
+          templateById('meditate-sleep')!, const ReminderTime(22, 0),
+          rule: StreakRule.strict);
+      expect(c.rule, StreakRule.relaxed);
+      await repo.save(c.copyWith(rule: StreakRule.strict));
+      expect((await (await newRepo()).active()).single.rule, StreakRule.relaxed);
+    });
+
     test('start derselben Vorlage liefert die laufende Challenge', () async {
       final repo = await newRepo();
       final a = await repo.start(
@@ -122,6 +132,28 @@ void main() {
       expect(b.id, isNot(a.id));
       expect(await repo.active(), hasLength(1));
       expect(await repo.archived(), hasLength(1));
+    });
+
+    test('reopen holt archivierte Challenge mit Verlauf zurück', () async {
+      final repo = await newRepo();
+      var c = await repo.start(
+          templateById('cold-shower')!, const ReminderTime(7, 0));
+      await repo.save(c.checkIn(now, CheckInStatus.done));
+      await repo.finish(c.id);
+      final reopened = await repo.reopen(c.id);
+      expect(reopened.status, ChallengeStatus.active);
+      final loaded = await newRepo();
+      expect((await loaded.active()).single.doneDays, 1);
+      expect(await loaded.archived(), isEmpty);
+    });
+
+    test('reopen scheitert, wenn dieselbe Vorlage schon läuft', () async {
+      final repo = await newRepo();
+      final a = await repo.start(
+          templateById('cold-shower')!, const ReminderTime(7, 0));
+      await repo.finish(a.id);
+      await repo.start(templateById('cold-shower')!, const ReminderTime(7, 0));
+      await expectLater(repo.reopen(a.id), throwsStateError);
     });
 
     test('delete entfernt endgültig', () async {
@@ -207,6 +239,17 @@ void main() {
       expect(loaded.template.targetDuration, const Duration(minutes: 20));
       expect(loaded.sessionStartedAt, started.add(const Duration(minutes: 10)));
       expect(loaded.activityMinutesOn(started), 5);
+    });
+
+    test('Wochentage werden gespeichert', () async {
+      final repo = await newRepo();
+      final t = ChallengeTemplate.custom(
+          title: 'Laufen',
+          kind: const WeeklyGoalKind(3,
+              unit: WeeklyUnit.times, weekdays: {1, 3, 5}));
+      await repo.saveTemplate(t);
+      final loaded = (await (await newRepo()).customTemplates()).single;
+      expect((loaded.kind as WeeklyGoalKind).weekdays, {1, 3, 5});
     });
 
     test('Challenge mit eigener Vorlage wird korrekt geladen', () async {

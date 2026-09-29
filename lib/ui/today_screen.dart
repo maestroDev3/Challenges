@@ -36,6 +36,8 @@ class TodayScreen extends StatelessWidget {
       if (done != null && context.mounted) await showCelebration(context, done);
       return;
     }
+    // Termine neu berechnen (z. B. Wochenziel erreicht, Tag nachgetragen).
+    await scheduler?.schedule(c);
     final milestone = before == null ? null : milestoneReached(before, c);
     if (milestone != null && context.mounted) {
       await showMilestone(context, c, milestone);
@@ -59,9 +61,20 @@ class TodayScreen extends StatelessWidget {
     await saved;
   }
 
-  Future<void> _finish(ActiveChallenge c) async {
+  Future<void> _finish(BuildContext context, ActiveChallenge c) async {
+    final messenger = ScaffoldMessenger.of(context);
     await repository.finish(c.id);
     await scheduler?.cancel(c);
+    messenger.showSnackBar(SnackBar(
+      content: Text('„${c.template.title}“ abgeschlossen'),
+      action: SnackBarAction(
+        label: 'Rückgängig',
+        onPressed: () async {
+          final reopened = await repository.reopen(c.id);
+          await scheduler?.schedule(reopened);
+        },
+      ),
+    ));
   }
 
   Future<void> _delete(BuildContext context, ActiveChallenge c) async {
@@ -136,7 +149,7 @@ class TodayScreen extends StatelessWidget {
                       challenge: items[i],
                       today: now,
                       onSave: (c) => _save(context, c),
-                      onFinish: _finish,
+                      onFinish: (c) => _finish(context, c),
                       onDelete: (c) => _delete(context, c),
                       onPauseChanged: _reschedule,
                       onStartSession: _startSession,
@@ -387,6 +400,7 @@ class ChallengeCard extends StatelessWidget {
                       Wrap(
                         spacing: 12,
                         children: [
+                          if (hasStreak(challenge.kind))
                           Text(
                             '🔥 ${challenge.currentStreak(today)}',
                             style: text.titleSmall,
@@ -450,6 +464,10 @@ class ChallengeCard extends StatelessWidget {
               days: challenge.week(today),
               today: dayOf(today),
               firstDay: dayOf(challenge.startedOn),
+              planned: switch (challenge.kind) {
+                WeeklyGoalKind(weekdays: final w) => w,
+                _ => const {},
+              },
               onTapDay: (day) => _correct(context, day),
             ),
             if (challenge.template.steps.isNotEmpty && !paused)
@@ -625,12 +643,16 @@ class _WeekRow extends StatelessWidget {
     required this.today,
     required this.firstDay,
     required this.onTapDay,
+    this.planned = const {},
   });
 
   final List<DayStatus> days;
   final DateTime today;
   final DateTime firstDay;
   final ValueChanged<DateTime> onTapDay;
+
+  /// Geplante Wochentage (1 = Mo), z. B. bei „3×/Woche · Mo Mi Fr“.
+  final Set<int> planned;
 
   @override
   Widget build(BuildContext context) {
@@ -645,6 +667,8 @@ class _WeekRow extends StatelessWidget {
               key: Key('day-$i'),
               day: today.subtract(Duration(days: days.length - 1 - i)),
               firstDay: firstDay,
+              planned: planned.contains(
+                  today.subtract(Duration(days: days.length - 1 - i)).weekday),
               onTap: onTapDay,
               child: Container(
               width: 28,
@@ -660,7 +684,13 @@ class _WeekRow extends StatelessWidget {
                 },
                 border: i == days.length - 1
                     ? Border.all(color: scheme.primary, width: 2)
-                    : null,
+                    : planned.contains(today
+                                .subtract(Duration(days: days.length - 1 - i))
+                                .weekday) &&
+                            d == DayStatus.open
+                        ? Border.all(
+                            color: scheme.primary.withValues(alpha: 0.6))
+                        : null,
               ),
               child: switch (d) {
                 DayStatus.done =>
@@ -726,10 +756,12 @@ class _Dot extends StatelessWidget {
     required this.firstDay,
     required this.onTap,
     required this.child,
+    this.planned = false,
   });
 
   final DateTime day;
   final DateTime firstDay;
+  final bool planned;
   final ValueChanged<DateTime> onTap;
   final Widget child;
 
@@ -738,7 +770,9 @@ class _Dot extends StatelessWidget {
     final enabled = !day.isBefore(firstDay);
     return Semantics(
       button: enabled,
-      label: formatWeekdayDate(day),
+      label: planned
+          ? '${formatWeekdayDate(day)} (geplant)'
+          : formatWeekdayDate(day),
       child: InkResponse(
         radius: 22,
         onTap: enabled ? () => onTap(day) : null,
