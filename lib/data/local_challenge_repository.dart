@@ -239,8 +239,6 @@ class LocalChallengeRepository implements ChallengeRepository {
         'title': t.title,
         'description': t.description,
         'emoji': t.emoji,
-        if (t.steps.isNotEmpty) 'steps': t.steps,
-        if (t.targetDuration case final d?) 'targetMinutes': d.inMinutes,
         'kind': switch (t.kind) {
           DailyKind(days: final d) => {'type': 'daily', 'days': d},
           OneTimeKind(window: final w, date: final d) => {
@@ -279,11 +277,6 @@ class LocalChallengeRepository implements ChallengeRepository {
       description: j['description'] as String? ?? '',
       emoji: j['emoji'] as String? ?? '⭐',
       kind: kind,
-      steps: (j['steps'] as List? ?? const []).cast<String>(),
-      targetDuration: switch (j['targetMinutes']) {
-        final int m => Duration(minutes: m),
-        _ => null,
-      },
     );
   }
 
@@ -296,17 +289,6 @@ class LocalChallengeRepository implements ChallengeRepository {
         'status': c.status.name,
         if (c.finishedOn case final f?) 'finishedOn': f.toIso8601String(),
         'rule': c.rule.name,
-        if (c.windowStartedAt case final w?) 'windowStartedAt': w.toIso8601String(),
-        if (c.sessionStartedAt case final s?) 'sessionStartedAt': s.toIso8601String(),
-        if (c.activityLog.isNotEmpty)
-          'activityLog': {
-            for (final e in c.activityLog.entries) e.key.toIso8601String(): e.value,
-          },
-        if (c.stepLog.isNotEmpty)
-          'stepLog': {
-            for (final e in c.stepLog.entries)
-              e.key.toIso8601String(): e.value.toList()..sort(),
-          },
         'pauses': [
           for (final p in c.pauses)
             [p.from.toIso8601String(), p.until.toIso8601String()],
@@ -343,23 +325,6 @@ class LocalChallengeRepository implements ChallengeRepository {
       finishedOn: finishedOn == null ? null : DateTime.parse(finishedOn),
       rule: ruleFor(template.kind,
           StreakRule.values.byName(j['rule'] as String? ?? 'relaxed')),
-      windowStartedAt: switch (j['windowStartedAt']) {
-        final String w => DateTime.parse(w),
-        _ => null,
-      },
-      sessionStartedAt: switch (j['sessionStartedAt']) {
-        final String s => DateTime.parse(s),
-        _ => null,
-      },
-      activityLog: {
-        for (final e
-            in (j['activityLog'] as Map<String, dynamic>? ?? const {}).entries)
-          DateTime.parse(e.key): e.value as int,
-      },
-      stepLog: {
-        for (final e in (j['stepLog'] as Map<String, dynamic>? ?? const {}).entries)
-          DateTime.parse(e.key): (e.value as List).cast<int>().toSet(),
-      },
       pauses: [
         for (final p in (j['pauses'] as List? ?? const []).cast<List>())
           PauseRange(

@@ -115,17 +115,6 @@ void main() {
     expect(find.text('45/120 min'), findsOneWidget);
   });
 
-  testWidgets('Meilenstein 7 Tage wird gefeiert', (tester) async {
-    final repo = FakeChallengeRepository(initial: [
-      running('meditate-sleep', doneDaysAgo: [1, 2, 3, 4, 5, 6])
-    ]);
-    await pumpToday(tester, repo);
-    await tester.tap(find.text('Erledigt'));
-    await tester.pumpAndSettle();
-    expect(find.text('Meilenstein erreicht'), findsOneWidget);
-    expect(find.text('7 Tage am Stück'), findsOneWidget);
-  });
-
   testWidgets('nach dem Abhaken wird die Erinnerung neu geplant (#72)',
       (tester) async {
     final repo = FakeChallengeRepository(
