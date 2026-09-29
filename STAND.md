@@ -8,18 +8,22 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## In Arbeit
 
-- –
+- #78 Profil und Einstellungen (Epic #80) – eigener Tab „Profil“, Einstellungen über
+  Zahnrad, „Daten sichern“ zieht dorthin um.
+  Tasks: #99 Einstellungen speichern (Branch grün, PR fehlt) · #100 Tab „Profil“
+  (Code fertig, CI noch nicht gelaufen) · #101 Seite „Einstellungen“ · #102 Einstellungen wirken.
+  **Blockiert:** GitHub Actions startet keine Jobs (Zahlung/Ausgabenlimit).
 
 ## Als Nächstes
 
-- Nächstes Epic nach Wahl des Nutzers (Vorschlag: #78 Profil und Einstellungen)
+- Actions-Abrechnung klären, dann #78 fortsetzen
 
 ## Backlog nach Epic
 
 | Epic | Stories (Reihenfolge) |
 |---|---|
 | #36 Motivation und Dranbleiben | #33 Fortschrittsfotos → #82 Dashboard und Kennzahlen |
-| #80 Profil und Einstellungen | #78 Profil und Einstellungen → #79 Sprache wählbar (DE/EN/RU) |
+| #80 Profil und Einstellungen | #78 Profil und Einstellungen (in Arbeit) → #79 Sprache wählbar (DE/EN/RU) |
 | #104 Planen und Vorbereiten | #103 Startdatum planen |
 | #38 Gemeinsam | #34 Challenges mit Partnerin/Freunden – erst nach Backend-Entscheidung |
 
