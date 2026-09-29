@@ -46,6 +46,11 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("sideload")
+            // Eigene R8-Regeln, u. a. gegen den Startabsturz durch WorkManager (#94).
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

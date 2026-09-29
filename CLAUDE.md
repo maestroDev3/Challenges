@@ -24,6 +24,21 @@ Regeln:
 - Welche Story als Nächstes umgesetzt wird, entscheidet der Nutzer; ohne Vorgabe die
   nächste `ready`-Story laut Reihenfolge im Epic.
 
+## Stand pflegen (`STAND.md`)
+
+`STAND.md` ist die Kurzfassung des Projektstands. Der Nutzer liest sie in einem
+Claude-Projekt als Kontext. Sie muss immer zu den Issues passen.
+
+- Claude aktualisiert `STAND.md`, sobald sich etwas davon ändert: Story wechselt
+  den Status (`backlog`/`ready`/`in-progress`) oder wird geschlossen, neue Story
+  oder neues Epic, Reihenfolge ändert sich, Entscheidung getroffen.
+- Inhalt: In Arbeit · Als Nächstes · Backlog nach Epic · Zuletzt erledigt
+  (höchstens 5, neueste oben) · Offene Entscheidungen · Datum „Zuletzt aktualisiert“.
+- Beim Schließen einer Story gehört die Änderung in den letzten PR der Story.
+  Reine Statusänderungen ohne PR: direkter Commit auf `main`
+  (`docs: Stand aktualisieren`).
+- Kurz halten: Nummer + Titel, keine Task-Details.
+
 ## Workflow: Story → Sub-Issues
 
 1. Jede fachliche Anforderung ist eine **Story** (Issue mit Label `story`).
@@ -47,7 +62,11 @@ Regeln:
 
 - Claude darf PRs **selbst per Squash nach `main` mergen**, sobald die CI
   (analyze + test) grün ist. Nie mit roter oder laufender CI mergen.
-- Kein direkter Push auf `main` außer für Repo-Infrastruktur (CI, diese Datei).
+- Läuft für den PR der Workflow **Smoke** (Release-APK auf Android-Emulator
+  starten, frisch und als Update), muss auch er grün sein. Epic-Branches
+  werden erst nach grünem Smoke und Test durch den Nutzer nach `main` gemergt.
+- Kein direkter Push auf `main` außer für Repo-Infrastruktur (CI, diese Datei,
+  `STAND.md`).
 - Nach dem Merge Branch löschen.
 
 ## Technik
