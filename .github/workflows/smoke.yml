@@ -50,13 +50,9 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Starttest auf Emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: google_apis
-          arch: x86_64
-          disable-animations: true
-          script: bash scripts/smoke_test.sh build/app/outputs/flutter-apk/app-release.apk baseline/build/app/outputs/flutter-apk/app-release.apk
+        run: |
+          set -o pipefail
+          bash scripts/emulator.sh 2>&1 | tee emu.log
       - name: Logs hochladen
         if: always()
         uses: actions/upload-artifact@v4
@@ -64,13 +60,14 @@ jobs:
           name: smoke-logs
           path: |
             smoke.log
+            emu.log
             logcat_*.txt
       - name: Ergebnis als Commit-Kommentar
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          { echo "### Smoke (Emulator): ${{ job.status }}"; echo '```'; tail -c 30000 smoke.log 2>/dev/null || echo 'kein smoke.log'; echo '```'; } > report.md
+          { echo "### Smoke (Emulator): ${{ job.status }}"; echo '```'; tail -c 20000 smoke.log 2>/dev/null || echo 'kein smoke.log'; echo '--- emulator ---'; grep -v '^\[=*' emu.log 2>/dev/null | tail -c 10000; echo '```'; } > report.md
           jq -Rs '{body: .}' report.md > body.json
           curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments" -d @body.json > /dev/null
