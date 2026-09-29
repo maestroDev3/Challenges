@@ -8,6 +8,7 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/milestones.dart';
 import '../domain/reminders.dart';
+import 'adjust_sheet.dart';
 import 'archive_screen.dart';
 import 'detail_screen.dart';
 import 'format.dart';
@@ -19,12 +20,25 @@ class TodayScreen extends StatelessWidget {
     required this.onDiscover,
     this.clock = DateTime.now,
     this.scheduler,
+    this.pickTime = pickTimeDefault,
   });
 
   final ChallengeRepository repository;
   final VoidCallback onDiscover;
   final Clock clock;
   final ReminderScheduler? scheduler;
+  final TimePick pickTime;
+
+  Future<void> _adjust(BuildContext context, ActiveChallenge c) async {
+    final updated = await showAdjustSheet(
+      context,
+      challenge: c,
+      repository: repository,
+      clock: clock,
+      pickTime: pickTime,
+    );
+    if (updated != null) await _reschedule(updated);
+  }
 
   /// Speichert und archiviert automatisch, wenn das Ziel erreicht ist.
   Future<void> _save(BuildContext context, ActiveChallenge c) async {
@@ -152,6 +166,7 @@ class TodayScreen extends StatelessWidget {
                       onFinish: (c) => _finish(context, c),
                       onDelete: (c) => _delete(context, c),
                       onPauseChanged: _reschedule,
+                      onAdjust: (c) => _adjust(context, c),
                       onStartSession: _startSession,
                       onStopSession: (c) => _stopSession(context, c),
                     ),
@@ -208,6 +223,7 @@ class ChallengeCard extends StatelessWidget {
     required this.onFinish,
     required this.onDelete,
     required this.onPauseChanged,
+    required this.onAdjust,
     required this.onStartSession,
     required this.onStopSession,
   });
@@ -220,6 +236,9 @@ class ChallengeCard extends StatelessWidget {
 
   /// Challenge wurde pausiert oder fortgesetzt.
   final Future<void> Function(ActiveChallenge) onPauseChanged;
+
+  /// Einstellungen der laufenden Challenge ändern (Erinnerung, Regel …).
+  final Future<void> Function(ActiveChallenge) onAdjust;
 
   /// Aktivitäts-Timer starten (neuer Stand) bzw. stoppen (bisheriger Stand).
   final Future<void> Function(ActiveChallenge) onStartSession;
@@ -424,11 +443,20 @@ class ChallengeCard extends StatelessWidget {
                 PopupMenuButton<String>(
                   tooltip: 'Mehr',
                   onSelected: (action) => switch (action) {
+                    'adjust' => onAdjust(challenge),
                     'pause' => _pause(context),
                     'finish' => onFinish(challenge),
                     _ => onDelete(challenge),
                   },
                   itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: 'adjust',
+                      child: ListTile(
+                        leading: Icon(Icons.tune),
+                        title: Text('Anpassen'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
                     if (!paused)
                       const PopupMenuItem(
                         value: 'pause',
