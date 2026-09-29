@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_repository.dart';
+import '../support/fake_scheduler.dart';
 
 final today = DateTime(2026, 10, 7, 9);
 DateTime daysAgo(int n) => today.subtract(Duration(days: n));
@@ -112,5 +113,27 @@ void main() {
 
     expect(repo.items.single.checkInOn(today)!.minutes, 45);
     expect(find.text('45/120 min'), findsOneWidget);
+  });
+
+  testWidgets('nach dem Abhaken wird die Erinnerung neu geplant (#72)',
+      (tester) async {
+    final repo = FakeChallengeRepository(
+        initial: [running('wake-5am', doneDaysAgo: [1])]);
+    final scheduler = FakeReminderScheduler();
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(
+      theme: buildTheme(),
+      home: TodayScreen(
+          repository: repo,
+          clock: () => today,
+          onDiscover: () {},
+          scheduler: scheduler),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Erledigt'));
+    await tester.pumpAndSettle();
+    expect(scheduler.scheduleCalls, 1);
   });
 }

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/local_challenge_repository.dart';
 import 'data/local_notification_scheduler.dart';
+import 'domain/challenge_repository.dart';
 import 'domain/reminders.dart';
 import 'ui/app.dart';
 
@@ -15,13 +16,37 @@ import 'ui/app.dart';
 Future<void> onNotificationActionInBackground(NotificationResponse r) async {
   DartPluginRegistrant.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  final repository = LocalChallengeRepository(prefs);
   await handleNotificationAction(
-    LocalChallengeRepository(prefs),
+    repository,
     actionId: r.actionId,
     payload: r.payload,
     now: DateTime.now(),
     input: r.input,
   );
+  // Termine nach dem Abhaken neu planen (z. B. Wochenziel erreicht).
+  try {
+    final scheduler = await LocalNotificationScheduler.create(
+      onResponse: (_) {},
+      onBackgroundResponse: onNotificationActionInBackground,
+      askPermissions: false,
+    );
+    await _reschedule(repository, scheduler, r.payload);
+  } on Object catch (_) {
+    // Beim nächsten App-Start wird ohnehin neu geplant.
+  }
+}
+
+Future<void> _reschedule(
+    ChallengeRepository repository, ReminderScheduler scheduler, String? id) async {
+  if (id == null) return;
+  final c = await repository.byId(id);
+  if (c == null) return;
+  if (c.isArchived) {
+    await scheduler.cancel(c);
+  } else {
+    await scheduler.schedule(c);
+  }
 }
 
 Future<void> main() async {
@@ -29,14 +54,18 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final repository = LocalChallengeRepository(prefs);
 
-  final scheduler = await LocalNotificationScheduler.create(
-    onResponse: (r) => handleNotificationAction(
-      repository,
-      actionId: r.actionId,
-      payload: r.payload,
-      now: DateTime.now(),
-      input: r.input,
-    ),
+  late final LocalNotificationScheduler scheduler;
+  scheduler = await LocalNotificationScheduler.create(
+    onResponse: (r) async {
+      await handleNotificationAction(
+        repository,
+        actionId: r.actionId,
+        payload: r.payload,
+        now: DateTime.now(),
+        input: r.input,
+      );
+      await _reschedule(repository, scheduler, r.payload);
+    },
     onBackgroundResponse: onNotificationActionInBackground,
   );
   await syncReminders(repository, scheduler, now: DateTime.now());

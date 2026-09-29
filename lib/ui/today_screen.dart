@@ -25,7 +25,11 @@ class TodayScreen extends StatelessWidget {
   /// Speichert und archiviert automatisch, wenn das Ziel erreicht ist.
   Future<void> _save(BuildContext context, ActiveChallenge c) async {
     await repository.save(c);
-    if (!c.shouldAutoFinish(clock())) return;
+    if (!c.shouldAutoFinish(clock())) {
+      // Termine neu berechnen (z. B. Wochenziel erreicht, Tag nachgetragen).
+      await scheduler?.schedule(c);
+      return;
+    }
     final done = await repository.finish(c.id);
     await scheduler?.cancel(c);
     if (done != null && context.mounted) await showCelebration(context, done);
