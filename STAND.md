@@ -8,16 +8,14 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## In Arbeit
 
-- #32 Backup und Export (Epic #37) – Branch `epic/daten-sichern` (basiert noch auf
-  dem Stand vor der Absturz-Behebung → vor dem Weiterarbeiten `main` hineinmergen).
-  Erledigt im Branch: #83 Codec/Backup-Format, #84 CSV, #86 Datei-Kanal, #88 Auto-Backup.
-  Offen: #85 Wiederherstellen (Branch `task/85-restore`, grün, PR fehlt),
-  #87 Seite „Daten sichern“ (Branch `task/87-backup-screen`, nur rote Tests).
+- #32 Backup und Export (Epic #37) – Branch `epic/daten-sichern`, alle Tasks erledigt
+  (#83, #84, #85, #86, #87, #88), `main` ist eingemergt.
+  Wartet auf: grünen Smoke, Test der APK durch den Nutzer, dann Merge nach `main`.
   Entscheidungen: Wiederherstellen ersetzt alles; vorläufig ⋮ auf „Heute“, zieht mit #78 um.
 
 ## Als Nächstes
 
-- #32 fertigstellen, APK vom Epic-Branch bauen, Nutzer testet, dann Merge nach `main`
+- Nach Merge von #32: nächste Story nach Wahl des Nutzers (Vorschlag: #78 Profil und Einstellungen)
 
 ## Backlog nach Epic
 
