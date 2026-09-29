@@ -1,16 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
-import '../domain/milestones.dart';
 import '../domain/reminders.dart';
 import 'adjust_sheet.dart';
 import 'archive_screen.dart';
-import 'detail_screen.dart';
 import 'format.dart';
 
 class TodayScreen extends StatelessWidget {
@@ -42,37 +38,21 @@ class TodayScreen extends StatelessWidget {
 
   /// Speichert und archiviert automatisch, wenn das Ziel erreicht ist.
   Future<void> _save(BuildContext context, ActiveChallenge c) async {
-    final before = await repository.byId(c.id);
     await repository.save(c);
-    if (c.shouldAutoFinish(clock())) {
-      final done = await repository.finish(c.id);
-      await scheduler?.cancel(c);
-      if (done != null && context.mounted) await showCelebration(context, done);
+    if (!c.shouldAutoFinish(clock())) {
+      // Termine neu berechnen (z. B. Wochenziel erreicht, Tag nachgetragen).
+      await scheduler?.schedule(c);
       return;
     }
-    // Termine neu berechnen (z. B. Wochenziel erreicht, Tag nachgetragen).
-    await scheduler?.schedule(c);
-    final milestone = before == null ? null : milestoneReached(before, c);
-    if (milestone != null && context.mounted) {
-      await showMilestone(context, c, milestone);
-    }
+    final done = await repository.finish(c.id);
+    await scheduler?.cancel(c);
+    if (done != null && context.mounted) await showCelebration(context, done);
   }
 
   /// Pausieren/Fortsetzen: Erinnerung neu planen (erster Termin nach der Pause).
   Future<void> _reschedule(ActiveChallenge c) async {
     await repository.save(c);
     await scheduler?.schedule(c);
-  }
-
-  Future<void> _startSession(ActiveChallenge c) async {
-    await repository.save(c);
-    await scheduler?.showSession(c);
-  }
-
-  Future<void> _stopSession(BuildContext context, ActiveChallenge c) async {
-    final saved = _save(context, c.stopSession(clock()));
-    await scheduler?.clearSession(c);
-    await saved;
   }
 
   Future<void> _finish(BuildContext context, ActiveChallenge c) async {
@@ -151,25 +131,14 @@ class TodayScreen extends StatelessWidget {
               else
                 SliverList.builder(
                   itemCount: items.length,
-                  itemBuilder: (context, i) => _Ticker(
-                    // Nur laufende Countdowns brauchen eine Live-Anzeige.
-                    active: items[i].windowStartedAt != null ||
-                        items[i].sessionStartedAt != null,
-                    interval: items[i].sessionStartedAt != null
-                        ? const Duration(seconds: 1)
-                        : const Duration(seconds: 30),
-                    clock: clock,
-                    builder: (now) => ChallengeCard(
-                      challenge: items[i],
-                      today: now,
-                      onSave: (c) => _save(context, c),
-                      onFinish: (c) => _finish(context, c),
-                      onDelete: (c) => _delete(context, c),
-                      onPauseChanged: _reschedule,
-                      onAdjust: (c) => _adjust(context, c),
-                      onStartSession: _startSession,
-                      onStopSession: (c) => _stopSession(context, c),
-                    ),
+                  itemBuilder: (context, i) => ChallengeCard(
+                    challenge: items[i],
+                    today: clock(),
+                    onSave: (c) => _save(context, c),
+                    onFinish: (c) => _finish(context, c),
+                    onDelete: (c) => _delete(context, c),
+                    onPauseChanged: _reschedule,
+                    onAdjust: (c) => _adjust(context, c),
                   ),
                 ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -224,8 +193,6 @@ class ChallengeCard extends StatelessWidget {
     required this.onDelete,
     required this.onPauseChanged,
     required this.onAdjust,
-    required this.onStartSession,
-    required this.onStopSession,
   });
 
   final ActiveChallenge challenge;
@@ -239,10 +206,6 @@ class ChallengeCard extends StatelessWidget {
 
   /// Einstellungen der laufenden Challenge ändern (Erinnerung, Regel …).
   final Future<void> Function(ActiveChallenge) onAdjust;
-
-  /// Aktivitäts-Timer starten (neuer Stand) bzw. stoppen (bisheriger Stand).
-  final Future<void> Function(ActiveChallenge) onStartSession;
-  final Future<void> Function(ActiveChallenge) onStopSession;
 
   Future<void> _pause(BuildContext context) async {
     final t = dayOf(today);
@@ -376,15 +339,8 @@ class ChallengeCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final status = challenge.checkInOn(today)?.status;
-    final progress = challenge.windowProgress(today) ?? challenge.progress(today);
+    final progress = challenge.progress(today);
     final kind = challenge.kind;
-    final window = kind is OneTimeKind && !challenge.isCompleted
-        ? (challenge.windowStartedAt == null
-            ? _WindowState.idle
-            : challenge.windowEnded(today)
-                ? _WindowState.ended
-                : _WindowState.running)
-        : null;
     final isWeekly = kind is WeeklyGoalKind && kind.unit == WeeklyUnit.minutes;
     final pausedUntil = challenge.pausedUntil(today);
     final paused = pausedUntil != null;
@@ -398,15 +354,7 @@ class ChallengeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (_) => ChallengeDetailScreen(
-                  challenge: challenge,
-                  clock: () => today,
-                ),
-              )),
-              child: Row(
+            Row(
               children: [
                 _ProgressRing(emoji: challenge.template.emoji, value: progress),
                 const SizedBox(width: 16),
@@ -486,7 +434,6 @@ class ChallengeCard extends StatelessWidget {
                 ),
               ],
             ),
-            ),
             const SizedBox(height: 12),
             _WeekRow(
               days: challenge.week(today),
@@ -498,12 +445,6 @@ class ChallengeCard extends StatelessWidget {
               },
               onTapDay: (day) => _correct(context, day),
             ),
-            if (challenge.template.steps.isNotEmpty && !paused)
-              _Checklist(
-                steps: challenge.template.steps,
-                done: challenge.stepsDoneOn(today),
-                onToggle: (i) => onSave(challenge.toggleStep(today, i)),
-              ),
             const SizedBox(height: 12),
             if (challenge.isCompleted)
               Padding(
@@ -532,52 +473,6 @@ class ChallengeCard extends StatelessWidget {
                   ],
                 ),
               ),
-            if (!paused && window == null && challenge.template.isTimed)
-              _SessionRow(
-                target: challenge.template.targetDuration,
-                elapsed: challenge.sessionElapsed(today),
-                onStart: () => onStartSession(challenge.startSession(today)),
-                onStop: () => onStopSession(challenge),
-              ),
-            if (!paused && window == _WindowState.idle)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilledButton.icon(
-                  onPressed: () =>
-                      onPauseChanged(challenge.startWindow(today)),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Jetzt starten'),
-                ),
-              ),
-            if (!paused && window == _WindowState.running)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'noch ${formatRemaining(challenge.remaining(today) ?? Duration.zero)} h',
-                        style: text.titleLarge?.copyWith(
-                          color: scheme.primary,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w500,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => onPauseChanged(challenge.cancelWindow()),
-                      child: const Text('Abbrechen'),
-                    ),
-                  ],
-                ),
-              ),
-            if (!paused && window == _WindowState.ended)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8, right: 8),
-                child: Text('Geschafft?',
-                    textAlign: TextAlign.center, style: text.titleLarge),
-              ),
             if (!paused && status != null && !isWeekly)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8, right: 8),
@@ -589,8 +484,7 @@ class ChallengeCard extends StatelessWidget {
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ),
-            if (!paused &&
-                (window == null || window == _WindowState.ended))
+            if (!paused)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Row(
@@ -628,9 +522,7 @@ class ChallengeCard extends StatelessWidget {
           '${challenge.doneDaysInWeek(today)}/$n×',
         WeeklyGoalKind(target: final m) =>
           '${challenge.minutesInWeek(today)}/$m min',
-        OneTimeKind() => challenge.isCompleted || challenge.windowStartedAt != null
-            ? null
-            : 'einmalig',
+        OneTimeKind() => challenge.isCompleted ? null : 'einmalig',
         _ => null,
       };
 }
@@ -708,7 +600,6 @@ class _WeekRow extends StatelessWidget {
                   DayStatus.missed => scheme.errorContainer,
                   DayStatus.open => scheme.surfaceContainerHighest,
                   DayStatus.paused => scheme.tertiaryContainer,
-                  DayStatus.joker => scheme.secondaryContainer,
                 },
                 border: i == days.length - 1
                     ? Border.all(color: scheme.primary, width: 2)
@@ -728,47 +619,8 @@ class _WeekRow extends StatelessWidget {
                 DayStatus.open => null,
                 DayStatus.paused => Icon(Icons.pause,
                     size: 14, color: scheme.onTertiaryContainer),
-                DayStatus.joker => Icon(Icons.shield_outlined,
-                    size: 14, color: scheme.primary),
               },
             ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Tägliche Schritte zum Abhaken (z. B. Morgenroutine).
-class _Checklist extends StatelessWidget {
-  const _Checklist({
-    required this.steps,
-    required this.done,
-    required this.onToggle,
-  });
-
-  final List<String> steps;
-  final Set<int> done;
-  final ValueChanged<int> onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 12, right: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Schritte ${done.length}/${steps.length}',
-              style: TextStyle(color: scheme.onSurfaceVariant)),
-          for (final (i, step) in steps.indexed)
-            CheckboxListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              value: done.contains(i),
-              onChanged: (_) => onToggle(i),
-              title: Text(step),
             ),
         ],
       ),
@@ -882,130 +734,3 @@ Future<String?> _ask(
 
 /// Auswahl im Nachtrage-Sheet (null bedeutet „abgebrochen“).
 enum _DayChoice { done, missed, empty }
-
-enum _WindowState { idle, running, ended }
-
-/// Baut [builder] alle 30 Sekunden neu mit der aktuellen Zeit, solange
-/// [active] ist (z. B. für laufende Countdowns).
-class _Ticker extends StatefulWidget {
-  const _Ticker({
-    required this.active,
-    required this.clock,
-    required this.builder,
-    this.interval = const Duration(seconds: 30),
-  });
-
-  final bool active;
-  final Duration interval;
-  final Clock clock;
-  final Widget Function(DateTime now) builder;
-
-  @override
-  State<_Ticker> createState() => _TickerState();
-}
-
-class _TickerState extends State<_Ticker> {
-  Timer? _timer;
-  Duration? _interval;
-
-  @override
-  void initState() {
-    super.initState();
-    _sync();
-  }
-
-  @override
-  void didUpdateWidget(_Ticker old) {
-    super.didUpdateWidget(old);
-    _sync();
-  }
-
-  void _sync() {
-    if (_timer != null && _interval != widget.interval) {
-      _timer?.cancel();
-      _timer = null;
-    }
-    if (widget.active && _timer == null) {
-      _interval = widget.interval;
-      _timer = Timer.periodic(widget.interval, (_) => setState(() {}));
-    } else if (!widget.active) {
-      _timer?.cancel();
-      _timer = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.builder(widget.clock());
-}
-
-/// Aktivitäts-Timer auf der Karte: „Starten“ bzw. laufende Zeit und „Stopp“.
-class _SessionRow extends StatelessWidget {
-  const _SessionRow({
-    required this.target,
-    required this.elapsed,
-    required this.onStart,
-    required this.onStop,
-  });
-
-  final Duration? target;
-  final Duration? elapsed;
-  final VoidCallback onStart;
-  final VoidCallback onStop;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    final running = elapsed;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8, bottom: 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: running == null
-                ? Text(
-                    switch (target) {
-                      final t? => 'Ziel: ${t.inMinutes} min',
-                      null => 'Zeit mitlaufen lassen',
-                    },
-                    style: TextStyle(color: scheme.onSurfaceVariant),
-                  )
-                : Text(
-                    switch (target) {
-                      final t? =>
-                        '${formatStopwatch(running)} / ${formatStopwatch(t)}',
-                      null => formatStopwatch(running),
-                    },
-                    style: text.titleLarge?.copyWith(
-                      color: scheme.primary,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w500,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-          ),
-          if (running == null)
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
-              onPressed: onStart,
-              icon: const Icon(Icons.timer_outlined),
-              label: const Text('Starten'),
-            )
-          else
-            FilledButton.icon(
-              style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
-              onPressed: onStop,
-              icon: const Icon(Icons.stop_rounded),
-              label: const Text('Stopp'),
-            ),
-        ],
-      ),
-    );
-  }
-}

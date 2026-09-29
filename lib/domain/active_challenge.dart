@@ -12,9 +12,7 @@ DateTime _weekStart(DateTime day) =>
 
 enum CheckInStatus { done, missed }
 
-/// Status eines Tages für Wochenleiste und Kalender.
-/// [joker]: verpasst, aber von einem Joker gerettet.
-enum DayStatus { done, missed, open, paused, joker }
+enum DayStatus { done, missed, open, paused }
 
 enum ChallengeStatus { active, completed, ended }
 
@@ -113,10 +111,6 @@ class ActiveChallenge {
     this.finishedOn,
     this.pauses = const [],
     this.rule = StreakRule.relaxed,
-    this.stepLog = const {},
-    this.windowStartedAt,
-    this.sessionStartedAt,
-    this.activityLog = const {},
   });
 
   final String id;
@@ -128,19 +122,6 @@ class ActiveChallenge {
   final DateTime? finishedOn;
   final List<PauseRange> pauses;
   final StreakRule rule;
-
-  /// Abgehakte Schritte je Tag (nur bei Vorlagen mit Schritten).
-  final Map<DateTime, Set<int>> stepLog;
-
-  /// Startzeitpunkt des Zeitfensters bei einmaligen Challenges (z. B. 24 h
-  /// fasten); null, solange nicht gestartet.
-  final DateTime? windowStartedAt;
-
-  /// Start der laufenden Aktivität („Ich bin gerade dabei“) oder null.
-  final DateTime? sessionStartedAt;
-
-  /// Mit dem Timer erfasste Minuten je Tag.
-  final Map<DateTime, int> activityLog;
 
   ChallengeKind get kind => template.kind;
 
@@ -154,12 +135,6 @@ class ActiveChallenge {
     DateTime? finishedOn,
     List<PauseRange>? pauses,
     StreakRule? rule,
-    Map<DateTime, Set<int>>? stepLog,
-    DateTime? windowStartedAt,
-    bool clearWindow = false,
-    DateTime? sessionStartedAt,
-    bool clearSession = false,
-    Map<DateTime, int>? activityLog,
     bool clearFinished = false,
   }) =>
       ActiveChallenge(
@@ -172,99 +147,7 @@ class ActiveChallenge {
         finishedOn: clearFinished ? null : finishedOn ?? this.finishedOn,
         pauses: pauses ?? this.pauses,
         rule: rule ?? this.rule,
-        stepLog: stepLog ?? this.stepLog,
-        windowStartedAt:
-            clearWindow ? null : windowStartedAt ?? this.windowStartedAt,
-        sessionStartedAt:
-            clearSession ? null : sessionStartedAt ?? this.sessionStartedAt,
-        activityLog: activityLog ?? this.activityLog,
       );
-
-  /// Startet den Aktivitäts-Timer; läuft schon einer, ändert sich nichts.
-  ActiveChallenge startSession(DateTime now) =>
-      isArchived || sessionStartedAt != null
-          ? this
-          : copyWith(sessionStartedAt: now);
-
-  Duration? sessionElapsed(DateTime now) => switch (sessionStartedAt) {
-        final start? => now.difference(start).isNegative
-            ? Duration.zero
-            : now.difference(start),
-        null => null,
-      };
-
-  /// Zeitpunkt, an dem die Zieldauer erreicht ist (für das Signal).
-  DateTime? get sessionTargetEnd => switch ((sessionStartedAt, template.targetDuration)) {
-        (final start?, final target?) => start.add(target),
-        _ => null,
-      };
-
-  int activityMinutesOn(DateTime day) => activityLog[dayOf(day)] ?? 0;
-
-  /// Beendet den Timer und schreibt die Minuten gut: Wochenziel in Minuten
-  /// addiert sie; mit Zieldauer ist der Tag erledigt, sobald sie erreicht
-  /// ist; sonst zählt die Aktivität als erledigt.
-  ActiveChallenge stopSession(DateTime now) {
-    final start = sessionStartedAt;
-    if (start == null) return this;
-    final minutes = now.difference(start).inMinutes;
-    final day = dayOf(start);
-    final total = activityMinutesOn(day) + (minutes < 0 ? 0 : minutes);
-    var c = copyWith(
-      clearSession: true,
-      activityLog: {...activityLog, day: total},
-    );
-    final target = template.targetDuration;
-    if (kind case WeeklyGoalKind(unit: WeeklyUnit.minutes)) {
-      if (minutes > 0) c = c.checkIn(day, CheckInStatus.done, minutes: minutes);
-    } else if (target != null) {
-      if (total >= target.inMinutes &&
-          c.checkInOn(day)?.status != CheckInStatus.done) {
-        c = c.checkIn(day, CheckInStatus.done);
-      }
-    } else if (minutes > 0) {
-      c = c.checkIn(day, CheckInStatus.done);
-    }
-    return c;
-  }
-
-  Duration? get _window => switch (kind) {
-        OneTimeKind(window: final w) => w,
-        _ => null,
-      };
-
-  /// Startet das Zeitfenster jetzt (nur einmalige Challenges).
-  ActiveChallenge startWindow(DateTime now) =>
-      _window == null || isArchived ? this : copyWith(windowStartedAt: now);
-
-  /// Bricht das Zeitfenster ab („nicht gestartet“).
-  ActiveChallenge cancelWindow() => copyWith(clearWindow: true);
-
-  DateTime? get windowEnd => switch ((windowStartedAt, _window)) {
-        (final start?, final window?) => start.add(window),
-        _ => null,
-      };
-
-  /// Verbleibende Zeit (nie negativ) oder null, wenn nicht gestartet.
-  Duration? remaining(DateTime now) {
-    final end = windowEnd;
-    if (end == null) return null;
-    final left = end.difference(now);
-    return left.isNegative ? Duration.zero : left;
-  }
-
-  /// Anteil des verstrichenen Zeitfensters (0..1) oder null.
-  double? windowProgress(DateTime now) {
-    final start = windowStartedAt, window = _window;
-    if (start == null || window == null) return null;
-    final elapsed = now.difference(start).inSeconds / window.inSeconds;
-    return elapsed.clamp(0.0, 1.0);
-  }
-
-  bool windowEnded(DateTime now) {
-    final end = windowEnd;
-    return end != null && !now.isBefore(end);
-  }
 
   /// Archiviert die Challenge: „geschafft“, wenn das Ziel erreicht ist,
   /// sonst „beendet“.
@@ -319,38 +202,7 @@ class ActiveChallenge {
         if (c.day != d) c,
       CheckIn(day: d, status: status, minutes: total, note: note),
     ]..sort((a, b) => a.day.compareTo(b.day));
-    return copyWith(checkIns: updated, stepLog: _stepsFor(d, status));
-  }
-
-  /// Hält die Checkliste passend zum Tagesstatus: erledigt = alle Schritte,
-  /// verpasst/leer = keine.
-  Map<DateTime, Set<int>>? _stepsFor(DateTime d, CheckInStatus? status) {
-    if (template.steps.isEmpty) return null;
-    final log = {...stepLog};
-    if (status == CheckInStatus.done) {
-      log[d] = {for (var i = 0; i < template.steps.length; i++) i};
-    } else {
-      log.remove(d);
-    }
-    return log;
-  }
-
-  Set<int> stepsDoneOn(DateTime day) => stepLog[dayOf(day)] ?? const {};
-
-  /// Hakt einen Schritt ab oder wieder ab. Sind alle Schritte erledigt, ist
-  /// der Tag erledigt; sonst ist er offen.
-  ActiveChallenge toggleStep(DateTime day, int index) {
-    if (isArchived || index < 0 || index >= template.steps.length) return this;
-    final d = dayOf(day);
-    final done = {...stepsDoneOn(d)};
-    if (!done.remove(index)) done.add(index);
-    final complete = done.length == template.steps.length;
-    final checkIns = [
-      for (final c in this.checkIns)
-        if (c.day != d) c,
-      if (complete) CheckIn(day: d, status: CheckInStatus.done),
-    ]..sort((a, b) => a.day.compareTo(b.day));
-    return copyWith(checkIns: checkIns, stepLog: {...stepLog, d: done});
+    return copyWith(checkIns: updated);
   }
 
   int get doneDays =>
@@ -412,7 +264,7 @@ class ActiveChallenge {
       if (status != null)
         CheckIn(day: d, status: status, minutes: minutes, note: note),
     ]..sort((a, b) => a.day.compareTo(b.day));
-    return copyWith(checkIns: updated, stepLog: _stepsFor(d, status));
+    return copyWith(checkIns: updated);
   }
 
   /// Pausiert die Challenge von [from] bis einschließlich [until].
@@ -575,61 +427,16 @@ class ActiveChallenge {
   /// Status der letzten 7 Tage, ältester zuerst.
   List<DayStatus> week(DateTime today) {
     final t = dayOf(today);
-    final saved = _jokerSet(t);
     return [
       for (var i = 6; i >= 0; i--)
-        _dayStatus(t.subtract(Duration(days: i)), saved),
+        _dayStatus(t.subtract(Duration(days: i))),
     ];
   }
 
-  /// Status eines beliebigen Tages (für den Kalender).
-  DayStatus statusOn(DateTime day, {required DateTime today}) =>
-      _dayStatus(dayOf(day), _jokerSet(dayOf(today)));
-
-  Set<DateTime> _jokerSet(DateTime today) =>
-      kind is WeeklyGoalKind ? const {} : jokerDays(today).toSet();
-
-  DayStatus _dayStatus(DateTime day, Set<DateTime> saved) {
-    if (saved.contains(day)) return DayStatus.joker;
-    return switch (checkInOn(day)?.status) {
-      CheckInStatus.done => DayStatus.done,
-      CheckInStatus.missed => DayStatus.missed,
-      null => isPaused(day) ? DayStatus.paused : DayStatus.open,
-    };
-  }
-
-  /// Anteil erledigter an fälligen Tagen (bzw. erreichter an vergangenen
-  /// Wochen). Pausen zählen nicht; heute zählt erst mit Eintrag. Null ohne
-  /// fällige Tage oder bei einmaligen Challenges.
-  double? successRate(DateTime today) {
-    final t = dayOf(today);
-    if (kind is OneTimeKind) return null;
-    if (kind is WeeklyGoalKind) {
-      var met = 0, due = 0;
-      final current = _weekStart(t);
-      for (var w = _weekStart(_firstDay);
-          w.isBefore(current);
-          w = w.add(const Duration(days: 7))) {
-        if (_weekHasPause(w) && !_weekGoalMet(w)) continue;
-        due++;
-        if (_weekGoalMet(w)) met++;
-      }
-      return due == 0 ? null : met / due;
-    }
-    var done = 0, due = 0;
-    for (var d = _firstDay; !d.isAfter(t); d = d.add(const Duration(days: 1))) {
-      if (isPaused(d)) continue;
-      final status = checkInOn(d)?.status;
-      if (d == t && status == null) continue;
-      due++;
-      if (status == CheckInStatus.done) done++;
-    }
-    return due == 0 ? null : done / due;
-  }
-
-  /// Journal-Einträge mit Text, neueste zuerst.
-  List<CheckIn> get journalEntries => [
-        for (final c in checkIns.reversed)
-          if (c.note case final n? when n.trim().isNotEmpty) c,
-      ];
+  DayStatus _dayStatus(DateTime day) =>
+      switch (checkInOn(day)?.status) {
+        CheckInStatus.done => DayStatus.done,
+        CheckInStatus.missed => DayStatus.missed,
+        null => isPaused(day) ? DayStatus.paused : DayStatus.open,
+      };
 }

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
-import '../domain/milestones.dart';
 import '../domain/reminders.dart';
-import 'detail_screen.dart';
 import 'format.dart';
 import 'theme.dart';
 
@@ -129,12 +127,7 @@ class _ArchiveCard extends StatelessWidget {
     final completed = challenge.status == ChallengeStatus.completed;
     final end = challenge.finishedOn ?? challenge.startedOn;
     return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
-          builder: (_) => ChallengeDetailScreen(challenge: challenge),
-        )),
-        child: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,8 +195,6 @@ class _ArchiveCard extends StatelessWidget {
                     children: [
                       Text('Beste Streak ${challenge.bestStreak}',
                           style: text.bodyMedium),
-                      if (badges(challenge) case [..., final top])
-                        Text('🏅 $top', style: text.bodyMedium),
                       Text(
                           '${challenge.doneDays} ${challenge.doneDays == 1 ? 'Tag' : 'Tage'} erledigt',
                           style: TextStyle(color: scheme.onSurfaceVariant)),
@@ -219,7 +210,6 @@ class _ArchiveCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
       ),
     );
   }
@@ -258,33 +248,5 @@ Future<void> showCelebration(BuildContext context, ActiveChallenge c) {
         ],
       );
     },
-  );
-}
-
-/// Kurze Feier für einen erreichten Meilenstein.
-Future<void> showMilestone(BuildContext context, ActiveChallenge c, int days) {
-  return showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      icon: const Text('🏅', style: TextStyle(fontSize: 48)),
-      title: const Text('Meilenstein erreicht'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('$days Tage am Stück',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Text(c.template.title, textAlign: TextAlign.center),
-        ],
-      ),
-      actions: [
-        FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Weiter'),
-        ),
-      ],
-    ),
   );
 }

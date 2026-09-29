@@ -7,7 +7,6 @@ import 'package:challenges/domain/active_challenge.dart';
 import 'package:challenges/domain/catalog.dart';
 import 'package:challenges/domain/challenge.dart';
 import 'package:challenges/ui/home_shell.dart';
-import 'package:challenges/ui/detail_screen.dart';
 import 'package:challenges/ui/intro_screen.dart';
 import 'package:challenges/ui/theme.dart';
 import 'package:flutter/material.dart';
@@ -182,49 +181,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await _shot('0_intro');
     await tester.pumpAndSettle();
-  });
-
-  testWidgets('dranbleiben_heute', (tester) async {
-    final eye = _c('eye-gaze', done: [1, 2, 3, 4, 5, 6])
-        .startSession(now.subtract(const Duration(minutes: 3, seconds: 5)));
-    var routine = _c('morning-routine', done: [1, 2, 3]);
-    routine = routine.toggleStep(now, 0).toggleStep(now, 1);
-    final fasting = _c('fasting-24h')
-        .startWindow(now.subtract(const Duration(hours: 10, minutes: 38)));
-    await _pump(tester,
-        FakeChallengeRepository(initial: [eye, routine, fasting], today: now));
-    await _shot('7_timer_checkliste_countdown');
-  });
-
-  testWidgets('detail', (tester) async {
-    var c = ActiveChallenge(
-      id: 'm',
-      template: templateById('meditate-sleep')!,
-      startedOn: DateTime(2026, 9, 1),
-      reminder: const ReminderTime(22, 0),
-      rule: StreakRule.joker,
-    );
-    for (var d = 1; d <= 27; d++) {
-      if (d == 12) {
-        c = c.checkIn(DateTime(2026, 9, d), CheckInStatus.missed);
-      } else if (d != 19 && d != 20) {
-        c = c.checkIn(DateTime(2026, 9, d), CheckInStatus.done);
-      }
-    }
-    c = c.pause(from: DateTime(2026, 9, 19), until: DateTime(2026, 9, 20));
-    tester.view.physicalSize = const Size(1080, 2340);
-    tester.view.devicePixelRatio = 2.625;
-    addTearDown(tester.view.reset);
-    final base = buildTheme();
-    await tester.pumpWidget(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: base.copyWith(
-          textTheme:
-              base.textTheme.apply(fontFamilyFallback: ['NotoColorEmoji'])),
-      home: ChallengeDetailScreen(challenge: c, clock: () => now),
-    ));
-    await tester.pumpAndSettle();
-    await _shot('8_detail');
   });
 
   testWidgets('leer', (tester) async {
