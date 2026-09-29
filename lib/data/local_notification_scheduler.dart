@@ -191,12 +191,6 @@ class LocalNotificationScheduler implements ReminderScheduler {
     }
   }
 
-  int _slotId(ActiveChallenge c, int slot) =>
-      notificationIdFor('${c.id}:r$slot');
-
-  int _weekdayId(ActiveChallenge c, int weekday) =>
-      notificationIdFor('${c.id}:wd$weekday');
-
   @override
   Future<void> clearSession(ActiveChallenge challenge) async {
     await _plugin.cancel(id: _sessionId(challenge));
