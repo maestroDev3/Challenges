@@ -8,15 +8,16 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## In Arbeit
 
-- **Dringend:** App stürzt nach dem Dranbleiben-Merge beim Start ab. `main` ist
-  vorläufig auf den Stand vor #64 zurückgesetzt; Ursache wird per
-  Emulator-Starttest in der CI gesucht, danach kommt Dranbleiben (#25) wieder.
-- #32 Backup und Export (Epic #37) – pausiert bis zur Absturz-Behebung;
-  Branch `epic/daten-sichern`, Tasks #83–#88
+- #32 Backup und Export (Epic #37) – Branch `epic/daten-sichern` (basiert noch auf
+  dem Stand vor der Absturz-Behebung → vor dem Weiterarbeiten `main` hineinmergen).
+  Erledigt im Branch: #83 Codec/Backup-Format, #84 CSV, #86 Datei-Kanal, #88 Auto-Backup.
+  Offen: #85 Wiederherstellen (Branch `task/85-restore`, grün, PR fehlt),
+  #87 Seite „Daten sichern“ (Branch `task/87-backup-screen`, nur rote Tests).
+  Entscheidungen: Wiederherstellen ersetzt alles; vorläufig ⋮ auf „Heute“, zieht mit #78 um.
 
 ## Als Nächstes
 
-- #25 Dranbleiben erneut mergen, sobald der Absturz behoben und auf dem Handy getestet ist
+- #32 fertigstellen, APK vom Epic-Branch bauen, Nutzer testet, dann Merge nach `main`
 
 ## Backlog nach Epic
 
@@ -29,6 +30,9 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## Zuletzt erledigt
 
+- #94 Startabsturz der Release-APK behoben (R8-Regel für WorkManager) +
+  Emulator-Starttest „Smoke“ in der CI (PR #95)
+- #25 Dranbleiben – Detailansicht, Timer, Countdown, Checkliste, Widget, Meilensteine
 - #76 Laufende Challenge anpassen (PR #81)
 - #65 Feinschliff – Wochentage, passende Regeln, Archiv-Menü
 - #45 Marke „Ritual“ – App-Icon, Startbildschirm, Farbwelt

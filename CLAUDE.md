@@ -62,6 +62,9 @@ Claude-Projekt als Kontext. Sie muss immer zu den Issues passen.
 
 - Claude darf PRs **selbst per Squash nach `main` mergen**, sobald die CI
   (analyze + test) grün ist. Nie mit roter oder laufender CI mergen.
+- Läuft für den PR der Workflow **Smoke** (Release-APK auf Android-Emulator
+  starten, frisch und als Update), muss auch er grün sein. Epic-Branches
+  werden erst nach grünem Smoke und Test durch den Nutzer nach `main` gemergt.
 - Kein direkter Push auf `main` außer für Repo-Infrastruktur (CI, diese Datei,
   `STAND.md`).
 - Nach dem Merge Branch löschen.
