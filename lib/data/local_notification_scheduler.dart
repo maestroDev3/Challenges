@@ -124,6 +124,79 @@ class LocalNotificationScheduler implements ReminderScheduler {
     }
   }
 
+  static const _sessionChannel = AndroidNotificationDetails(
+    'challenge_sessions',
+    'Laufende Aktivität',
+    channelDescription: 'Stoppuhr, solange du gerade dabei bist',
+    importance: Importance.low,
+    priority: Priority.low,
+  );
+
+  int _sessionId(ActiveChallenge c) => notificationIdFor('session:${c.id}');
+  int _targetId(ActiveChallenge c) => notificationIdFor('target:${c.id}');
+
+  @override
+  Future<void> showSession(ActiveChallenge challenge) async {
+    final start = challenge.sessionStartedAt;
+    if (start == null) return;
+    final exact = await _ensurePermissions();
+    final t = challenge.template;
+    await _plugin.show(
+      id: _sessionId(challenge),
+      title: '${t.emoji} ${t.title}',
+      body: switch (t.targetDuration) {
+        final d? => 'Läuft – Ziel ${d.inMinutes} min',
+        null => 'Läuft',
+      },
+      payload: challenge.id,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          _sessionChannel.channelId,
+          _sessionChannel.channelName,
+          channelDescription: _sessionChannel.channelDescription,
+          importance: _sessionChannel.importance,
+          priority: _sessionChannel.priority,
+          ongoing: true,
+          autoCancel: false,
+          onlyAlertOnce: true,
+          usesChronometer: true,
+          when: start.millisecondsSinceEpoch,
+          category: AndroidNotificationCategory.stopwatch,
+          actions: const [AndroidNotificationAction(actionStop, '■ Stopp')],
+        ),
+      ),
+    );
+    final end = challenge.sessionTargetEnd;
+    if (end != null && end.isAfter(DateTime.now())) {
+      await _plugin.zonedSchedule(
+        id: _targetId(challenge),
+        title: '${t.emoji} Zieldauer erreicht',
+        body: 'Tippe auf „Stopp“, um die Zeit gutzuschreiben.',
+        payload: challenge.id,
+        scheduledDate: tz.TZDateTime.from(end, tz.local),
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            _channel.channelId,
+            _channel.channelName,
+            channelDescription: _channel.channelDescription,
+            importance: _channel.importance,
+            priority: _channel.priority,
+            actions: const [AndroidNotificationAction(actionStop, '■ Stopp')],
+          ),
+        ),
+        androidScheduleMode: exact
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    }
+  }
+
+  @override
+  Future<void> clearSession(ActiveChallenge challenge) async {
+    await _plugin.cancel(id: _sessionId(challenge));
+    await _plugin.cancel(id: _targetId(challenge));
+  }
+
   int _slotId(ActiveChallenge c, int slot) =>
       notificationIdFor('${c.id}:r$slot');
 
