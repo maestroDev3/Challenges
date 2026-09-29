@@ -124,6 +124,28 @@ void main() {
       expect(await repo.archived(), hasLength(1));
     });
 
+    test('reopen holt archivierte Challenge mit Verlauf zurück', () async {
+      final repo = await newRepo();
+      var c = await repo.start(
+          templateById('cold-shower')!, const ReminderTime(7, 0));
+      await repo.save(c.checkIn(now, CheckInStatus.done));
+      await repo.finish(c.id);
+      final reopened = await repo.reopen(c.id);
+      expect(reopened.status, ChallengeStatus.active);
+      final loaded = await newRepo();
+      expect((await loaded.active()).single.doneDays, 1);
+      expect(await loaded.archived(), isEmpty);
+    });
+
+    test('reopen scheitert, wenn dieselbe Vorlage schon läuft', () async {
+      final repo = await newRepo();
+      final a = await repo.start(
+          templateById('cold-shower')!, const ReminderTime(7, 0));
+      await repo.finish(a.id);
+      await repo.start(templateById('cold-shower')!, const ReminderTime(7, 0));
+      await expectLater(repo.reopen(a.id), throwsStateError);
+    });
+
     test('delete entfernt endgültig', () async {
       final repo = await newRepo();
       final a = await repo.start(
