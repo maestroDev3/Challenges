@@ -76,7 +76,7 @@ class FakeChallengeRepository implements ChallengeRepository {
       template: template,
       startedOn: dayOf(_now),
       reminder: reminder,
-      rule: rule,
+      rule: ruleFor(template.kind, rule),
     );
     _items.add(c);
     _emit();

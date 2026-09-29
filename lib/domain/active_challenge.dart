@@ -23,6 +23,25 @@ enum ChallengeStatus { active, completed, ended }
 /// - [strict]: Fehltag startet einen neuen Versuch bei Tag 1.
 enum StreakRule { relaxed, joker, strict }
 
+/// Welche Regeln zur Art passen: „Hart“ nur mit Ziel zum Neustarten
+/// (X Tage), einmalige Challenges haben keine Streak und keine Regel.
+Set<StreakRule> allowedRules(ChallengeKind kind) => switch (kind) {
+      DailyKind(days: _?) => const {
+          StreakRule.relaxed,
+          StreakRule.joker,
+          StreakRule.strict,
+        },
+      OneTimeKind() => const {},
+      _ => const {StreakRule.relaxed, StreakRule.joker},
+    };
+
+/// Die gewünschte Regel, falls sie passt, sonst „Locker“.
+StreakRule ruleFor(ChallengeKind kind, StreakRule wanted) =>
+    allowedRules(kind).contains(wanted) ? wanted : StreakRule.relaxed;
+
+/// Einmalige Challenges haben keine Streak.
+bool hasStreak(ChallengeKind kind) => kind is! OneTimeKind;
+
 const _jokerEvery = 7;
 const _maxJokers = 2;
 

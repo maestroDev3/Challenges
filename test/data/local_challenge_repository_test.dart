@@ -51,6 +51,16 @@ void main() {
       expect(reloaded.rule, StreakRule.strict);
     });
 
+    test('unpassende Regel wird beim Start und beim Laden zu Locker', () async {
+      final repo = await newRepo();
+      final c = await repo.start(
+          templateById('meditate-sleep')!, const ReminderTime(22, 0),
+          rule: StreakRule.strict);
+      expect(c.rule, StreakRule.relaxed);
+      await repo.save(c.copyWith(rule: StreakRule.strict));
+      expect((await (await newRepo()).active()).single.rule, StreakRule.relaxed);
+    });
+
     test('start derselben Vorlage liefert die laufende Challenge', () async {
       final repo = await newRepo();
       final a = await repo.start(

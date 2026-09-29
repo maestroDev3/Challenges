@@ -111,7 +111,7 @@ class LocalChallengeRepository implements ChallengeRepository {
       template: template,
       startedOn: dayOf(now),
       reminder: reminder,
-      rule: rule,
+      rule: ruleFor(template.kind, rule),
     );
     await _write(store, active: [...store.active, c]);
     return c;
@@ -318,7 +318,8 @@ class LocalChallengeRepository implements ChallengeRepository {
       reminder: ReminderTime(reminder[0], reminder[1]),
       status: ChallengeStatus.values.byName(j['status'] as String? ?? 'active'),
       finishedOn: finishedOn == null ? null : DateTime.parse(finishedOn),
-      rule: StreakRule.values.byName(j['rule'] as String? ?? 'relaxed'),
+      rule: ruleFor(template.kind,
+          StreakRule.values.byName(j['rule'] as String? ?? 'relaxed')),
       pauses: [
         for (final p in (j['pauses'] as List? ?? const []).cast<List>())
           PauseRange(
