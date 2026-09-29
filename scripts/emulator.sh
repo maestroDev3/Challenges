@@ -3,12 +3,15 @@
 set -eux
 SDK="$ANDROID_HOME/cmdline-tools/latest/bin"
 IMAGE="system-images;android-34;google_apis;x86_64"
+export ANDROID_AVD_HOME="$HOME/.android/avd"
+mkdir -p "$ANDROID_AVD_HOME"
 export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
 yes | "$SDK/sdkmanager" --licenses > /dev/null || true
-"$SDK/sdkmanager" --install "platform-tools" "emulator" "$IMAGE" | grep -v "^\[" | tail -5
+"$SDK/sdkmanager" --install "platform-tools" "emulator" "$IMAGE" | tr "\r" "\n" | grep -v "^\[\| \[=" | tail -5
 ls -la /dev/kvm
 df -h /
-echo no | "$SDK/avdmanager" create avd -n smoke -k "$IMAGE" --force
+echo no | "$SDK/avdmanager" create avd -n smoke -k "$IMAGE" --force -p "$ANDROID_AVD_HOME/smoke.avd"
+ls "$ANDROID_AVD_HOME"
 emulator -avd smoke -no-window -no-audio -no-boot-anim -no-snapshot \
   -gpu swiftshader_indirect -memory 3072 > emulator-run.log 2>&1 &
 timeout 300 adb wait-for-device || { echo "Emulator kommt nicht hoch"; tail -80 emulator-run.log; exit 1; }
