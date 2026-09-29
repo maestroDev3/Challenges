@@ -37,17 +37,17 @@ check() {
 adb shell settings put global package_verifier_enable 0 || true
 
 # 1) Frische Installation
-adb install -r "$NEW" >> "$LOG" 2>&1
+timeout 240 adb install -r "$NEW" >> "$LOG" 2>&1
 launch
 check frisch
 
 # 2) Update über die Vorversion (wie am Handy)
 adb uninstall "$PKG" > /dev/null 2>&1
-adb install "$OLD" >> "$LOG" 2>&1
+timeout 240 adb install "$OLD" >> "$LOG" 2>&1
 launch
 sleep 20
 adb shell am force-stop "$PKG"
-adb install -r "$NEW" >> "$LOG" 2>&1
+timeout 240 adb install -r "$NEW" >> "$LOG" 2>&1
 launch
 check update
 
