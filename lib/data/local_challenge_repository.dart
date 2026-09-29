@@ -152,6 +152,23 @@ class LocalChallengeRepository implements ChallengeRepository {
   }
 
   @override
+  Future<ActiveChallenge> reopen(String id) async {
+    final store = await _load();
+    final archived = store.archived.where((c) => c.id == id).firstOrNull;
+    if (archived == null) throw StateError('Challenge ist nicht archiviert');
+    if (store.active.any((c) => c.template.id == archived.template.id)) {
+      throw StateError('Dieselbe Vorlage läuft bereits');
+    }
+    final reopened = archived.reopen();
+    await _write(
+      store,
+      active: [...store.active, reopened],
+      archived: [for (final c in store.archived) if (c.id != id) c],
+    );
+    return reopened;
+  }
+
+  @override
   Future<void> delete(String id) async {
     final store = await _load();
     await _write(

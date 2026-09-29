@@ -107,6 +107,19 @@ class FakeChallengeRepository implements ChallengeRepository {
   }
 
   @override
+  Future<ActiveChallenge> reopen(String id) async {
+    final i = _archived.indexWhere((c) => c.id == id);
+    if (i < 0) throw StateError('Challenge ist nicht archiviert');
+    if (_items.any((c) => c.template.id == _archived[i].template.id)) {
+      throw StateError('Dieselbe Vorlage läuft bereits');
+    }
+    final reopened = _archived.removeAt(i).reopen();
+    _items.add(reopened);
+    _emit();
+    return reopened;
+  }
+
+  @override
   Future<void> delete(String id) async {
     _items.removeWhere((c) => c.id == id);
     _archived.removeWhere((c) => c.id == id);
