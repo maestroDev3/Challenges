@@ -26,6 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Platz schaffen
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL \
+            /usr/local/share/boost /usr/local/lib/android/sdk/ndk /usr/share/swift /usr/local/share/powershell
+          docker image prune -af > /dev/null || true
+          df -h /
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
@@ -44,6 +50,13 @@ jobs:
       - name: APK bauen (Vorversion)
         working-directory: baseline
         run: flutter pub get && flutter build apk --release
+      - name: APKs sichern, Build-Reste löschen
+        run: |
+          mkdir -p apks
+          cp build/app/outputs/flutter-apk/app-release.apk apks/new.apk
+          cp baseline/build/app/outputs/flutter-apk/app-release.apk apks/old.apk
+          rm -rf build baseline/build ~/.gradle/caches
+          df -h /
       - name: KVM aktivieren
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

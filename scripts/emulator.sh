@@ -17,5 +17,4 @@ done
 [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ] || { tail -50 emulator-run.log; exit 1; }
 adb shell input keyevent 82 || true
 set +e
-bash scripts/smoke_test.sh build/app/outputs/flutter-apk/app-release.apk \
-  baseline/build/app/outputs/flutter-apk/app-release.apk
+bash scripts/smoke_test.sh apks/new.apk apks/old.apk
