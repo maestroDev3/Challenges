@@ -1,0 +1,76 @@
+name: Smoke
+
+# Startet die Release-APK auf einem echten Android-Emulator (frisch und als
+# Update über die Vorversion). Fängt Abstürze, die Unit-/Widget-Tests nicht sehen.
+on:
+  push:
+    branches: [main, 'epic/**', 'smoke/**']
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: 'Vorversion (Commit/Tag) für den Update-Test'
+        default: 'ac61edf7c46492d52510e7b1eab42cd2116e6b31'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BASELINE: ${{ inputs.baseline || 'ac61edf7c46492d52510e7b1eab42cd2116e6b31' }}
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASELINE }}
+          path: baseline
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: APK bauen (neu)
+        run: flutter pub get && flutter build apk --release
+      - name: APK bauen (Vorversion)
+        working-directory: baseline
+        run: flutter pub get && flutter build apk --release
+      - name: KVM aktivieren
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Starttest auf Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: bash scripts/smoke_test.sh build/app/outputs/flutter-apk/app-release.apk baseline/build/app/outputs/flutter-apk/app-release.apk
+      - name: Logs hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-logs
+          path: |
+            smoke.log
+            logcat_*.txt
+      - name: Ergebnis als Commit-Kommentar
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          { echo "### Smoke (Emulator): ${{ job.status }}"; echo '```'; tail -c 30000 smoke.log 2>/dev/null || echo 'kein smoke.log'; echo '```'; } > report.md
+          jq -Rs '{body: .}' report.md > body.json
+          curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments" -d @body.json > /dev/null
