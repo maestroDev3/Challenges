@@ -4,6 +4,7 @@ import 'package:challenges/data/local_challenge_repository.dart';
 import 'package:challenges/domain/active_challenge.dart';
 import 'package:challenges/domain/catalog.dart';
 import 'package:challenges/domain/challenge.dart';
+import 'package:challenges/domain/challenge_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -282,6 +283,51 @@ void main() {
       // Archiv behält eine Kopie der Vorlage
       final archived = (await (await newRepo()).archived()).single;
       expect(archived.template.title, 'Sport');
+    });
+  });
+
+
+  group('replaceAll', () {
+    test('ersetzt aktive, archivierte Challenges und Vorlagen vollständig',
+        () async {
+      final repo = await newRepo();
+      await repo.saveTemplate(sport);
+      await repo.start(templateById('cold-shower')!, const ReminderTime(7, 0));
+
+      final running = ActiveChallenge(
+        id: 'wake-5am-x',
+        template: templateById('wake-5am')!,
+        startedOn: dayOf(now),
+        reminder: const ReminderTime(5, 0),
+      ).checkIn(now, CheckInStatus.done);
+      final other = ChallengeTemplate.custom(
+          title: 'Lesen', kind: const JournalKind());
+      final done = ActiveChallenge(
+        id: 'lesen-x',
+        template: other,
+        startedOn: dayOf(now),
+        reminder: const ReminderTime(20, 0),
+      ).finish(now);
+      await repo.replaceAll(ChallengeStore(
+          active: [running], archived: [done], customTemplates: [other]));
+
+      final loaded = await newRepo();
+      expect((await loaded.active()).map((c) => c.id), ['wake-5am-x']);
+      expect((await loaded.active()).single.doneDays, 1);
+      expect((await loaded.archived()).single.template.title, 'Lesen');
+      expect((await loaded.customTemplates()).map((t) => t.title), ['Lesen']);
+    });
+
+    test('emittiert den neuen Stand', () async {
+      final repo = await newRepo();
+      await repo.start(templateById('cold-shower')!, const ReminderTime(7, 0));
+      final events = <int>[];
+      final sub = repo.watchStore().listen((s) => events.add(s.active.length));
+      await settle();
+      await repo.replaceAll(const ChallengeStore());
+      await settle();
+      await sub.cancel();
+      expect(events, [1, 0]);
     });
   });
 

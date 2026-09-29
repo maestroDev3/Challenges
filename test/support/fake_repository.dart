@@ -127,6 +127,20 @@ class FakeChallengeRepository implements ChallengeRepository {
   }
 
   @override
+  Future<void> replaceAll(ChallengeStore store) async {
+    _items
+      ..clear()
+      ..addAll(store.active);
+    _archived
+      ..clear()
+      ..addAll(store.archived);
+    _templates
+      ..clear()
+      ..addAll(store.customTemplates);
+    _emit();
+  }
+
+  @override
   Future<void> saveTemplate(ChallengeTemplate template) async {
     final i = _templates.indexWhere((t) => t.id == template.id);
     if (i >= 0) {
