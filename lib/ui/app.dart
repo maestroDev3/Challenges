@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
@@ -20,6 +21,9 @@ class ChallengesApp extends StatelessWidget {
       theme: buildTheme(),
       darkTheme: buildTheme(),
       themeMode: ThemeMode.dark,
+      locale: const Locale('de'),
+      supportedLocales: const [Locale('de')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: _IntroGate(
         child: HomeShell(repository: repository, scheduler: scheduler),
       ),

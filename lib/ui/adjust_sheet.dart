@@ -1,0 +1,133 @@
+import 'package:flutter/material.dart';
+
+import '../domain/active_challenge.dart';
+import '../domain/challenge_repository.dart';
+import 'editor_screen.dart';
+import 'rule_selector.dart';
+
+/// Uhrzeitauswahl – im Test ersetzbar.
+typedef TimePick = Future<TimeOfDay?> Function(
+    BuildContext context, TimeOfDay initial);
+
+Future<TimeOfDay?> pickTimeDefault(BuildContext context, TimeOfDay initial) =>
+    showTimePicker(context: context, initialTime: initial);
+
+/// Einstellungen einer laufenden Challenge ändern, ohne den Verlauf zu
+/// verlieren. Liefert die geänderte Challenge (oder null bei Abbruch).
+Future<ActiveChallenge?> showAdjustSheet(
+  BuildContext context, {
+  required ActiveChallenge challenge,
+  required ChallengeRepository repository,
+  required Clock clock,
+  TimePick pickTime = pickTimeDefault,
+}) {
+  return showModalBottomSheet<ActiveChallenge>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (sheetContext) => _AdjustSheet(
+      challenge: challenge,
+      pickTime: pickTime,
+      onEditDetails: challenge.template.isCustom
+          ? () {
+              Navigator.of(sheetContext).pop();
+              Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => ChallengeEditorScreen(
+                  repository: repository,
+                  initial: challenge.template,
+                  clock: clock,
+                ),
+              ));
+            }
+          : null,
+    ),
+  );
+}
+
+class _AdjustSheet extends StatefulWidget {
+  const _AdjustSheet({
+    required this.challenge,
+    required this.pickTime,
+    this.onEditDetails,
+  });
+
+  final ActiveChallenge challenge;
+  final TimePick pickTime;
+  final VoidCallback? onEditDetails;
+
+  @override
+  State<_AdjustSheet> createState() => _AdjustSheetState();
+}
+
+class _AdjustSheetState extends State<_AdjustSheet> {
+  late ReminderTime _reminder = widget.challenge.reminder;
+  late StreakRule _rule = widget.challenge.rule;
+
+  Future<void> _pick() async {
+    final picked = await widget.pickTime(
+        context, TimeOfDay(hour: _reminder.hour, minute: _reminder.minute));
+    if (picked != null && mounted) {
+      setState(() => _reminder = ReminderTime(picked.hour, picked.minute));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.challenge;
+    final text = Theme.of(context).textTheme;
+    final allowed = allowedRules(c.kind);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('${c.template.emoji} ${c.template.title}',
+                style: text.titleLarge),
+            const SizedBox(height: 4),
+            Text('Verlauf und Streak bleiben erhalten.',
+                style: text.bodyMedium),
+            const SizedBox(height: 12),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.notifications_active_outlined),
+              title: const Text('Erinnerung'),
+              trailing: Text(_reminder.toString(), style: text.titleMedium),
+              onTap: _pick,
+            ),
+            if (allowed.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('Regel bei Fehltagen', style: text.titleSmall),
+              const SizedBox(height: 8),
+              RuleSelector(
+                value: _rule,
+                allowed: allowed,
+                onChanged: (r) => setState(() => _rule = r),
+              ),
+              const SizedBox(height: 4),
+              Text('Die Regel gilt für den ganzen bisherigen Verlauf.',
+                  style: text.bodySmall),
+            ],
+            if (widget.onEditDetails case final edit?) ...[
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: edit,
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Art und Details bearbeiten'),
+              ),
+            ],
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(c.copyWith(
+                reminder: _reminder,
+                rule: ruleFor(c.kind, _rule),
+              )),
+              child: const Text('Speichern'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
