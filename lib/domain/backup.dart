@@ -50,3 +50,15 @@ Future<void> restoreBackup(
     }
   }
 }
+
+/// Dateiname der Sicherung, z. B. `ritual-backup-2026-09-29.json`; das Datum
+/// im Namen hilft, mehrere Sicherungen auseinanderzuhalten.
+String backupFileName(DateTime now) => 'ritual-backup-${_isoDate(now)}.json';
+
+/// Dateiname der Tabelle, z. B. `ritual-export-2026-09-29.csv`.
+String exportFileName(DateTime now) => 'ritual-export-${_isoDate(now)}.csv';
+
+String _isoDate(DateTime d) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${d.year.toString().padLeft(4, '0')}-${two(d.month)}-${two(d.day)}';
+}
