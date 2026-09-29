@@ -10,10 +10,11 @@ typedef NotificationResponseHandler = void Function(NotificationResponse);
 
 /// Android-Implementierung mit flutter_local_notifications.
 class LocalNotificationScheduler implements ReminderScheduler {
-  LocalNotificationScheduler._(this._plugin);
+  LocalNotificationScheduler._(this._plugin, {required bool askPermissions})
+      : _permissionAsked = !askPermissions;
 
   final FlutterLocalNotificationsPlugin _plugin;
-  bool _permissionAsked = false;
+  bool _permissionAsked;
 
   static const _channel = AndroidNotificationDetails(
     'challenge_reminders',
@@ -27,6 +28,8 @@ class LocalNotificationScheduler implements ReminderScheduler {
   static Future<LocalNotificationScheduler> create({
     required NotificationResponseHandler onResponse,
     required NotificationResponseHandler onBackgroundResponse,
+    // Im Hintergrund (keine Activity) nicht nach Berechtigungen fragen.
+    bool askPermissions = true,
   }) async {
     tzdata.initializeTimeZones();
     try {
@@ -43,7 +46,7 @@ class LocalNotificationScheduler implements ReminderScheduler {
       onDidReceiveNotificationResponse: onResponse,
       onDidReceiveBackgroundNotificationResponse: onBackgroundResponse,
     );
-    return LocalNotificationScheduler._(plugin);
+    return LocalNotificationScheduler._(plugin, askPermissions: askPermissions);
   }
 
   AndroidFlutterLocalNotificationsPlugin? get _android =>
@@ -66,8 +69,8 @@ class LocalNotificationScheduler implements ReminderScheduler {
   @override
   Future<void> schedule(ActiveChallenge challenge) async {
     await cancel(challenge);
-    final plan = reminderPlan(challenge, DateTime.now());
-    if (plan is NoReminder) return;
+    final times = upcomingReminders(challenge, DateTime.now());
+    if (times.isEmpty) return;
     final exact = await _ensurePermissions();
     final t = challenge.template;
     final (body, actions) = switch (reminderActionsFor(t.kind)) {
@@ -105,45 +108,37 @@ class LocalNotificationScheduler implements ReminderScheduler {
         actions: actions,
       ),
     );
-    final mode = exact
-        ? AndroidScheduleMode.exactAllowWhileIdle
-        : AndroidScheduleMode.inexactAllowWhileIdle;
-    Future<void> at(int id, DateTime when, DateTimeComponents? repeat) =>
-        _plugin.zonedSchedule(
-          id: id,
-          title: '${t.emoji} ${t.title}',
-          body: body,
-          payload: challenge.id,
-          scheduledDate: tz.TZDateTime(tz.local, when.year, when.month,
-              when.day, when.hour, when.minute),
-          notificationDetails: details,
-          androidScheduleMode: mode,
-          matchDateTimeComponents: repeat,
-        );
-    final base = notificationIdFor(challenge.id);
-    switch (plan) {
-      case NoReminder():
-        return;
-      case OnceReminder(at: final time):
-        await at(base, time, null);
-      case DailyReminder(first: final time):
-        await at(base, time, DateTimeComponents.time);
-      case WeekdayReminders(firsts: final firsts):
-        for (final MapEntry(key: wd, value: time) in firsts.entries) {
-          await at(_weekdayId(challenge, wd), time,
-              DateTimeComponents.dayOfWeekAndTime);
-        }
+    for (final (i, time) in times.indexed) {
+      await _plugin.zonedSchedule(
+        id: _slotId(challenge, i),
+        title: '${t.emoji} ${t.title}',
+        body: body,
+        payload: challenge.id,
+        scheduledDate: tz.TZDateTime(
+            tz.local, time.year, time.month, time.day, time.hour, time.minute),
+        notificationDetails: details,
+        androidScheduleMode: exact
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+      );
     }
   }
+
+  int _slotId(ActiveChallenge c, int slot) =>
+      notificationIdFor('${c.id}:r$slot');
 
   int _weekdayId(ActiveChallenge c, int weekday) =>
       notificationIdFor('${c.id}:wd$weekday');
 
   @override
   Future<void> cancel(ActiveChallenge challenge) async {
+    // Alte Einzel-/Wochentags-Termine (frühere Versionen) und alle Slots.
     await _plugin.cancel(id: notificationIdFor(challenge.id));
     for (var wd = 1; wd <= 7; wd++) {
       await _plugin.cancel(id: _weekdayId(challenge, wd));
+    }
+    for (var i = 0; i < maxUpcomingReminders; i++) {
+      await _plugin.cancel(id: _slotId(challenge, i));
     }
   }
 }
