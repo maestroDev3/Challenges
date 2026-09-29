@@ -37,9 +37,20 @@ class TodayScreen extends StatelessWidget {
     await scheduler?.schedule(c);
   }
 
-  Future<void> _finish(ActiveChallenge c) async {
+  Future<void> _finish(BuildContext context, ActiveChallenge c) async {
+    final messenger = ScaffoldMessenger.of(context);
     await repository.finish(c.id);
     await scheduler?.cancel(c);
+    messenger.showSnackBar(SnackBar(
+      content: Text('„${c.template.title}“ abgeschlossen'),
+      action: SnackBarAction(
+        label: 'Rückgängig',
+        onPressed: () async {
+          final reopened = await repository.reopen(c.id);
+          await scheduler?.schedule(reopened);
+        },
+      ),
+    ));
   }
 
   Future<void> _delete(BuildContext context, ActiveChallenge c) async {
@@ -106,7 +117,7 @@ class TodayScreen extends StatelessWidget {
                     challenge: items[i],
                     today: clock(),
                     onSave: (c) => _save(context, c),
-                    onFinish: _finish,
+                    onFinish: (c) => _finish(context, c),
                     onDelete: (c) => _delete(context, c),
                     onPauseChanged: _reschedule,
                   ),

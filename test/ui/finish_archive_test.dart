@@ -143,4 +143,75 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1 Tag erledigt'), findsOneWidget);
   });
+
+  group('Archiv-Menü', () {
+    Future<void> openArchiveMenu(WidgetTester tester, String item) async {
+      await tester.tap(find.byTooltip('Erledigt'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Mehr'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(item));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('Löschen fragt nach und entfernt endgültig', (tester) async {
+      final repo = FakeChallengeRepository(
+          archived: [running('cold-shower').finish(daysAgo(1))], today: today);
+      await tester.pumpApp(HomeShell(repository: repo, clock: () => today));
+      await openArchiveMenu(tester, 'Löschen');
+      expect(find.text('Challenge löschen?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Löschen'));
+      await tester.pumpAndSettle();
+      expect(repo.archivedItems, isEmpty);
+      expect(find.text('Noch nichts abgeschlossen'), findsOneWidget);
+    });
+
+    testWidgets('Wieder aufnehmen holt die Challenge zurück', (tester) async {
+      final repo = FakeChallengeRepository(archived: [
+        running('cold-shower', doneDaysAgo: [2, 3]).finish(daysAgo(1))
+      ], today: today);
+      final scheduler = FakeReminderScheduler();
+      await tester.pumpApp(HomeShell(
+          repository: repo, clock: () => today, scheduler: scheduler));
+      await openArchiveMenu(tester, 'Wieder aufnehmen');
+      expect(repo.archivedItems, isEmpty);
+      expect(repo.items.single.doneDays, 2);
+      expect(scheduler.scheduled, {'cold-shower'});
+    });
+
+    testWidgets('Wieder aufnehmen bei laufender Vorlage zeigt Hinweis',
+        (tester) async {
+      final repo = FakeChallengeRepository(
+        initial: [running('cold-shower').copyWith()],
+        archived: [
+          ActiveChallenge(
+            id: 'old',
+            template: templateById('cold-shower')!,
+            startedOn: dayOf(daysAgo(40)),
+            reminder: const ReminderTime(7, 0),
+          ).finish(daysAgo(30)),
+        ],
+        today: today,
+      );
+      await tester.pumpApp(HomeShell(repository: repo, clock: () => today));
+      await openArchiveMenu(tester, 'Wieder aufnehmen');
+      expect(find.textContaining('läuft bereits'), findsOneWidget);
+      expect(repo.archivedItems, hasLength(1));
+    });
+  });
+
+  testWidgets('Abschließen lässt sich rückgängig machen', (tester) async {
+    final repo = FakeChallengeRepository(
+        initial: [running('meditate-sleep', doneDaysAgo: [1])], today: today);
+    final scheduler = FakeReminderScheduler();
+    await tester.pumpApp(
+        HomeShell(repository: repo, clock: () => today, scheduler: scheduler));
+    await openMenu(tester, 'Abschließen');
+    expect(repo.items, isEmpty);
+    await tester.tap(find.text('Rückgängig'));
+    await tester.pumpAndSettle();
+    expect(repo.items.single.id, 'meditate-sleep');
+    expect(repo.archivedItems, isEmpty);
+    expect(scheduler.scheduled, {'meditate-sleep'});
+  });
 }

@@ -116,6 +116,7 @@ class ActiveChallenge {
     DateTime? finishedOn,
     List<PauseRange>? pauses,
     StreakRule? rule,
+    bool clearFinished = false,
   }) =>
       ActiveChallenge(
         id: id,
@@ -124,7 +125,7 @@ class ActiveChallenge {
         reminder: reminder ?? this.reminder,
         checkIns: checkIns ?? this.checkIns,
         status: status ?? this.status,
-        finishedOn: finishedOn ?? this.finishedOn,
+        finishedOn: clearFinished ? null : finishedOn ?? this.finishedOn,
         pauses: pauses ?? this.pauses,
         rule: rule ?? this.rule,
       );
@@ -136,6 +137,10 @@ class ActiveChallenge {
             isCompleted ? ChallengeStatus.completed : ChallengeStatus.ended,
         finishedOn: dayOf(now),
       );
+
+  /// Holt eine archivierte Challenge mit ganzem Verlauf zurück.
+  ActiveChallenge reopen() =>
+      copyWith(status: ChallengeStatus.active, clearFinished: true);
 
   /// True, wenn das Ziel erreicht ist und die Challenge automatisch ins
   /// Archiv wandern soll (X Tage oder einmalig).

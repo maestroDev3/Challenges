@@ -64,4 +64,12 @@ void main() {
     expect(c.bestStreak, 3);
     expect(c.doneDays, 4);
   });
+
+  test('reopen holt die Challenge mit Verlauf zurück', () {
+    final c = start('meditate-sleep', done: [0, 1]).finish(day(2)).reopen();
+    expect(c.status, ChallengeStatus.active);
+    expect(c.finishedOn, isNull);
+    expect(c.doneDays, 2);
+    expect(c.checkIn(day(2), CheckInStatus.done).doneDays, 3);
+  });
 }
