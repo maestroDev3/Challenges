@@ -26,6 +26,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 | #36 Motivation und Dranbleiben | #33 Fortschrittsfotos → #82 Dashboard und Kennzahlen |
 | #37 Daten sichern | #32 Backup und Export (in Arbeit) |
 | #80 Profil und Einstellungen | #78 Profil und Einstellungen → #79 Sprache wählbar (DE/EN/RU) |
+| #104 Planen und Vorbereiten | #103 Startdatum planen |
 | #38 Gemeinsam | #34 Challenges mit Partnerin/Freunden – erst nach Backend-Entscheidung |
 
 ## Zuletzt erledigt
@@ -40,5 +41,3 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 ## Offene Entscheidungen (nur der Nutzer)
 
 - Backend für „Gemeinsam“ (z. B. Firebase, Supabase)
-- Epic #35 „Challenges selbst gestalten“: alle Stories erledigt – schließen
-  oder um neue Stories erweitern?
