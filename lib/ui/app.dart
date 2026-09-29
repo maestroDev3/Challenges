@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
+import '../domain/settings.dart';
 import 'home_shell.dart';
 import 'intro_screen.dart';
 import 'theme.dart';
@@ -14,11 +15,13 @@ class ChallengesApp extends StatelessWidget {
     required this.repository,
     this.scheduler,
     this.backupFiles,
+    this.settings,
   });
 
   final ChallengeRepository repository;
   final ReminderScheduler? scheduler;
   final BackupFiles? backupFiles;
+  final SettingsRepository? settings;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +39,7 @@ class ChallengesApp extends StatelessWidget {
           repository: repository,
           scheduler: scheduler,
           backupFiles: backupFiles,
+          settings: settings,
         ),
       ),
     );

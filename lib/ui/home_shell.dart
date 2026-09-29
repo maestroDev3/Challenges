@@ -4,7 +4,9 @@ import '../domain/active_challenge.dart';
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
+import '../domain/settings.dart';
 import 'catalog_screen.dart';
+import 'profile_screen.dart';
 import 'today_screen.dart';
 
 class HomeShell extends StatefulWidget {
@@ -14,6 +16,7 @@ class HomeShell extends StatefulWidget {
     this.clock = DateTime.now,
     this.scheduler,
     this.backupFiles,
+    this.settings,
   });
 
   final ChallengeRepository repository;
@@ -25,11 +28,16 @@ class HomeShell extends StatefulWidget {
   /// Datei-Dialog für „Daten sichern“; null in Tests ohne Dateien.
   final BackupFiles? backupFiles;
 
+  /// Einstellungen für Profil; null in Tests ohne Einstellungen.
+  final SettingsRepository? settings;
+
   @override
   State<HomeShell> createState() => _HomeShellState();
 }
 
 class _HomeShellState extends State<HomeShell> {
+  /// Ersatz, wenn keine Einstellungen übergeben wurden (nur in Tests).
+  late final SettingsRepository _defaultSettings = MemorySettingsRepository();
   int _tab = 0;
   late final AppLifecycleListener _lifecycle;
 
@@ -71,6 +79,10 @@ class _HomeShellState extends State<HomeShell> {
               if (mounted) setState(() => _tab = 0);
             },
           ),
+          ProfileScreen(
+            repository: widget.repository,
+            settings: widget.settings ?? _defaultSettings,
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -86,6 +98,11 @@ class _HomeShellState extends State<HomeShell> {
             icon: Icon(Icons.explore_outlined),
             selectedIcon: Icon(Icons.explore),
             label: 'Entdecken',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profil',
           ),
         ],
       ),
