@@ -211,6 +211,17 @@ void main() {
           templates.map((t) => t.kindLabel));
     });
 
+    test('Wochentage werden gespeichert', () async {
+      final repo = await newRepo();
+      final t = ChallengeTemplate.custom(
+          title: 'Laufen',
+          kind: const WeeklyGoalKind(3,
+              unit: WeeklyUnit.times, weekdays: {1, 3, 5}));
+      await repo.saveTemplate(t);
+      final loaded = (await (await newRepo()).customTemplates()).single;
+      expect((loaded.kind as WeeklyGoalKind).weekdays, {1, 3, 5});
+    });
+
     test('Challenge mit eigener Vorlage wird korrekt geladen', () async {
       final repo = await newRepo();
       await repo.saveTemplate(sport);
