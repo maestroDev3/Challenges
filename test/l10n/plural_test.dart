@@ -35,7 +35,7 @@ void main() {
 
   test('Russisch: Tage bis zum Start', () {
     final ru = lookupAppLocalizations(const Locale('ru'));
-    expect(ru.startsIn(1), 'завтра');
+    expect(ru.startsTomorrow, 'завтра');
     expect(ru.startsIn(2), 'через 2 дня');
     expect(ru.startsIn(5), 'через 5 дней');
     expect(ru.startsIn(21), 'через 21 день');

@@ -235,6 +235,7 @@
   "saveAndPlan": "Save & plan",
   "sectionPlanned": "Planned",
   "plannedStartsOn": "starts on {date} · {relative}",
-  "startsIn": "{count, plural, =1{tomorrow} other{in {count} days}}",
-  "changeStartDate": "Change start date"
+  "startsIn": "{count, plural, =1{in 1 day} other{in {count} days}}",
+  "changeStartDate": "Change start date",
+  "startsTomorrow": "tomorrow"
 }

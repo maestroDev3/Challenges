@@ -1165,9 +1165,9 @@
       }
     }
   },
-  "startsIn": "{count, plural, =1{morgen} other{in {count} Tagen}}",
+  "startsIn": "{count, plural, other{in {count} Tagen}}",
   "@startsIn": {
-    "description": "Tage bis zum Start",
+    "description": "Tage bis zum Start (ab 2; für 1 gilt startsTomorrow)",
     "placeholders": {
       "count": {
         "type": "int"
@@ -1177,5 +1177,9 @@
   "changeStartDate": "Startdatum ändern",
   "@changeStartDate": {
     "description": "Menü geplante Challenge"
+  },
+  "startsTomorrow": "morgen",
+  "@startsTomorrow": {
+    "description": "Start am nächsten Tag"
   }
 }

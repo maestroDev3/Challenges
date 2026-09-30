@@ -272,7 +272,10 @@ class _PlannedCard extends StatelessWidget {
                   Text(
                     l10n.plannedStartsOn(
                       formatDate(l10n, challenge.startedOn),
-                      l10n.startsIn(challenge.daysUntilStart(today)),
+                      switch (challenge.daysUntilStart(today)) {
+                        1 => l10n.startsTomorrow,
+                        final days => l10n.startsIn(days),
+                      },
                     ),
                     style: TextStyle(color: scheme.onSurfaceVariant),
                   ),

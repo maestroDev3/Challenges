@@ -235,6 +235,7 @@
   "saveAndPlan": "Сохранить и запланировать",
   "sectionPlanned": "Запланировано",
   "plannedStartsOn": "начнётся {date} · {relative}",
-  "startsIn": "{count, plural, =1{завтра} one{через {count} день} few{через {count} дня} many{через {count} дней} other{через {count} дня}}",
-  "changeStartDate": "Изменить дату начала"
+  "startsIn": "{count, plural, one{через {count} день} few{через {count} дня} many{через {count} дней} other{через {count} дня}}",
+  "changeStartDate": "Изменить дату начала",
+  "startsTomorrow": "завтра"
 }
