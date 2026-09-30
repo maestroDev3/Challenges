@@ -39,6 +39,10 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   /// Ersatz, wenn keine Einstellungen übergeben wurden (nur in Tests).
   late final SettingsRepository _defaultSettings = MemorySettingsRepository();
+
+  /// Einmal abonniert, damit Neuaufbauten der Shell nicht neu abonnieren.
+  late final Stream<AppSettings> _settingsStream =
+      (widget.settings ?? _defaultSettings).watch();
   int _tab = 0;
   late final AppLifecycleListener _lifecycle;
 
@@ -71,13 +75,17 @@ class _HomeShellState extends State<HomeShell> {
             onDiscover: () => setState(() => _tab = 1),
             scheduler: widget.scheduler,
           ),
-          CatalogScreen(
-            repository: widget.repository,
-            clock: widget.clock,
-            onStarted: (c) async {
-              await widget.scheduler?.schedule(c);
-              if (mounted) setState(() => _tab = 0);
-            },
+          StreamBuilder<AppSettings>(
+            stream: _settingsStream,
+            builder: (context, snapshot) => CatalogScreen(
+              repository: widget.repository,
+              clock: widget.clock,
+              defaultReminder: snapshot.data?.defaultReminder,
+              onStarted: (c) async {
+                await widget.scheduler?.schedule(c);
+                if (mounted) setState(() => _tab = 0);
+              },
+            ),
           ),
           ProfileScreen(
             repository: widget.repository,

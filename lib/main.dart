@@ -99,10 +99,14 @@ Future<void> main() async {
   await HomeWidget.registerInteractivityCallback(onWidgetTapped);
   repository.watch().listen((_) => _refreshWidget(repository));
 
+  final settings = LocalSettingsRepository(prefs);
+  final initialSettings = await settings.load();
+
   runApp(ChallengesApp(
     repository: repository,
     scheduler: scheduler,
     backupFiles: const AndroidBackupFiles(),
-    settings: LocalSettingsRepository(prefs),
+    settings: settings,
+    showIntro: initialSettings.showIntro,
   ));
 }
