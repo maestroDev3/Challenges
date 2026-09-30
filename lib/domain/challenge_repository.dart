@@ -30,12 +30,14 @@ abstract interface class ChallengeRepository {
   /// Gesamter Stand: sofort, danach jede Änderung.
   Stream<ChallengeStore> watchStore();
 
-  /// Startet eine Challenge. Läuft die Vorlage bereits, wird die
-  /// laufende Challenge zurückgegeben.
+  /// Startet eine Challenge – heute oder geplant am Tag [startOn] (bis
+  /// [maxPlanDays] voraus, sonst [ArgumentError]). Läuft oder ist die Vorlage
+  /// bereits geplant, wird diese Challenge zurückgegeben.
   Future<ActiveChallenge> start(
     ChallengeTemplate template,
     ReminderTime reminder, {
     StreakRule rule = StreakRule.relaxed,
+    DateTime? startOn,
   });
 
   Future<void> save(ActiveChallenge challenge);

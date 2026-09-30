@@ -62,7 +62,7 @@ DateTime? firstReminder(ActiveChallenge c, DateTime now) {
     final at = DateTime(date.year, date.month, date.day, time.hour, time.minute);
     return at.isAfter(now) ? at : null;
   }
-  var at = nextReminder(now, time);
+  var at = nextReminder(_notBeforeStart(c, now), time);
   for (var i = 0; i < 400 && c.isPaused(at); i++) {
     at = DateTime(at.year, at.month, at.day + 1, time.hour, time.minute);
   }
@@ -71,6 +71,12 @@ DateTime? firstReminder(ActiveChallenge c, DateTime now) {
 
 /// So viele Termine werden je Challenge im Voraus geplant.
 const maxUpcomingReminders = 14;
+
+/// Geplante Challenges erinnern erst ab ihrem Starttag (Ortszeit).
+DateTime _notBeforeStart(ActiveChallenge c, DateTime now) {
+  final start = DateTime(c.startedOn.year, c.startedOn.month, c.startedOn.day);
+  return start.isAfter(now) ? start : now;
+}
 
 DateTime _at(DateTime d, ReminderTime t) =>
     DateTime(d.year, d.month, d.day, t.hour, t.minute);
@@ -91,7 +97,7 @@ List<DateTime> upcomingReminders(ActiveChallenge c, DateTime now,
     return at == null ? const [] : [at];
   }
   final result = <DateTime>[];
-  var d = nextReminder(now, c.reminder);
+  var d = nextReminder(_notBeforeStart(c, now), c.reminder);
   for (var i = 0; i < 120 && result.length < max; i++) {
     final due = switch (kind) {
       WeeklyGoalKind(weekdays: final days) when days.isNotEmpty =>
