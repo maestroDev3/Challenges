@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'active_challenge.dart';
@@ -80,5 +81,29 @@ AppSettings decodeSettings(String text) {
     );
   } on Object catch (_) {
     return const AppSettings();
+  }
+}
+
+/// Einstellungen nur im Speicher – Standard, wenn keine dauerhafte
+/// Speicherung verdrahtet ist (z. B. in Widget-Tests der ganzen App).
+class MemorySettingsRepository implements SettingsRepository {
+  MemorySettingsRepository([this._current = const AppSettings()]);
+
+  AppSettings _current;
+  final _changes = StreamController<AppSettings>.broadcast();
+
+  @override
+  Future<AppSettings> load() async => _current;
+
+  @override
+  Stream<AppSettings> watch() async* {
+    yield _current;
+    yield* _changes.stream;
+  }
+
+  @override
+  Future<void> save(AppSettings settings) async {
+    _current = settings;
+    _changes.add(settings);
   }
 }
