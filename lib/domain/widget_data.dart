@@ -20,7 +20,7 @@ class WidgetEntry {
   final bool doneToday;
 }
 
-/// Bereitet die aktiven Challenges für das Widget auf: pausierte fehlen,
+/// Bereitet die aktiven Challenges für das Widget auf: pausierte und geplante fehlen,
 /// offene stehen vor erledigten, höchstens [maxWidgetEntries]. [titleOf]
 /// liefert den Anzeigenamen (übersetzt), sonst gilt der gespeicherte Titel.
 List<WidgetEntry> widgetEntries(
@@ -30,7 +30,7 @@ List<WidgetEntry> widgetEntries(
 }) {
   final entries = [
     for (final c in active)
-      if (!c.isArchived && !c.isPaused(today))
+      if (!c.isArchived && !c.isPaused(today) && !c.isUpcoming(today))
         WidgetEntry(
           id: c.id,
           title: '${c.template.emoji} '

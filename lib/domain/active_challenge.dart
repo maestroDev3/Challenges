@@ -102,6 +102,9 @@ class PauseRange {
   }
 }
 
+/// So weit im Voraus lässt sich ein Start planen.
+const maxPlanDays = 90;
+
 class ActiveChallenge {
   const ActiveChallenge({
     required this.id,
@@ -146,7 +149,30 @@ class ActiveChallenge {
 
   bool get isArchived => status != ChallengeStatus.active;
 
+  /// Geplant: der Starttag liegt nach [today]. Kein eigener Status – am
+  /// Starttag ist die Challenge ohne Umschalten aktiv.
+  bool isUpcoming(DateTime today) => dayOf(startedOn).isAfter(dayOf(today));
+
+  /// Tage bis zum Start (0, sobald sie läuft).
+  int daysUntilStart(DateTime today) {
+    final days = dayOf(startedOn).difference(dayOf(today)).inDays;
+    return days > 0 ? days : 0;
+  }
+
+  /// Beginnt eine geplante Challenge sofort.
+  ActiveChallenge startNow(DateTime today) => copyWith(startedOn: dayOf(today));
+
+  /// Verschiebt den Start auf [day] (heute bis [maxPlanDays] voraus).
+  ActiveChallenge withStart(DateTime day, {required DateTime today}) {
+    final days = dayOf(day).difference(dayOf(today)).inDays;
+    if (days < 0 || days > maxPlanDays) {
+      throw ArgumentError.value(day, 'day', 'heute bis $maxPlanDays Tage voraus');
+    }
+    return copyWith(startedOn: dayOf(day));
+  }
+
   ActiveChallenge copyWith({
+    DateTime? startedOn,
     ChallengeTemplate? template,
     ReminderTime? reminder,
     List<CheckIn>? checkIns,
@@ -165,7 +191,7 @@ class ActiveChallenge {
       ActiveChallenge(
         id: id,
         template: template ?? this.template,
-        startedOn: startedOn,
+        startedOn: startedOn ?? this.startedOn,
         reminder: reminder ?? this.reminder,
         checkIns: checkIns ?? this.checkIns,
         status: status ?? this.status,
@@ -306,6 +332,9 @@ class ActiveChallenge {
   }) {
     if (isArchived) return this;
     final d = dayOf(day);
+    if (d.isBefore(dayOf(startedOn))) {
+      throw StateError('Check-in vor dem Start der Challenge');
+    }
     final existing = checkInOn(d);
     var total = minutes;
     if (kind case WeeklyGoalKind(unit: WeeklyUnit.minutes)
