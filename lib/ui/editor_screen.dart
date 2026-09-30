@@ -396,11 +396,9 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  for (final (i, name) in const [
-                    'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So',
-                  ].indexed)
+                  for (var i = 0; i < 7; i++)
                     FilterChip(
-                      label: Text(name),
+                      label: Text(weekdayShort(context.l10n, i + 1)),
                       selected: _weekdays.contains(i + 1),
                       showCheckmark: false,
                       onSelected: (_) => _toggleWeekday(i + 1),
@@ -429,7 +427,7 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.event_outlined),
               title: Text(context.l10n.editorDate),
-              trailing: Text(formatDate(_date, withYear: true),
+              trailing: Text(formatDate(context.l10n, _date, withYear: true),
                   style: text.titleMedium),
               onTap: _pickDate,
             ),

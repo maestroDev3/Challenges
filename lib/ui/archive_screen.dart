@@ -7,6 +7,7 @@ import '../domain/reminders.dart';
 import 'detail_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'template_text.dart';
 import 'theme.dart';
 
 /// Abgeschlossene und beendete Challenges mit Rückblick.
@@ -21,7 +22,9 @@ class ArchiveScreen extends StatelessWidget {
     await scheduler?.schedule(started);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.archiveRunningAgain(c.template.title))),
+      SnackBar(
+          content: Text(context.l10n
+              .archiveRunningAgain(c.template.titleIn(context.l10n)))),
     );
   }
 
@@ -32,10 +35,11 @@ class ArchiveScreen extends StatelessWidget {
       final reopened = await repository.reopen(c.id);
       await scheduler?.schedule(reopened);
       messenger.showSnackBar(SnackBar(
-          content: Text(l10n.archiveBackInToday(c.template.title))));
+          content: Text(l10n.archiveBackInToday(c.template.titleIn(l10n)))));
     } on StateError {
       messenger.showSnackBar(SnackBar(
-          content: Text(l10n.archiveAlreadyRunning(c.template.title))));
+          content:
+              Text(l10n.archiveAlreadyRunning(c.template.titleIn(l10n)))));
     }
   }
 
@@ -44,7 +48,8 @@ class ArchiveScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.l10n.deleteChallengeTitle),
-        content: Text(context.l10n.archiveDeleteMessage(c.template.title)),
+        content: Text(context.l10n
+            .archiveDeleteMessage(c.template.titleIn(context.l10n))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -148,10 +153,12 @@ class _ArchiveCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(challenge.template.title, style: text.titleMedium),
+                      Text(challenge.template.titleIn(context.l10n),
+                          style: text.titleMedium),
                       const SizedBox(height: 2),
                       Text(
-                        '${formatDate(challenge.startedOn)} – ${formatDate(end)}',
+                        '${formatDate(context.l10n, challenge.startedOn)} – '
+                        '${formatDate(context.l10n, end)}',
                         style: TextStyle(color: scheme.onSurfaceVariant),
                       ),
                     ],
@@ -242,7 +249,7 @@ Future<void> showCelebration(BuildContext context, ActiveChallenge c) {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(c.template.title,
+            Text(c.template.titleIn(context.l10n),
                 textAlign: TextAlign.center, style: text.titleMedium),
             const SizedBox(height: 12),
             Text(
@@ -280,7 +287,7 @@ Future<void> showMilestone(BuildContext context, ActiveChallenge c, int days) {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
-          Text(c.template.title, textAlign: TextAlign.center),
+          Text(c.template.titleIn(context.l10n), textAlign: TextAlign.center),
         ],
       ),
       actions: [

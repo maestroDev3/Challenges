@@ -873,5 +873,207 @@
   "backupReplace": "Ersetzen",
   "@backupReplace": {
     "description": "Knopf"
+  },
+  "tplWake5amTitle": "Um 5 Uhr aufstehen",
+  "@tplWake5amTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplWake5amDescription": "30 Tage lang um 5:00 Uhr aufstehen – ohne Snooze. Wecker klingelt, Füße auf den Boden.",
+  "@tplWake5amDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplMorningRoutineTitle": "Tägliche Morgenroutine",
+  "@tplMorningRoutineTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplMorningRoutineDescription": "30 Tage lang jeden Morgen deine feste Routine durchziehen, bevor der Tag dich übernimmt.",
+  "@tplMorningRoutineDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplColdShowerTitle": "Kalt duschen",
+  "@tplColdShowerTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplColdShowerDescription": "30 Tage kalt duschen – und am Ende nicht doch noch warm aufdrehen.",
+  "@tplColdShowerDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplNoSugarTitle": "21 Tage ohne Zucker",
+  "@tplNoSugarTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplNoSugarDescription": "Kein Zucker in jeder Form: keine Süßigkeiten, keine süßen Getränke, kein versteckter Zucker.",
+  "@tplNoSugarDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplMeditateSleepTitle": "Meditieren vor dem Schlafen",
+  "@tplMeditateSleepTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplMeditateSleepDescription": "Jeden Abend vor dem Einschlafen bewusst zur Ruhe kommen.",
+  "@tplMeditateSleepDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplEyeGazeTitle": "10 min in die eigenen Augen schauen",
+  "@tplEyeGazeTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplEyeGazeDescription": "Zehn Minuten in den Spiegel und dir selbst in die Augen schauen. Aushalten, nicht wegsehen.",
+  "@tplEyeGazeDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplExcuseJournalTitle": "Ausreden aufschreiben",
+  "@tplExcuseJournalTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplExcuseJournalDescription": "Schreib auf, warum du etwas nicht gemacht hast. Ehrlich – nur für dich.",
+  "@tplExcuseJournalDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplNature2hTitle": "2 h pro Woche in der Natur",
+  "@tplNature2hTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplNature2hDescription": "Jede Woche zwei Stunden draußen in der Natur – ohne Handy, ohne Kopfhörer.",
+  "@tplNature2hDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplFasting24hTitle": "24 h Diät",
+  "@tplFasting24hTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplFasting24hDescription": "24 Stunden fasten: nur Wasser, Tee oder schwarzer Kaffee. Bei Vorerkrankungen vorher ärztlich abklären.",
+  "@tplFasting24hDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplSilence24hTitle": "24 h nicht sprechen",
+  "@tplSilence24hTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplSilence24hDescription": "Einen ganzen Tag lang kein Wort sagen. Zuhören statt reden.",
+  "@tplSilence24hDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplBookInADayTitle": "Ein Buch an einem Tag",
+  "@tplBookInADayTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplBookInADayDescription": "Ein komplettes Buch an einem einzigen Tag durchlesen.",
+  "@tplBookInADayDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplMorningRoutineStep1": "Ein Glas Wasser trinken",
+  "@tplMorningRoutineStep1": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "tplMorningRoutineStep2": "Bett machen",
+  "@tplMorningRoutineStep2": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "tplMorningRoutineStep3": "5 Minuten dehnen",
+  "@tplMorningRoutineStep3": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "tplMorningRoutineStep4": "Tag planen",
+  "@tplMorningRoutineStep4": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "kindDaily": "täglich",
+  "@kindDaily": {
+    "description": "Art ohne Enddatum"
+  },
+  "kindOneTimeOn": "einmalig · {date}",
+  "@kindOneTimeOn": {
+    "description": "Art mit Datum",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "kindWindowHours": "{hours} h",
+  "@kindWindowHours": {
+    "description": "Zeitfenster",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "kindTimesPerWeek": "{count}×/Woche",
+  "@kindTimesPerWeek": {
+    "description": "Wochenziel Mal",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kindHoursPerWeek": "{hours} h/Woche",
+  "@kindHoursPerWeek": {
+    "description": "Wochenziel Stunden",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "kindMinutesPerWeek": "{minutes} min/Woche",
+  "@kindMinutesPerWeek": {
+    "description": "Wochenziel Minuten",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "kindJournal": "Journal",
+  "@kindJournal": {
+    "description": "Art Tagebuch"
+  },
+  "weekdayShort": "{day, select, 1{Mo} 2{Di} 3{Mi} 4{Do} 5{Fr} 6{Sa} other{So}}",
+  "@weekdayShort": {
+    "description": "Wochentag kurz, 1 = Montag",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "monthName": "{month, select, 1{Januar} 2{Februar} 3{März} 4{April} 5{Mai} 6{Juni} 7{Juli} 8{August} 9{September} 10{Oktober} 11{November} other{Dezember}}",
+  "@monthName": {
+    "description": "Monatsname, 1 = Januar",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dateShort": "{day}.{month}.",
+  "@dateShort": {
+    "description": "Datum ohne Jahr, Tag und Monat zweistellig",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dateWithYear": "{day}.{month}.{year}",
+  "@dateWithYear": {
+    "description": "Datum mit Jahr",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
   }
 }
