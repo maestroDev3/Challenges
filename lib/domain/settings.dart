@@ -71,7 +71,7 @@ String encodeSettings(AppSettings settings) => jsonEncode({
       if (settings.defaultReminder case final reminder?)
         'defaultReminder': {'hour': reminder.hour, 'minute': reminder.minute},
       'showIntro': settings.showIntro,
-      if (settings.language case final language?) 'language': language,
+      'language': ?settings.language,
     });
 
 /// Liest gespeicherte Einstellungen. Beschädigte Daten ergeben die
