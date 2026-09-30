@@ -12,11 +12,12 @@ import '../support/fake_scheduler.dart';
 final today = DateTime(2026, 10, 7, 9);
 DateTime daysAgo(int n) => today.subtract(Duration(days: n));
 
-ActiveChallenge running(String templateId, {List<int> doneDaysAgo = const []}) {
+ActiveChallenge running(String templateId,
+    {List<int> doneDaysAgo = const [], int startedDaysAgo = 5}) {
   var c = ActiveChallenge(
     id: templateId,
     template: templateById(templateId)!,
-    startedOn: dayOf(daysAgo(5)),
+    startedOn: dayOf(daysAgo(startedDaysAgo)),
     reminder: const ReminderTime(7, 0),
   );
   for (final n in doneDaysAgo) {
@@ -121,7 +122,8 @@ void main() {
 
   testWidgets('Meilenstein 7 Tage wird gefeiert', (tester) async {
     final repo = FakeChallengeRepository(initial: [
-      running('meditate-sleep', doneDaysAgo: [1, 2, 3, 4, 5, 6])
+      running('meditate-sleep',
+          doneDaysAgo: [1, 2, 3, 4, 5, 6], startedDaysAgo: 6)
     ]);
     await pumpToday(tester, repo);
     await tester.tap(find.text('Erledigt'));
