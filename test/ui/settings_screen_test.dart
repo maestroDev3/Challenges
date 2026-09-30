@@ -36,7 +36,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Einstellungen'));
     await tester.pumpAndSettle();
-    expect(find.text('Standard-Erinnerung'), findsOneWidget);
+    expect(find.text('Uhrzeit für neue Challenges'), findsOneWidget);
   });
 
   testWidgets('Name lässt sich ändern und wird gespeichert', (tester) async {
@@ -56,8 +56,10 @@ void main() {
     await pumpSettings(tester, settings,
         picked: const TimeOfDay(hour: 6, minute: 30));
     expect(find.text('Je nach Challenge'), findsOneWidget);
+    expect(find.textContaining('Laufende Challenges behalten ihre Uhrzeit'),
+        findsOneWidget);
 
-    await tester.tap(find.text('Standard-Erinnerung'));
+    await tester.tap(find.text('Uhrzeit für neue Challenges'));
     await tester.pumpAndSettle();
     expect(settings.current.defaultReminder, const ReminderTime(6, 30));
     expect(find.text('06:30'), findsOneWidget);
@@ -71,7 +73,7 @@ void main() {
   testWidgets('Abbruch der Uhrzeitwahl ändert nichts', (tester) async {
     final settings = FakeSettingsRepository();
     await pumpSettings(tester, settings);
-    await tester.tap(find.text('Standard-Erinnerung'));
+    await tester.tap(find.text('Uhrzeit für neue Challenges'));
     await tester.pumpAndSettle();
     expect(settings.current.defaultReminder, isNull);
   });
