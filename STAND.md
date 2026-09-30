@@ -8,13 +8,14 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## In Arbeit
 
-- #79 Sprache wählbar – Deutsch, Englisch, Russisch (Epic #80) – wird verfeinert.
-  Entscheidung: Sprachpakete als ARB-Dateien mit Flutters `gen-l10n` (Ausnahme von
-  „keine Codegen“, nur dieses eingebaute Werkzeug).
+- #79 Sprache wählbar – Deutsch, Englisch, Russisch (Epic #80) – Branch `epic/sprache`,
+  alle Tasks erledigt (#111–#116). Wartet auf: Test der APK (Release „test“) durch den
+  Nutzer, dann Merge nach `main`.
+  Entscheidung: ARB-Sprachpakete mit Flutters `gen-l10n` (einzige erlaubte Codegen).
 
 ## Als Nächstes
 
-- #79 in Tasks zerlegen und umsetzen, Branch `epic/sprache`
+- Nach Merge von #79: nächste Story nach Wahl des Nutzers
 
 ## Backlog nach Epic
 
