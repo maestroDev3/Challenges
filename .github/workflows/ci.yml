@@ -50,7 +50,7 @@ jobs:
   build-apk:
     needs: test
     if: >-
-      github.event_name == 'push' && (github.ref == 'refs/heads/main' ||
+      github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' ||
       startsWith(github.ref, 'refs/heads/epic/') ||
       contains(github.event.head_commit.message, '[apk]'))
     runs-on: ubuntu-latest
