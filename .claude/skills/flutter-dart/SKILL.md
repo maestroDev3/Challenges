@@ -26,6 +26,7 @@ Projekt gilt oder bewusst abweicht. Bei Konflikt gilt: Nutzer > CLAUDE.md > dies
 ## 2. State
 
 - Kein State-Management-Paket (kein provider/riverpod/bloc/get_it), keine Code-Generierung (kein freezed/build_runner), Navigation mit `Navigator` (kein go_router).
+  **Einzige Ausnahme:** Flutters eingebautes `gen-l10n` für die Sprachpakete (Entscheidung Nutzer, #79).
 - Daten anzeigen: `StreamBuilder` über Repository-Streams. Lokaler UI-Zustand: `StatefulWidget` oder `ValueNotifier`.
 - Wächst Logik in einem Widget über ein paar Zeilen, gehört sie als reine Funktion/Klasse nach `lib/domain` (testbar ohne Widget).
 - Nach jedem `await` in einem `State` vor `setState`/`context` auf `mounted` prüfen.
@@ -33,7 +34,7 @@ Projekt gilt oder bewusst abweicht. Bei Konflikt gilt: Nutzer > CLAUDE.md > dies
 ## 3. Dart-Stil
 
 - Namen: Typen `UpperCamelCase`, Dateien `lower_snake_case.dart`, sonst `lowerCamelCase` (auch Konstanten). Keine Abkürzungen.
-- **Bezeichner Englisch, UI-Texte und Kommentare Deutsch.** Doc-Kommentare `///` beginnen mit einem Satz, der das *Warum*/den Zweck nennt.
+- **Bezeichner Englisch, Kommentare Deutsch.** UI-Texte stehen in den Sprachpaketen (siehe Abschnitt 4a), Deutsch ist die Vorlage. Doc-Kommentare `///` beginnen mit einem Satz, der das *Warum*/den Zweck nennt.
 - Domänenmodelle sind unveränderlich: `final`-Felder, `const`-Konstruktor wo möglich, Änderungen über `copyWith`/Methoden, die eine neue Instanz liefern.
 - Varianten als `sealed class` + exhaustives `switch` (Beispiel: `ChallengeKind`). Mehrere Rückgabewerte als Record.
 - Kein `!` auf Werten, die null sein können – Pattern (`case final x?`) oder frühes `return`.
@@ -51,13 +52,22 @@ Projekt gilt oder bewusst abweicht. Bei Konflikt gilt: Nutzer > CLAUDE.md > dies
 - Icon-Buttons bekommen `tooltip` (dient auch als Semantics-Label).
 - Texte müssen bei großer Systemschrift umbrechen dürfen (kein festes `height` für Textcontainer).
 
+## 4a. Sprachen (DE/EN/RU)
+
+- Jeder sichtbare Text kommt aus `lib/l10n/app_de.arb` (Vorlage) plus `app_en.arb` und `app_ru.arb`; Zugriff im Widget über `context.l10n.<schlüssel>` (`lib/ui/l10n.dart`).
+- Neuer Text = Schlüssel in **allen drei** ARB-Dateien, deutsche Datei mit `@schlüssel.description`. Schlüssel `lowerCamelCase` nach Ort (`settingsLanguage`, `todayEmpty`).
+- Mehrzahl immer als ICU-Plural (`{count, plural, one{…} few{…} many{…} other{…}}`) – Russisch braucht `one/few/many`.
+- `lib/domain` bleibt ohne Übersetzung: Domänentexte (Katalog, Arten) werden in der UI über ID/Typ übersetzt.
+- Erzeugte Dateien (`lib/l10n/app_localizations*.dart`) sind nicht eingecheckt; die CI ruft `flutter gen-l10n` auf.
+- Ausnahme: der Leitsatz „Sacrifice the moment. Evolve the future.“ bleibt in allen Sprachen Englisch.
+
 ## 5. Tests (TDD ist Pflicht, siehe CLAUDE.md)
 
 - Struktur spiegelt `lib/`: `test/domain`, `test/data`, `test/ui`. Test-Hilfen in `test/support/` (kein `_test.dart`-Suffix).
 - Fakes statt Mocks (kein mockito/mocktail): `FakeChallengeRepository`, `FakeReminderScheduler`. Neue Interfaces bekommen einen Fake in `test/support/`.
 - Feste Zeiten: Tests definieren `today`/`now` als Konstante und übergeben sie; nie von der echten Uhr abhängen.
 - Aufbau: `group` pro Klasse/Funktion bzw. Verhalten, `test`-Beschreibung als deutscher Satz („Joker hält die Streak“). Arrange – Act – Assert.
-- Widget-Tests: `pumpApp` aus `test/support/pump_app.dart` (setzt Theme und Handy-Größe); Finder über sichtbaren Text oder `Key`, nicht über Widget-Hierarchie.
+- Widget-Tests: `pumpApp` aus `test/support/pump_app.dart` (setzt Theme, Handy-Größe und Sprache – Standard Deutsch, `locale:` für EN/RU); Tests der ganzen App rufen vorher `useGermanDevice(tester)`; Finder über sichtbaren Text oder `Key`, nicht über Widget-Hierarchie.
 - Jedes Akzeptanzkriterium des Issues hat mindestens einen Test. Plattform-Code, der nur auf dem Gerät prüfbar ist, bekommt einen Hinweis „manuell testen“ im PR.
 
 ## 6. Abhängigkeiten und Android

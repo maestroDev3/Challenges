@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_repository.dart';
 import '../support/fake_scheduler.dart';
+import '../support/german_device.dart';
 
 void main() {
   testWidgets('Start plant genau eine Erinnerung, Beenden storniert sie',
@@ -14,6 +15,7 @@ void main() {
 
     final repo = FakeChallengeRepository();
     final scheduler = FakeReminderScheduler();
+    useGermanDevice(tester);
     await tester.pumpWidget(
         ChallengesApp(repository: repo, scheduler: scheduler));
     await tester.pumpAndSettle();

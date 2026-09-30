@@ -1,0 +1,23 @@
+{
+  "@@locale": "de",
+  "navToday": "Heute",
+  "@navToday": {
+    "description": "Tab in der Navigationsleiste"
+  },
+  "navDiscover": "Entdecken",
+  "@navDiscover": {
+    "description": "Tab in der Navigationsleiste"
+  },
+  "navProfile": "Profil",
+  "@navProfile": {
+    "description": "Tab in der Navigationsleiste"
+  },
+  "settingsLanguage": "Sprache",
+  "@settingsLanguage": {
+    "description": "Einstellung und Dialogtitel für die App-Sprache"
+  },
+  "languageSystem": "Systemsprache",
+  "@languageSystem": {
+    "description": "Sprache folgt dem Handy"
+  }
+}

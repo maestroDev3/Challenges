@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
+import '../domain/language.dart';
 import '../domain/reminders.dart';
 import '../domain/settings.dart';
+import '../l10n/app_localizations.dart';
 import 'home_shell.dart';
 import 'intro_screen.dart';
 import 'theme.dart';
 
-class ChallengesApp extends StatelessWidget {
+class ChallengesApp extends StatefulWidget {
   const ChallengesApp({
     super.key,
     required this.repository,
@@ -28,25 +29,48 @@ class ChallengesApp extends StatelessWidget {
   final bool showIntro;
 
   @override
+  State<ChallengesApp> createState() => _ChallengesAppState();
+}
+
+class _ChallengesAppState extends State<ChallengesApp> {
+  /// Ohne übergebene Einstellungen (Tests) gilt ein Stand im Speicher, den
+  /// Shell und Einstellungen gemeinsam nutzen.
+  late final SettingsRepository _settings =
+      widget.settings ?? MemorySettingsRepository();
+  late final Stream<AppSettings> _settingsStream = _settings.watch();
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Ritual',
-      debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
-      darkTheme: buildTheme(),
-      themeMode: ThemeMode.dark,
-      locale: const Locale('de'),
-      supportedLocales: const [Locale('de')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      home: _IntroGate(
-        showIntro: showIntro,
-        child: HomeShell(
-          repository: repository,
-          scheduler: scheduler,
-          backupFiles: backupFiles,
-          settings: settings,
-        ),
-      ),
+    return StreamBuilder<AppSettings>(
+      stream: _settingsStream,
+      builder: (context, snapshot) {
+        final systemLanguages = [
+          for (final locale
+              in WidgetsBinding.instance.platformDispatcher.locales)
+            locale.languageCode,
+        ];
+        final language =
+            resolveLanguage(snapshot.data?.language, systemLanguages);
+        return MaterialApp(
+          title: 'Ritual',
+          debugShowCheckedModeBanner: false,
+          theme: buildTheme(),
+          darkTheme: buildTheme(),
+          themeMode: ThemeMode.dark,
+          locale: Locale(language),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: _IntroGate(
+            showIntro: widget.showIntro,
+            child: HomeShell(
+              repository: widget.repository,
+              scheduler: widget.scheduler,
+              backupFiles: widget.backupFiles,
+              settings: _settings,
+            ),
+          ),
+        );
+      },
     );
   }
 }

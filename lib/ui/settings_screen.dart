@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../domain/active_challenge.dart';
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
+import '../domain/language.dart';
 import '../domain/reminders.dart';
 import '../domain/settings.dart';
 import 'adjust_sheet.dart';
 import 'backup_screen.dart';
+import 'l10n.dart';
 
 /// Persönliche Einstellungen; erreichbar über das Zahnrad im Profil.
 class SettingsScreen extends StatelessWidget {
@@ -45,6 +47,17 @@ class SettingsScreen extends StatelessWidget {
     if (picked == null) return;
     await settings.save(current.copyWith(
         defaultReminder: ReminderTime(picked.hour, picked.minute)));
+  }
+
+  Future<void> _pickLanguage(BuildContext context, AppSettings current) async {
+    final choice = await showDialog<({String? language})>(
+      context: context,
+      builder: (context) => _LanguageDialog(selected: current.language),
+    );
+    if (choice == null) return;
+    await settings.save(choice.language == null
+        ? current.copyWith(clearLanguage: true)
+        : current.copyWith(language: choice.language));
   }
 
   @override
@@ -92,6 +105,15 @@ class SettingsScreen extends StatelessWidget {
                 'behalten ihre Uhrzeit – die änderst du über „Anpassen“.',
               ),
               const _SectionTitle('App'),
+              ListTile(
+                leading: const Icon(Icons.translate),
+                title: Text(context.l10n.settingsLanguage),
+                subtitle: Text(switch (current.language) {
+                  final language? => languageNames[language] ?? language,
+                  null => context.l10n.languageSystem,
+                }),
+                onTap: () => _pickLanguage(context, current),
+              ),
               SwitchListTile(
                 secondary: const Icon(Icons.auto_awesome_outlined),
                 title: const Text('Intro beim Start zeigen'),
@@ -140,6 +162,31 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
       child: Text(title,
           style: text.labelLarge?.copyWith(color: scheme.primary)),
+    );
+  }
+}
+
+/// Auswahl der Sprache; liefert `(language: null)` für die Systemsprache
+/// und `null` bei Abbruch.
+class _LanguageDialog extends StatelessWidget {
+  const _LanguageDialog({required this.selected});
+
+  final String? selected;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget option(String? language, String label) => ListTile(
+          title: Text(label),
+          trailing: selected == language ? const Icon(Icons.check) : null,
+          onTap: () => Navigator.pop(context, (language: language)),
+        );
+    return SimpleDialog(
+      title: Text(context.l10n.settingsLanguage),
+      children: [
+        option(null, context.l10n.languageSystem),
+        for (final language in supportedLanguages)
+          option(language, languageNames[language] ?? language),
+      ],
     );
   }
 }
