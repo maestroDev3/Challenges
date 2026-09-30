@@ -5,7 +5,7 @@ import 'package:challenges/l10n/app_localizations.dart';
 import 'package:challenges/ui/catalog_screen.dart';
 import 'package:challenges/ui/detail_screen.dart';
 import 'package:challenges/ui/format.dart';
-import 'package:challenges/ui/template_text.dart';
+import 'package:challenges/l10n/template_text.dart';
 import 'package:challenges/ui/today_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
