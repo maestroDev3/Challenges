@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_repository.dart';
 import '../support/fake_scheduler.dart';
+import '../support/german_device.dart';
 import '../support/pump_app.dart';
 
 final today = DateTime(2026, 10, 7, 12);
@@ -102,6 +103,7 @@ void main() {
   });
 
   testWidgets('App ist auf Deutsch lokalisiert', (tester) async {
+    useGermanDevice(tester);
     await tester.pumpWidget(ChallengesApp(repository: FakeChallengeRepository()));
     await tester.pumpAndSettle();
     final context = tester.element(find.text('Heute').first);

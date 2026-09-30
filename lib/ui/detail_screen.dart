@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
 import '../domain/milestones.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/template_text.dart';
 import 'format.dart';
+import 'l10n.dart';
 import 'theme.dart';
 
 /// Rückblick auf eine Challenge: Kennzahlen, Monatskalender, Journal.
@@ -52,9 +55,13 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(c.template.title, style: text.headlineSmall),
+                    Text(c.template.titleIn(context.l10n),
+                        style: text.headlineSmall),
                     Text(
-                      '${c.template.kindLabel} · seit ${formatDate(c.startedOn, withYear: true)}',
+                      context.l10n.detailSince(
+                          kindLabelIn(context.l10n, c.kind),
+                          formatDate(context.l10n, c.startedOn,
+                              withYear: true)),
                       style: TextStyle(color: scheme.onSurfaceVariant),
                     ),
                   ],
@@ -68,26 +75,35 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             runSpacing: 12,
             children: [
               if (hasStreak(c.kind)) ...[
-                _Stat(label: 'Streak', value: '🔥 ${c.currentStreak(_end)}'),
-                _Stat(label: 'Beste Streak', value: '${c.bestStreak}'),
+                _Stat(
+                    label: context.l10n.statStreak,
+                    value: '🔥 ${c.currentStreak(_end)}'),
+                _Stat(
+                    label: context.l10n.statBestStreak,
+                    value: '${c.bestStreak}'),
               ] else
                 _Stat(
-                  label: 'Ergebnis',
-                  value: c.isCompleted ? 'Geschafft' : 'Offen',
+                  label: context.l10n.statResult,
+                  value: c.isCompleted
+                      ? context.l10n.resultDone
+                      : context.l10n.resultOpen,
                 ),
               _Stat(
-                label: 'Erfolgsquote',
+                label: context.l10n.statSuccessRate,
                 value: rate == null ? '–' : '${(rate * 100).round()} %',
               ),
               if (c.rule == StreakRule.strict)
-                _Stat(label: 'Versuch', value: '${c.attempt(_end)}'),
+                _Stat(
+                    label: context.l10n.statAttempt,
+                    value: '${c.attempt(_end)}'),
               if (c.rule == StreakRule.joker)
-                _Stat(label: 'Joker', value: '🛡️ ${c.jokers(_end)}'),
+                _Stat(
+                    label: context.l10n.joker, value: '🛡️ ${c.jokers(_end)}'),
             ],
           ),
           if (badges(c).isNotEmpty) ...[
             const SizedBox(height: 24),
-            Text('Abzeichen', style: text.titleLarge),
+            Text(context.l10n.badgesTitle, style: text.titleLarge),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -96,7 +112,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 for (final m in badges(c))
                   Chip(
                     avatar: const Text('🏅'),
-                    label: Text('$m Tage'),
+                    label: Text(context.l10n.daysCount(m)),
                   ),
               ],
             ),
@@ -105,8 +121,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             const SizedBox(height: 16),
             Text(
               kind.unit == WeeklyUnit.times
-                  ? 'Diese Woche: ${c.doneDaysInWeek(_end)}/${kind.target}×'
-                  : 'Diese Woche: ${c.minutesInWeek(_end)}/${kind.target} min',
+                  ? context.l10n
+                      .thisWeekTimes(c.doneDaysInWeek(_end), kind.target)
+                  : context.l10n
+                      .thisWeekMinutes(c.minutesInWeek(_end), kind.target),
               style: text.titleSmall,
             ),
           ],
@@ -114,19 +132,19 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           Row(
             children: [
               IconButton(
-                tooltip: 'Voriger Monat',
+                tooltip: context.l10n.previousMonth,
                 onPressed: _month.isAfter(first) ? () => _shiftMonth(-1) : null,
                 icon: const Icon(Icons.chevron_left),
               ),
               Expanded(
                 child: Text(
-                  formatMonth(_month),
+                  formatMonth(context.l10n, _month),
                   textAlign: TextAlign.center,
                   style: text.titleLarge,
                 ),
               ),
               IconButton(
-                tooltip: 'Nächster Monat',
+                tooltip: context.l10n.nextMonth,
                 onPressed: _month.isBefore(last) ? () => _shiftMonth(1) : null,
                 icon: const Icon(Icons.chevron_right),
               ),
@@ -145,12 +163,12 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           const _Legend(),
           if (c.journalEntries.isNotEmpty) ...[
             const SizedBox(height: 28),
-            Text('Einträge', style: text.titleLarge),
+            Text(context.l10n.journalEntries, style: text.titleLarge),
             const SizedBox(height: 8),
             for (final e in c.journalEntries)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Text(formatDate(e.day),
+                leading: Text(formatDate(context.l10n, e.day),
                     style: TextStyle(color: scheme.onSurfaceVariant)),
                 title: Text(e.note ?? ''),
               ),
@@ -190,13 +208,13 @@ class _Stat extends StatelessWidget {
   }
 }
 
-/// Deutsches Label für Screenreader und Legende.
-String dayStatusLabel(DayStatus s) => switch (s) {
-      DayStatus.done => 'erledigt',
-      DayStatus.missed => 'verpasst',
-      DayStatus.open => 'offen',
-      DayStatus.paused => 'pausiert',
-      DayStatus.joker => 'Joker',
+/// Label des Tagesstatus für Screenreader und Legende.
+String dayStatusLabel(AppLocalizations l10n, DayStatus s) => switch (s) {
+      DayStatus.done => l10n.statusDone,
+      DayStatus.missed => l10n.statusMissed,
+      DayStatus.open => l10n.statusOpen,
+      DayStatus.paused => l10n.statusPaused,
+      DayStatus.joker => l10n.joker,
     };
 
 class _MonthGrid extends StatelessWidget {
@@ -217,9 +235,9 @@ class _MonthGrid extends StatelessWidget {
     final daysInMonth = DateTime.utc(month.year, month.month + 1, 0).day;
     final leading = month.weekday - 1;
     final cells = <Widget>[
-      for (final w in const ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'])
+      for (var w = 1; w <= 7; w++)
         Center(
-          child: Text(w,
+          child: Text(weekdayShort(context.l10n, w),
               style: TextStyle(
                   color: scheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
         ),
@@ -266,8 +284,9 @@ class _DayCell extends StatelessWidget {
       null => (Colors.transparent, scheme.onSurfaceVariant.withValues(alpha: 0.5)),
     };
     final label = switch (status) {
-      final s? => '${formatWeekdayDate(day)}: ${dayStatusLabel(s)}',
-      null => formatWeekdayDate(day),
+      final s? =>
+        '${formatWeekdayDate(context.l10n, day)}: ${dayStatusLabel(context.l10n, s)}',
+      null => formatWeekdayDate(context.l10n, day),
     };
     return Semantics(
       label: label,
@@ -307,10 +326,10 @@ class _Legend extends StatelessWidget {
       spacing: 16,
       runSpacing: 6,
       children: [
-        item(scheme.primary, 'erledigt'),
-        item(scheme.errorContainer, 'verpasst'),
-        item(scheme.secondaryContainer, 'Joker'),
-        item(scheme.tertiaryContainer, 'pausiert'),
+        item(scheme.primary, context.l10n.statusDone),
+        item(scheme.errorContainer, context.l10n.statusMissed),
+        item(scheme.secondaryContainer, context.l10n.joker),
+        item(scheme.tertiaryContainer, context.l10n.statusPaused),
       ],
     );
   }

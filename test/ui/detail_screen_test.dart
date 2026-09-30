@@ -101,7 +101,7 @@ void main() {
     await tester.tap(find.text('Kalt duschen'));
     await tester.pumpAndSettle();
     expect(find.byType(ChallengeDetailScreen), findsOneWidget);
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Erledigt'));

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_repository.dart';
+import '../support/german_device.dart';
 
 Future<void> pumpIntro(WidgetTester tester, VoidCallback onDone,
     {bool reduceMotion = false}) async {
@@ -68,6 +69,7 @@ void main() {
   });
 
   testWidgets('App startet mit Intro und zeigt danach „Heute“', (tester) async {
+    useGermanDevice(tester);
     await tester.pumpWidget(ChallengesApp(repository: FakeChallengeRepository()));
     await tester.pump();
     expect(find.text('RITUAL'), findsOneWidget);

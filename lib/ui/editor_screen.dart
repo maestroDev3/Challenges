@@ -6,6 +6,7 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import 'catalog_screen.dart';
 import 'format.dart';
+import 'l10n.dart';
 import 'rule_selector.dart';
 
 /// Auswahl für eigene Challenges – bewusst kurz gehalten.
@@ -220,7 +221,9 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
     final valid = _buildTemplate() != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Challenge bearbeiten' : 'Eigene Challenge'),
+        title: Text(_isEdit
+            ? context.l10n.editChallenge
+            : context.l10n.customChallenge),
       ),
       body: SafeArea(
         child: ListView(
@@ -229,14 +232,14 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
             TextField(
               controller: _title,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Titel',
-                hintText: 'z. B. 3× pro Woche Sport',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.editorTitle,
+                hintText: context.l10n.editorTitleHint,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
-            Text('Symbol', style: text.titleSmall),
+            Text(context.l10n.editorSymbol, style: text.titleSmall),
             const SizedBox(height: 8),
             _EmojiPicker(
               selected: _emoji,
@@ -247,14 +250,14 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
               controller: _description,
               minLines: 1,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Beschreibung (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.editorDescription,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 24),
-            Text('Schritte (optional)', style: text.titleSmall),
-            Text('Der Tag ist erledigt, wenn alle Schritte abgehakt sind.',
+            Text(context.l10n.editorSteps, style: text.titleSmall),
+            Text(context.l10n.editorStepsExplain,
                 style: text.bodySmall),
             for (final (i, step) in _steps.indexed)
               ListTile(
@@ -266,12 +269,12 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      tooltip: '„$step“ nach oben',
+                      tooltip: context.l10n.editorStepUp(step),
                       onPressed: i == 0 ? null : () => _moveUp(i),
                       icon: const Icon(Icons.arrow_upward),
                     ),
                     IconButton(
-                      tooltip: '„$step“ löschen',
+                      tooltip: context.l10n.editorStepDelete(step),
                       onPressed: () => setState(() => _steps.removeAt(i)),
                       icon: const Icon(Icons.delete_outline),
                     ),
@@ -285,32 +288,32 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
                     controller: _newStep,
                     textCapitalization: TextCapitalization.sentences,
                     onSubmitted: (_) => _addStep(),
-                    decoration: const InputDecoration(
-                      labelText: 'Neuer Schritt',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.editorNewStep,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton.filledTonal(
-                  tooltip: 'Schritt hinzufügen',
+                  tooltip: context.l10n.editorAddStep,
                   onPressed: _addStep,
                   icon: const Icon(Icons.add),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            Text('Art', style: text.titleSmall),
+            Text(context.l10n.editorKind, style: text.titleSmall),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final (choice, label) in const [
-                  (_KindChoice.ongoing, 'Fortlaufend'),
-                  (_KindChoice.days, 'X Tage'),
-                  (_KindChoice.weekly, 'Wöchentlich'),
-                  (_KindChoice.oneTime, 'Einmalig'),
+                for (final (choice, label) in [
+                  (_KindChoice.ongoing, context.l10n.kindOngoing),
+                  (_KindChoice.days, context.l10n.kindDays),
+                  (_KindChoice.weekly, context.l10n.kindWeekly),
+                  (_KindChoice.oneTime, context.l10n.kindOneTime),
                 ])
                   ChoiceChip(
                     label: Text(label),
@@ -323,7 +326,7 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
             ..._kindFields(text),
             const SizedBox(height: 8),
             if (!_isEdit && allowedRules(_currentKind).isNotEmpty) ...[
-              Text('Regel bei Fehltagen', style: text.titleSmall),
+              Text(context.l10n.ruleOnMissedDays, style: text.titleSmall),
               const SizedBox(height: 8),
               RuleSelector(
                 value: _rule,
@@ -336,14 +339,16 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.notifications_active_outlined),
-                title: const Text('Erinnerung'),
+                title: Text(context.l10n.reminderLabel),
                 trailing: Text(_reminder.toString(), style: text.titleMedium),
                 onTap: _pickTime,
               ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: valid && !_busy ? _save : null,
-              child: Text(_isEdit ? 'Speichern' : 'Speichern & starten'),
+              child: Text(_isEdit
+                  ? context.l10n.commonSave
+                  : context.l10n.saveAndStart),
             ),
           ],
         ),
@@ -353,43 +358,47 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
 
   List<Widget> _kindFields(TextTheme text) => switch (_kind) {
         _KindChoice.ongoing => [
-            Text('Jeden Tag, ohne Enddatum.', style: text.bodyMedium),
+            Text(context.l10n.editorOngoingExplain, style: text.bodyMedium),
             const SizedBox(height: 12),
             _NumberField(
                 controller: _target,
-                label: 'Zieldauer in Minuten (optional)',
-                hint: 'Mit Timer: erledigt, sobald die Zeit erreicht ist'),
+                label: context.l10n.editorTargetMinutes,
+                hint: context.l10n.editorTargetHint),
           ],
         _KindChoice.days => [
-            _NumberField(controller: _days, label: 'Anzahl Tage', hint: '1–365'),
+            _NumberField(
+                controller: _days,
+                label: context.l10n.editorDayCount,
+                hint: '1–365'),
             const SizedBox(height: 12),
             _NumberField(
                 controller: _target,
-                label: 'Zieldauer in Minuten (optional)',
-                hint: 'Mit Timer: erledigt, sobald die Zeit erreicht ist'),
+                label: context.l10n.editorTargetMinutes,
+                hint: context.l10n.editorTargetHint),
           ],
         _KindChoice.weekly => [
             SegmentedButton<WeeklyUnit>(
-              segments: const [
-                ButtonSegment(value: WeeklyUnit.times, label: Text('Mal')),
-                ButtonSegment(value: WeeklyUnit.minutes, label: Text('Minuten')),
+              segments: [
+                ButtonSegment(
+                    value: WeeklyUnit.times, label: Text(context.l10n.unitTimes)),
+                ButtonSegment(
+                    value: WeeklyUnit.minutes,
+                    label: Text(context.l10n.minutesHint)),
               ],
               selected: {_unit},
               onSelectionChanged: (s) => setState(() => _unit = s.first),
             ),
             const SizedBox(height: 12),
             if (_unit == WeeklyUnit.times) ...[
-              Text('An festen Tagen? (optional)', style: text.bodyMedium),
+              Text(context.l10n.editorFixedDays, style: text.bodyMedium),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  for (final (i, name) in const [
-                    'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So',
-                  ].indexed)
+                  for (var i = 0; i < 7; i++)
                     FilterChip(
-                      label: Text(name),
+                      label: Text(weekdayShort(context.l10n, i + 1)),
                       selected: _weekdays.contains(i + 1),
                       showCheckmark: false,
                       onSelected: (_) => _toggleWeekday(i + 1),
@@ -401,24 +410,24 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
             if (_unit == WeeklyUnit.times)
               _NumberField(
                 controller: _weeklyTimes,
-                label: 'Mal pro Woche',
+                label: context.l10n.editorTimesPerWeek,
                 hint: _weekdays.isEmpty
-                    ? '1–7 · flexibel, wann du willst'
-                    : 'ergibt sich aus den gewählten Tagen',
+                    ? context.l10n.editorTimesFlexible
+                    : context.l10n.editorTimesFromDays,
                 enabled: _weekdays.isEmpty,
               )
             else
               _NumberField(
                   controller: _weeklyMinutes,
-                  label: 'Minuten pro Woche',
-                  hint: 'z. B. 120'),
+                  label: context.l10n.editorMinutesPerWeek,
+                  hint: context.l10n.editorMinutesHint),
           ],
         _KindChoice.oneTime => [
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.event_outlined),
-              title: const Text('Datum'),
-              trailing: Text(formatDate(_date, withYear: true),
+              title: Text(context.l10n.editorDate),
+              trailing: Text(formatDate(context.l10n, _date, withYear: true),
                   style: text.titleMedium),
               onTap: _pickDate,
             ),

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../domain/active_challenge.dart';
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
+import '../domain/language.dart';
 import '../domain/reminders.dart';
 import '../domain/settings.dart';
 import 'adjust_sheet.dart';
 import 'backup_screen.dart';
+import 'l10n.dart';
 
 /// Persönliche Einstellungen; erreichbar über das Zahnrad im Profil.
 class SettingsScreen extends StatelessWidget {
@@ -47,11 +49,28 @@ class SettingsScreen extends StatelessWidget {
         defaultReminder: ReminderTime(picked.hour, picked.minute)));
   }
 
+  Future<void> _pickLanguage(BuildContext context, AppSettings current) async {
+    final choice = await showDialog<({String? language})>(
+      context: context,
+      builder: (context) => _LanguageDialog(selected: current.language),
+    );
+    if (choice == null) return;
+    await settings.save(choice.language == null
+        ? current.copyWith(clearLanguage: true)
+        : current.copyWith(language: choice.language));
+    // Erinnerungen tragen Text – mit der neuen Sprache neu planen.
+    if (scheduler case final scheduler?) {
+      for (final challenge in await repository.active()) {
+        await scheduler.schedule(challenge);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Einstellungen')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: StreamBuilder<AppSettings>(
         stream: settings.watch(),
         builder: (context, snapshot) {
@@ -61,51 +80,57 @@ class SettingsScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.only(bottom: 32),
             children: [
-              const _SectionTitle('Profil'),
+              _SectionTitle(context.l10n.navProfile),
               ListTile(
                 leading: const Icon(Icons.badge_outlined),
-                title: const Text('Name'),
-                subtitle: Text(
-                    current.name.isEmpty ? 'Nicht gesetzt' : current.name),
+                title: Text(context.l10n.settingsName),
+                subtitle: Text(current.name.isEmpty
+                    ? context.l10n.settingsNameNotSet
+                    : current.name),
                 onTap: () => _editName(context, current),
               ),
-              const _SectionTitle('Erinnerungen'),
+              _SectionTitle(context.l10n.settingsReminders),
               ListTile(
                 leading: const Icon(Icons.alarm),
-                title: const Text('Uhrzeit für neue Challenges'),
+                title: Text(context.l10n.settingsNewChallengeTime),
                 subtitle: Text(reminder == null
-                    ? 'Je nach Challenge'
+                    ? context.l10n.settingsPerChallenge
                     : reminder.toString()),
                 trailing: reminder == null
                     ? null
                     : IconButton(
-                        tooltip: 'Zurücksetzen',
+                        tooltip: context.l10n.settingsReset,
                         icon: const Icon(Icons.close),
                         onPressed: () => settings.save(
                             current.copyWith(clearDefaultReminder: true)),
                       ),
                 onTap: () => _pickReminder(context, current),
               ),
-              const _Hint(
-                'Wird beim Starten einer neuen Challenge vorgeschlagen, wenn '
-                'die Challenge keine eigene Uhrzeit hat. Laufende Challenges '
-                'behalten ihre Uhrzeit – die änderst du über „Anpassen“.',
+              _Hint(context.l10n.settingsNewChallengeTimeHint),
+              _SectionTitle(context.l10n.settingsApp),
+              ListTile(
+                leading: const Icon(Icons.translate),
+                title: Text(context.l10n.settingsLanguage),
+                subtitle: Text(switch (current.language) {
+                  final language? => languageNames[language] ?? language,
+                  null => context.l10n.languageSystem,
+                }),
+                onTap: () => _pickLanguage(context, current),
               ),
-              const _SectionTitle('App'),
               SwitchListTile(
                 secondary: const Icon(Icons.auto_awesome_outlined),
-                title: const Text('Intro beim Start zeigen'),
-                subtitle: const Text('Leitsatz beim Öffnen der App'),
+                title: Text(context.l10n.settingsShowIntro),
+                subtitle: Text(context.l10n.settingsShowIntroHint),
                 value: current.showIntro,
                 onChanged: (value) =>
                     settings.save(current.copyWith(showIntro: value)),
               ),
               if (backupFiles case final files?) ...[
-                const _SectionTitle('Daten'),
+                _SectionTitle(context.l10n.settingsData),
                 ListTile(
                   leading: Icon(Icons.save_outlined, color: scheme.primary),
-                  title: const Text('Daten sichern'),
-                  subtitle: const Text('Backup, Export, Wiederherstellen'),
+                  title: Text(context.l10n.backupTitle),
+                  subtitle: Text(context.l10n.settingsBackupHint),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
@@ -140,6 +165,31 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
       child: Text(title,
           style: text.labelLarge?.copyWith(color: scheme.primary)),
+    );
+  }
+}
+
+/// Auswahl der Sprache; liefert `(language: null)` für die Systemsprache
+/// und `null` bei Abbruch.
+class _LanguageDialog extends StatelessWidget {
+  const _LanguageDialog({required this.selected});
+
+  final String? selected;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget option(String? language, String label) => ListTile(
+          title: Text(label),
+          trailing: selected == language ? const Icon(Icons.check) : null,
+          onTap: () => Navigator.pop(context, (language: language)),
+        );
+    return SimpleDialog(
+      title: Text(context.l10n.settingsLanguage),
+      children: [
+        option(null, context.l10n.languageSystem),
+        for (final language in supportedLanguages)
+          option(language, languageNames[language] ?? language),
+      ],
     );
   }
 }
@@ -188,23 +238,24 @@ class _NameDialogState extends State<_NameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Name'),
+      title: Text(context.l10n.settingsName),
       content: TextField(
         controller: _controller,
         autofocus: true,
         textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(hintText: 'Wie sollen wir dich nennen?'),
+        decoration:
+            InputDecoration(hintText: context.l10n.settingsNameHint),
         onSubmitted: (value) => Navigator.pop(context, value),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Abbrechen'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
           onPressed: () => Navigator.pop(context, _controller.text),
-          child: const Text('Speichern'),
+          child: Text(context.l10n.commonSave),
         ),
       ],
     );

@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_repository.dart';
 import '../support/fake_settings_repository.dart';
+import '../support/german_device.dart';
 import '../support/pump_app.dart';
 
 final now = DateTime(2026, 10, 5, 20, 15);
@@ -85,6 +86,7 @@ void main() {
   });
 
   testWidgets('ohne Intro startet die App direkt mit „Heute“', (tester) async {
+    useGermanDevice(tester);
     await tester.pumpWidget(ChallengesApp(
       repository: FakeChallengeRepository(),
       showIntro: false,

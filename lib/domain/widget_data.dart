@@ -1,4 +1,5 @@
 import 'active_challenge.dart';
+import 'challenge.dart';
 import 'challenge_repository.dart';
 
 /// Höchstens so viele Challenges zeigt das Homescreen-Widget.
@@ -20,14 +21,20 @@ class WidgetEntry {
 }
 
 /// Bereitet die aktiven Challenges für das Widget auf: pausierte fehlen,
-/// offene stehen vor erledigten, höchstens [maxWidgetEntries].
-List<WidgetEntry> widgetEntries(List<ActiveChallenge> active, DateTime today) {
+/// offene stehen vor erledigten, höchstens [maxWidgetEntries]. [titleOf]
+/// liefert den Anzeigenamen (übersetzt), sonst gilt der gespeicherte Titel.
+List<WidgetEntry> widgetEntries(
+  List<ActiveChallenge> active,
+  DateTime today, {
+  String Function(ChallengeTemplate template)? titleOf,
+}) {
   final entries = [
     for (final c in active)
       if (!c.isArchived && !c.isPaused(today))
         WidgetEntry(
           id: c.id,
-          title: '${c.template.emoji} ${c.template.title}',
+          title: '${c.template.emoji} '
+              '${titleOf?.call(c.template) ?? c.template.title}',
           streak: '🔥 ${c.currentStreak(today)}',
           doneToday: c.checkInOn(today)?.status == CheckInStatus.done,
         ),

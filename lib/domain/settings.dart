@@ -10,6 +10,7 @@ class AppSettings {
     this.name = '',
     this.defaultReminder,
     this.showIntro = true,
+    this.language,
   });
 
   /// Anzeigename im Profil; leer, solange der Nutzer keinen gesetzt hat.
@@ -22,11 +23,16 @@ class AppSettings {
   /// Ob beim Start das Intro mit dem Leitsatz erscheint.
   final bool showIntro;
 
+  /// Gewählte Sprache (`de`, `en`, `ru`); `null` heißt Systemsprache.
+  final String? language;
+
   AppSettings copyWith({
     String? name,
     ReminderTime? defaultReminder,
     bool clearDefaultReminder = false,
     bool? showIntro,
+    String? language,
+    bool clearLanguage = false,
   }) =>
       AppSettings(
         name: name ?? this.name,
@@ -34,6 +40,7 @@ class AppSettings {
             ? null
             : defaultReminder ?? this.defaultReminder,
         showIntro: showIntro ?? this.showIntro,
+        language: clearLanguage ? null : language ?? this.language,
       );
 
   @override
@@ -41,10 +48,11 @@ class AppSettings {
       other is AppSettings &&
       other.name == name &&
       other.defaultReminder == defaultReminder &&
-      other.showIntro == showIntro;
+      other.showIntro == showIntro &&
+      other.language == language;
 
   @override
-  int get hashCode => Object.hash(name, defaultReminder, showIntro);
+  int get hashCode => Object.hash(name, defaultReminder, showIntro, language);
 }
 
 /// Zugriff auf die Einstellungen; heute lokal gespeichert.
@@ -63,6 +71,7 @@ String encodeSettings(AppSettings settings) => jsonEncode({
       if (settings.defaultReminder case final reminder?)
         'defaultReminder': {'hour': reminder.hour, 'minute': reminder.minute},
       'showIntro': settings.showIntro,
+      'language': ?settings.language,
     });
 
 /// Liest gespeicherte Einstellungen. Beschädigte Daten ergeben die
@@ -78,6 +87,7 @@ AppSettings decodeSettings(String text) {
           ? ReminderTime(reminder['hour'] as int, reminder['minute'] as int)
           : null,
       showIntro: json['showIntro'] as bool? ?? true,
+      language: json['language'] as String?,
     );
   } on Object catch (_) {
     return const AppSettings();

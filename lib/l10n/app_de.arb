@@ -1,0 +1,1140 @@
+{
+  "@@locale": "de",
+  "navToday": "Heute",
+  "@navToday": {
+    "description": "Tab in der Navigationsleiste"
+  },
+  "navDiscover": "Entdecken",
+  "@navDiscover": {
+    "description": "Tab in der Navigationsleiste"
+  },
+  "navProfile": "Profil",
+  "@navProfile": {
+    "description": "Tab in der Navigationsleiste"
+  },
+  "settingsLanguage": "Sprache",
+  "@settingsLanguage": {
+    "description": "Einstellung und Dialogtitel für die App-Sprache"
+  },
+  "languageSystem": "Systemsprache",
+  "@languageSystem": {
+    "description": "Sprache folgt dem Handy"
+  },
+  "commonCancel": "Abbrechen",
+  "@commonCancel": {
+    "description": "Knopf"
+  },
+  "commonSave": "Speichern",
+  "@commonSave": {
+    "description": "Knopf"
+  },
+  "commonDelete": "Löschen",
+  "@commonDelete": {
+    "description": "Knopf/Menü"
+  },
+  "commonDone": "Erledigt",
+  "@commonDone": {
+    "description": "Check-in erledigt"
+  },
+  "commonNotDone": "Nicht erledigt",
+  "@commonNotDone": {
+    "description": "Check-in nicht erledigt"
+  },
+  "commonMore": "Mehr",
+  "@commonMore": {
+    "description": "Tooltip des ⋮-Menüs"
+  },
+  "commonContinue": "Weiter",
+  "@commonContinue": {
+    "description": "Knopf"
+  },
+  "minutesHint": "Minuten",
+  "@minutesHint": {
+    "description": "Eingabehinweis"
+  },
+  "daysCount": "{count, plural, =1{1 Tag} other{{count} Tage}}",
+  "@daysCount": {
+    "description": "Anzahl Tage",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayFinishedSnack": "„{title}“ abgeschlossen",
+  "@todayFinishedSnack": {
+    "description": "Snackbar nach Abschließen",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "commonUndo": "Rückgängig",
+  "@commonUndo": {
+    "description": "Snackbar-Aktion"
+  },
+  "deleteChallengeTitle": "Challenge löschen?",
+  "@deleteChallengeTitle": {
+    "description": "Dialogtitel"
+  },
+  "todayDeleteMessage": "„{title}“ und der ganze Verlauf werden endgültig gelöscht. Zum Aufbewahren lieber „Abschließen“.",
+  "@todayDeleteMessage": {
+    "description": "Dialogtext",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "todayArchiveTooltip": "Erledigt",
+  "@todayArchiveTooltip": {
+    "description": "Tooltip: Archiv öffnen"
+  },
+  "todayEmptyTitle": "Noch keine Challenge aktiv",
+  "@todayEmptyTitle": {
+    "description": "Leerzustand"
+  },
+  "todayEmptyBody": "Such dir eine Challenge aus und bau deine erste Streak auf.",
+  "@todayEmptyBody": {
+    "description": "Leerzustand"
+  },
+  "todayFindChallenge": "Challenge finden",
+  "@todayFindChallenge": {
+    "description": "Knopf im Leerzustand"
+  },
+  "pauseTitle": "Pausieren",
+  "@pauseTitle": {
+    "description": "Menü und Sheet-Titel"
+  },
+  "pauseExplanation": "Für Krankheit oder Urlaub: Pausentage brechen die Streak nicht, Erinnerungen ruhen.",
+  "@pauseExplanation": {
+    "description": "Pause-Sheet"
+  },
+  "pauseToday": "Nur heute",
+  "@pauseToday": {
+    "description": "Pause-Option"
+  },
+  "pauseWeek": "1 Woche",
+  "@pauseWeek": {
+    "description": "Pause-Option"
+  },
+  "pauseUntilDate": "Bis Datum …",
+  "@pauseUntilDate": {
+    "description": "Pause-Option"
+  },
+  "correctSubtitle": "Tag nachtragen oder korrigieren",
+  "@correctSubtitle": {
+    "description": "Nachtrage-Sheet"
+  },
+  "correctEmpty": "Leer",
+  "@correctEmpty": {
+    "description": "Nachtrage-Option: kein Eintrag"
+  },
+  "askMinutes": "Wie viele Minuten?",
+  "@askMinutes": {
+    "description": "Dialogtitel"
+  },
+  "journalPrompt": "Welche Ausrede hattest du heute?",
+  "@journalPrompt": {
+    "description": "Tagebuch-Dialog"
+  },
+  "journalHint": "Ehrlich sein …",
+  "@journalHint": {
+    "description": "Tagebuch-Eingabehinweis"
+  },
+  "askMinutesOutside": "Wie viele Minuten warst du draußen?",
+  "@askMinutesOutside": {
+    "description": "Dialogtitel Wochenziel Minuten"
+  },
+  "joker": "Joker",
+  "@joker": {
+    "description": "Streak-Joker"
+  },
+  "attempt": "Versuch {number}",
+  "@attempt": {
+    "description": "Versuch bei harter Regel",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "menuAdjust": "Anpassen",
+  "@menuAdjust": {
+    "description": "Menü"
+  },
+  "menuFinish": "Abschließen",
+  "@menuFinish": {
+    "description": "Menü"
+  },
+  "completedBanner": "Geschafft! 🏆",
+  "@completedBanner": {
+    "description": "Ziel erreicht"
+  },
+  "pausedUntil": "Pausiert bis {date}",
+  "@pausedUntil": {
+    "description": "Karte",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "resume": "Fortsetzen",
+  "@resume": {
+    "description": "Knopf"
+  },
+  "startNow": "Jetzt starten",
+  "@startNow": {
+    "description": "Einmalige Challenge starten"
+  },
+  "remainingTime": "noch {time} h",
+  "@remainingTime": {
+    "description": "Countdown",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "windowEndedQuestion": "Geschafft?",
+  "@windowEndedQuestion": {
+    "description": "Countdown abgelaufen"
+  },
+  "todayDoneStatus": "Heute erledigt",
+  "@todayDoneStatus": {
+    "description": "Status"
+  },
+  "todayMissedStatus": "Heute nicht geschafft",
+  "@todayMissedStatus": {
+    "description": "Status"
+  },
+  "oneTimeLabel": "einmalig",
+  "@oneTimeLabel": {
+    "description": "Fortschritt einmaliger Challenge"
+  },
+  "minutesProgress": "{done}/{target} min",
+  "@minutesProgress": {
+    "description": "Wochenziel Minuten",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "stepsProgress": "Schritte {done}/{total}",
+  "@stepsProgress": {
+    "description": "Checkliste",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "plannedDay": "{day} (geplant)",
+  "@plannedDay": {
+    "description": "Screenreader: geplanter Tag",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionTarget": "Ziel: {minutes} min",
+  "@sessionTarget": {
+    "description": "Timer",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionFree": "Zeit mitlaufen lassen",
+  "@sessionFree": {
+    "description": "Timer ohne Ziel"
+  },
+  "sessionStart": "Starten",
+  "@sessionStart": {
+    "description": "Timer"
+  },
+  "sessionStop": "Stopp",
+  "@sessionStop": {
+    "description": "Timer"
+  },
+  "detailSince": "{kind} · seit {date}",
+  "@detailSince": {
+    "description": "Untertitel Detail",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statStreak": "Streak",
+  "@statStreak": {
+    "description": "Kennzahl"
+  },
+  "statBestStreak": "Beste Streak",
+  "@statBestStreak": {
+    "description": "Kennzahl"
+  },
+  "statResult": "Ergebnis",
+  "@statResult": {
+    "description": "Kennzahl einmalige Challenge"
+  },
+  "resultDone": "Geschafft",
+  "@resultDone": {
+    "description": "Ergebnis/Archiv-Chip"
+  },
+  "resultOpen": "Offen",
+  "@resultOpen": {
+    "description": "Ergebnis"
+  },
+  "statSuccessRate": "Erfolgsquote",
+  "@statSuccessRate": {
+    "description": "Kennzahl"
+  },
+  "statAttempt": "Versuch",
+  "@statAttempt": {
+    "description": "Kennzahl"
+  },
+  "badgesTitle": "Abzeichen",
+  "@badgesTitle": {
+    "description": "Überschrift/Kennzahl"
+  },
+  "thisWeekTimes": "Diese Woche: {done}/{target}×",
+  "@thisWeekTimes": {
+    "description": "Wochenziel",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "thisWeekMinutes": "Diese Woche: {done}/{target} min",
+  "@thisWeekMinutes": {
+    "description": "Wochenziel",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "previousMonth": "Voriger Monat",
+  "@previousMonth": {
+    "description": "Tooltip"
+  },
+  "nextMonth": "Nächster Monat",
+  "@nextMonth": {
+    "description": "Tooltip"
+  },
+  "journalEntries": "Einträge",
+  "@journalEntries": {
+    "description": "Tagebuch-Überschrift"
+  },
+  "statusDone": "erledigt",
+  "@statusDone": {
+    "description": "Tagesstatus (Legende, Screenreader)"
+  },
+  "statusMissed": "verpasst",
+  "@statusMissed": {
+    "description": "Tagesstatus"
+  },
+  "statusOpen": "offen",
+  "@statusOpen": {
+    "description": "Tagesstatus"
+  },
+  "statusPaused": "pausiert",
+  "@statusPaused": {
+    "description": "Tagesstatus"
+  },
+  "archiveRunningAgain": "„{title}“ läuft wieder",
+  "@archiveRunningAgain": {
+    "description": "Snackbar",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveBackInToday": "„{title}“ ist wieder unter Heute",
+  "@archiveBackInToday": {
+    "description": "Snackbar",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveAlreadyRunning": "„{title}“ läuft bereits – schließ die laufende zuerst ab.",
+  "@archiveAlreadyRunning": {
+    "description": "Snackbar",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveDeleteMessage": "„{title}“ und der ganze Verlauf werden endgültig gelöscht.",
+  "@archiveDeleteMessage": {
+    "description": "Dialogtext",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveTitle": "Erledigt",
+  "@archiveTitle": {
+    "description": "Titel Archiv"
+  },
+  "archiveEmptyTitle": "Noch nichts abgeschlossen",
+  "@archiveEmptyTitle": {
+    "description": "Leerzustand"
+  },
+  "archiveEmptyBody": "Geschaffte und beendete Challenges landen hier – mit Verlauf und bester Streak.",
+  "@archiveEmptyBody": {
+    "description": "Leerzustand"
+  },
+  "archiveEnded": "Beendet",
+  "@archiveEnded": {
+    "description": "Chip"
+  },
+  "archiveReopen": "Wieder aufnehmen",
+  "@archiveReopen": {
+    "description": "Menü"
+  },
+  "archiveBestStreak": "Beste Streak {count}",
+  "@archiveBestStreak": {
+    "description": "Archivkarte",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveDaysDone": "{count, plural, =1{1 Tag erledigt} other{{count} Tage erledigt}}",
+  "@archiveDaysDone": {
+    "description": "Archivkarte",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveRestart": "Nochmal starten",
+  "@archiveRestart": {
+    "description": "Knopf"
+  },
+  "celebrationDuration": "Dauer: {days} · Beste Streak: {streak}",
+  "@celebrationDuration": {
+    "description": "Feier-Dialog; days = daysCount",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "celebrationWhere": "Du findest sie jetzt unter „Erledigt“.",
+  "@celebrationWhere": {
+    "description": "Feier-Dialog"
+  },
+  "milestoneTitle": "Meilenstein erreicht",
+  "@milestoneTitle": {
+    "description": "Dialogtitel"
+  },
+  "milestoneDays": "{count, plural, =1{1 Tag am Stück} other{{count} Tage am Stück}}",
+  "@milestoneDays": {
+    "description": "Meilenstein",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustKeepsHistory": "Verlauf und Streak bleiben erhalten.",
+  "@adjustKeepsHistory": {
+    "description": "Anpassen-Sheet"
+  },
+  "reminderLabel": "Erinnerung",
+  "@reminderLabel": {
+    "description": "Uhrzeit der Erinnerung"
+  },
+  "ruleOnMissedDays": "Regel bei Fehltagen",
+  "@ruleOnMissedDays": {
+    "description": "Überschrift Streak-Regel"
+  },
+  "ruleAppliesToHistory": "Die Regel gilt für den ganzen bisherigen Verlauf.",
+  "@ruleAppliesToHistory": {
+    "description": "Hinweis"
+  },
+  "adjustEditDetails": "Art und Details bearbeiten",
+  "@adjustEditDetails": {
+    "description": "Knopf"
+  },
+  "customChallenge": "Eigene Challenge",
+  "@customChallenge": {
+    "description": "Knopf/Titel Editor"
+  },
+  "catalogMine": "Meine Challenges",
+  "@catalogMine": {
+    "description": "Abschnitt"
+  },
+  "catalogTemplates": "Vorlagen",
+  "@catalogTemplates": {
+    "description": "Abschnitt"
+  },
+  "deleteTemplateTitle": "Vorlage löschen?",
+  "@deleteTemplateTitle": {
+    "description": "Dialogtitel"
+  },
+  "deleteTemplateMessage": "„{title}“ wird endgültig gelöscht.",
+  "@deleteTemplateMessage": {
+    "description": "Dialogtext",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "templateInUse": "Läuft gerade – schließ die Challenge zuerst ab.",
+  "@templateInUse": {
+    "description": "Snackbar"
+  },
+  "runningChip": "läuft",
+  "@runningChip": {
+    "description": "Chip an Vorlage"
+  },
+  "alreadyRunning": "Läuft bereits",
+  "@alreadyRunning": {
+    "description": "Knopf deaktiviert"
+  },
+  "startChallenge": "Challenge starten",
+  "@startChallenge": {
+    "description": "Knopf"
+  },
+  "commonEdit": "Bearbeiten",
+  "@commonEdit": {
+    "description": "Knopf"
+  },
+  "ruleRelaxed": "Locker",
+  "@ruleRelaxed": {
+    "description": "Streak-Regel"
+  },
+  "ruleStrict": "Hart",
+  "@ruleStrict": {
+    "description": "Streak-Regel"
+  },
+  "ruleRelaxedExplain": "Ein Fehltag setzt nur die Streak auf 0.",
+  "@ruleRelaxedExplain": {
+    "description": "Erklärung"
+  },
+  "ruleJokerExplain": "Alle 7 Tage am Stück gibt es einen Joker 🛡️ (max. 2). Er rettet die Streak bei einem Fehltag.",
+  "@ruleJokerExplain": {
+    "description": "Erklärung"
+  },
+  "ruleStrictExplain": "Ein Fehltag bedeutet Neustart bei Tag 1 – wie bei 75 Hard.",
+  "@ruleStrictExplain": {
+    "description": "Erklärung"
+  },
+  "editChallenge": "Challenge bearbeiten",
+  "@editChallenge": {
+    "description": "Editor-Titel"
+  },
+  "editorTitle": "Titel",
+  "@editorTitle": {
+    "description": "Feld"
+  },
+  "editorTitleHint": "z. B. 3× pro Woche Sport",
+  "@editorTitleHint": {
+    "description": "Feldhinweis"
+  },
+  "editorSymbol": "Symbol",
+  "@editorSymbol": {
+    "description": "Emoji-Auswahl"
+  },
+  "editorDescription": "Beschreibung (optional)",
+  "@editorDescription": {
+    "description": "Feld"
+  },
+  "editorSteps": "Schritte (optional)",
+  "@editorSteps": {
+    "description": "Abschnitt"
+  },
+  "editorStepsExplain": "Der Tag ist erledigt, wenn alle Schritte abgehakt sind.",
+  "@editorStepsExplain": {
+    "description": "Hinweis"
+  },
+  "editorStepUp": "„{step}“ nach oben",
+  "@editorStepUp": {
+    "description": "Tooltip",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "editorStepDelete": "„{step}“ löschen",
+  "@editorStepDelete": {
+    "description": "Tooltip",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "editorNewStep": "Neuer Schritt",
+  "@editorNewStep": {
+    "description": "Feld"
+  },
+  "editorAddStep": "Schritt hinzufügen",
+  "@editorAddStep": {
+    "description": "Tooltip"
+  },
+  "editorKind": "Art",
+  "@editorKind": {
+    "description": "Abschnitt"
+  },
+  "kindOngoing": "Fortlaufend",
+  "@kindOngoing": {
+    "description": "Art"
+  },
+  "kindDays": "X Tage",
+  "@kindDays": {
+    "description": "Art"
+  },
+  "kindWeekly": "Wöchentlich",
+  "@kindWeekly": {
+    "description": "Art"
+  },
+  "kindOneTime": "Einmalig",
+  "@kindOneTime": {
+    "description": "Art"
+  },
+  "saveAndStart": "Speichern & starten",
+  "@saveAndStart": {
+    "description": "Knopf"
+  },
+  "editorOngoingExplain": "Jeden Tag, ohne Enddatum.",
+  "@editorOngoingExplain": {
+    "description": "Hinweis"
+  },
+  "editorTargetMinutes": "Zieldauer in Minuten (optional)",
+  "@editorTargetMinutes": {
+    "description": "Feld"
+  },
+  "editorTargetHint": "Mit Timer: erledigt, sobald die Zeit erreicht ist",
+  "@editorTargetHint": {
+    "description": "Feldhinweis"
+  },
+  "editorDayCount": "Anzahl Tage",
+  "@editorDayCount": {
+    "description": "Feld"
+  },
+  "unitTimes": "Mal",
+  "@unitTimes": {
+    "description": "Einheit Wochenziel"
+  },
+  "editorFixedDays": "An festen Tagen? (optional)",
+  "@editorFixedDays": {
+    "description": "Hinweis"
+  },
+  "editorTimesPerWeek": "Mal pro Woche",
+  "@editorTimesPerWeek": {
+    "description": "Feld"
+  },
+  "editorTimesFlexible": "1–7 · flexibel, wann du willst",
+  "@editorTimesFlexible": {
+    "description": "Feldhinweis"
+  },
+  "editorTimesFromDays": "ergibt sich aus den gewählten Tagen",
+  "@editorTimesFromDays": {
+    "description": "Feldhinweis"
+  },
+  "editorMinutesPerWeek": "Minuten pro Woche",
+  "@editorMinutesPerWeek": {
+    "description": "Feld"
+  },
+  "editorMinutesHint": "z. B. 120",
+  "@editorMinutesHint": {
+    "description": "Feldhinweis"
+  },
+  "editorDate": "Datum",
+  "@editorDate": {
+    "description": "Einmalige Challenge"
+  },
+  "settingsTitle": "Einstellungen",
+  "@settingsTitle": {
+    "description": "Titel/Tooltip"
+  },
+  "settingsName": "Name",
+  "@settingsName": {
+    "description": "Einstellung/Dialogtitel"
+  },
+  "settingsNameNotSet": "Nicht gesetzt",
+  "@settingsNameNotSet": {
+    "description": "Untertitel"
+  },
+  "settingsNameHint": "Wie sollen wir dich nennen?",
+  "@settingsNameHint": {
+    "description": "Feldhinweis"
+  },
+  "settingsReminders": "Erinnerungen",
+  "@settingsReminders": {
+    "description": "Abschnitt"
+  },
+  "settingsNewChallengeTime": "Uhrzeit für neue Challenges",
+  "@settingsNewChallengeTime": {
+    "description": "Einstellung"
+  },
+  "settingsPerChallenge": "Je nach Challenge",
+  "@settingsPerChallenge": {
+    "description": "kein Standard gesetzt"
+  },
+  "settingsReset": "Zurücksetzen",
+  "@settingsReset": {
+    "description": "Tooltip"
+  },
+  "settingsNewChallengeTimeHint": "Wird beim Starten einer neuen Challenge vorgeschlagen, wenn die Challenge keine eigene Uhrzeit hat. Laufende Challenges behalten ihre Uhrzeit – die änderst du über „Anpassen“.",
+  "@settingsNewChallengeTimeHint": {
+    "description": "Hinweis"
+  },
+  "settingsApp": "App",
+  "@settingsApp": {
+    "description": "Abschnitt"
+  },
+  "settingsShowIntro": "Intro beim Start zeigen",
+  "@settingsShowIntro": {
+    "description": "Schalter"
+  },
+  "settingsShowIntroHint": "Leitsatz beim Öffnen der App",
+  "@settingsShowIntroHint": {
+    "description": "Untertitel"
+  },
+  "settingsData": "Daten",
+  "@settingsData": {
+    "description": "Abschnitt"
+  },
+  "backupTitle": "Daten sichern",
+  "@backupTitle": {
+    "description": "Seite/Eintrag"
+  },
+  "settingsBackupHint": "Backup, Export, Wiederherstellen",
+  "@settingsBackupHint": {
+    "description": "Untertitel"
+  },
+  "profileDefaultName": "Dein Profil",
+  "@profileDefaultName": {
+    "description": "Profil ohne Namen"
+  },
+  "profileEmpty": "Noch keine Challenges – starte deine erste unter „Entdecken“. Hier siehst du dann, was du schon geschafft hast.",
+  "@profileEmpty": {
+    "description": "Leerzustand"
+  },
+  "statRunning": "Laufend",
+  "@statRunning": {
+    "description": "Kennzahl"
+  },
+  "statCompleted": "Geschafft",
+  "@statCompleted": {
+    "description": "Kennzahl"
+  },
+  "statDaysDone": "Tage erledigt",
+  "@statDaysDone": {
+    "description": "Kennzahl"
+  },
+  "statLongestStreak": "Längste Streak",
+  "@statLongestStreak": {
+    "description": "Kennzahl"
+  },
+  "backupFileError": "Die Datei konnte nicht gelesen oder geschrieben werden.",
+  "@backupFileError": {
+    "description": "Fehler"
+  },
+  "backupSaved": "Backup gespeichert",
+  "@backupSaved": {
+    "description": "Snackbar"
+  },
+  "tableSaved": "Tabelle gespeichert",
+  "@tableSaved": {
+    "description": "Snackbar"
+  },
+  "backupInvalid": "Diese Datei ist kein gültiges Ritual-Backup.",
+  "@backupInvalid": {
+    "description": "Fehler"
+  },
+  "backupRestored": "Backup wiederhergestellt",
+  "@backupRestored": {
+    "description": "Snackbar"
+  },
+  "backupOnlyOnPhone": "Deine Daten liegen nur auf diesem Handy. Speichere regelmäßig ein Backup, z. B. in Google Drive – so ist bei Verlust oder Handywechsel nichts verloren.",
+  "@backupOnlyOnPhone": {
+    "description": "Hinweis"
+  },
+  "backupSectionSave": "Sichern",
+  "@backupSectionSave": {
+    "description": "Abschnitt"
+  },
+  "backupSectionSaveHint": "Alle Challenges, Check-ins und eigenen Vorlagen in einer Datei. Du wählst selbst, wo sie landet.",
+  "@backupSectionSaveHint": {
+    "description": "Beschreibung"
+  },
+  "backupSave": "Backup speichern",
+  "@backupSave": {
+    "description": "Knopf"
+  },
+  "backupSectionExport": "Exportieren",
+  "@backupSectionExport": {
+    "description": "Abschnitt"
+  },
+  "backupSectionExportHint": "Alle Check-ins als Tabelle, z. B. für Excel oder Google Sheets. Nicht zum Wiederherstellen.",
+  "@backupSectionExportHint": {
+    "description": "Beschreibung"
+  },
+  "backupExportCsv": "Als Tabelle exportieren (CSV)",
+  "@backupExportCsv": {
+    "description": "Knopf"
+  },
+  "backupSectionRestore": "Wiederherstellen",
+  "@backupSectionRestore": {
+    "description": "Abschnitt"
+  },
+  "backupSectionRestoreHint": "Ersetzt deinen aktuellen Stand komplett durch den Stand aus einer Backup-Datei.",
+  "@backupSectionRestoreHint": {
+    "description": "Beschreibung"
+  },
+  "backupRestore": "Backup wiederherstellen",
+  "@backupRestore": {
+    "description": "Knopf"
+  },
+  "backupRestoreQuestion": "Backup wiederherstellen?",
+  "@backupRestoreQuestion": {
+    "description": "Dialogtitel"
+  },
+  "backupSavedOn": "Gesichert am {date}:",
+  "@backupSavedOn": {
+    "description": "Dialog",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "backupCountActive": "{count, plural, =1{1 laufende Challenge} other{{count} laufende Challenges}}",
+  "@backupCountActive": {
+    "description": "Dialog",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCountArchived": "{count, plural, =1{1 abgeschlossene Challenge} other{{count} abgeschlossene Challenges}}",
+  "@backupCountArchived": {
+    "description": "Dialog",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCountTemplates": "{count, plural, =1{1 eigene Vorlage} other{{count} eigene Vorlagen}}",
+  "@backupCountTemplates": {
+    "description": "Dialog",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupReplaceWarning": "Dein aktueller Stand wird dabei vollständig ersetzt.",
+  "@backupReplaceWarning": {
+    "description": "Dialog"
+  },
+  "backupReplace": "Ersetzen",
+  "@backupReplace": {
+    "description": "Knopf"
+  },
+  "tplWake5amTitle": "Um 5 Uhr aufstehen",
+  "@tplWake5amTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplWake5amDescription": "30 Tage lang um 5:00 Uhr aufstehen – ohne Snooze. Wecker klingelt, Füße auf den Boden.",
+  "@tplWake5amDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplMorningRoutineTitle": "Tägliche Morgenroutine",
+  "@tplMorningRoutineTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplMorningRoutineDescription": "30 Tage lang jeden Morgen deine feste Routine durchziehen, bevor der Tag dich übernimmt.",
+  "@tplMorningRoutineDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplColdShowerTitle": "Kalt duschen",
+  "@tplColdShowerTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplColdShowerDescription": "30 Tage kalt duschen – und am Ende nicht doch noch warm aufdrehen.",
+  "@tplColdShowerDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplNoSugarTitle": "21 Tage ohne Zucker",
+  "@tplNoSugarTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplNoSugarDescription": "Kein Zucker in jeder Form: keine Süßigkeiten, keine süßen Getränke, kein versteckter Zucker.",
+  "@tplNoSugarDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplMeditateSleepTitle": "Meditieren vor dem Schlafen",
+  "@tplMeditateSleepTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplMeditateSleepDescription": "Jeden Abend vor dem Einschlafen bewusst zur Ruhe kommen.",
+  "@tplMeditateSleepDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplEyeGazeTitle": "10 min in die eigenen Augen schauen",
+  "@tplEyeGazeTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplEyeGazeDescription": "Zehn Minuten in den Spiegel und dir selbst in die Augen schauen. Aushalten, nicht wegsehen.",
+  "@tplEyeGazeDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplExcuseJournalTitle": "Ausreden aufschreiben",
+  "@tplExcuseJournalTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplExcuseJournalDescription": "Schreib auf, warum du etwas nicht gemacht hast. Ehrlich – nur für dich.",
+  "@tplExcuseJournalDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplNature2hTitle": "2 h pro Woche in der Natur",
+  "@tplNature2hTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplNature2hDescription": "Jede Woche zwei Stunden draußen in der Natur – ohne Handy, ohne Kopfhörer.",
+  "@tplNature2hDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplFasting24hTitle": "24 h Diät",
+  "@tplFasting24hTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplFasting24hDescription": "24 Stunden fasten: nur Wasser, Tee oder schwarzer Kaffee. Bei Vorerkrankungen vorher ärztlich abklären.",
+  "@tplFasting24hDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplSilence24hTitle": "24 h nicht sprechen",
+  "@tplSilence24hTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplSilence24hDescription": "Einen ganzen Tag lang kein Wort sagen. Zuhören statt reden.",
+  "@tplSilence24hDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplBookInADayTitle": "Ein Buch an einem Tag",
+  "@tplBookInADayTitle": {
+    "description": "Katalog-Vorlage: Titel"
+  },
+  "tplBookInADayDescription": "Ein komplettes Buch an einem einzigen Tag durchlesen.",
+  "@tplBookInADayDescription": {
+    "description": "Katalog-Vorlage: Beschreibung"
+  },
+  "tplMorningRoutineStep1": "Ein Glas Wasser trinken",
+  "@tplMorningRoutineStep1": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "tplMorningRoutineStep2": "Bett machen",
+  "@tplMorningRoutineStep2": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "tplMorningRoutineStep3": "5 Minuten dehnen",
+  "@tplMorningRoutineStep3": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "tplMorningRoutineStep4": "Tag planen",
+  "@tplMorningRoutineStep4": {
+    "description": "Schritt der Morgenroutine"
+  },
+  "kindDaily": "täglich",
+  "@kindDaily": {
+    "description": "Art ohne Enddatum"
+  },
+  "kindOneTimeOn": "einmalig · {date}",
+  "@kindOneTimeOn": {
+    "description": "Art mit Datum",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "kindWindowHours": "{hours} h",
+  "@kindWindowHours": {
+    "description": "Zeitfenster",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "kindTimesPerWeek": "{count}×/Woche",
+  "@kindTimesPerWeek": {
+    "description": "Wochenziel Mal",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kindHoursPerWeek": "{hours} h/Woche",
+  "@kindHoursPerWeek": {
+    "description": "Wochenziel Stunden",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "kindMinutesPerWeek": "{minutes} min/Woche",
+  "@kindMinutesPerWeek": {
+    "description": "Wochenziel Minuten",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "kindJournal": "Journal",
+  "@kindJournal": {
+    "description": "Art Tagebuch"
+  },
+  "weekdayShort": "{day, select, 1{Mo} 2{Di} 3{Mi} 4{Do} 5{Fr} 6{Sa} other{So}}",
+  "@weekdayShort": {
+    "description": "Wochentag kurz, 1 = Montag",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "monthName": "{month, select, 1{Januar} 2{Februar} 3{März} 4{April} 5{Mai} 6{Juni} 7{Juli} 8{August} 9{September} 10{Oktober} 11{November} other{Dezember}}",
+  "@monthName": {
+    "description": "Monatsname, 1 = Januar",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dateShort": "{day}.{month}.",
+  "@dateShort": {
+    "description": "Datum ohne Jahr, Tag und Monat zweistellig",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "dateWithYear": "{day}.{month}.{year}",
+  "@dateWithYear": {
+    "description": "Datum mit Jahr",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderAskDone": "Hast du es heute geschafft?",
+  "@reminderAskDone": {
+    "description": "Benachrichtigung"
+  },
+  "reminderJournalAction": "Aufschreiben",
+  "@reminderJournalAction": {
+    "description": "Benachrichtigungs-Aktion"
+  },
+  "reminderJournalInput": "Deine Ausrede",
+  "@reminderJournalInput": {
+    "description": "Eingabefeld in der Benachrichtigung"
+  },
+  "reminderEnterMinutes": "Trag deine Minuten in der App ein.",
+  "@reminderEnterMinutes": {
+    "description": "Benachrichtigung Wochenziel Minuten"
+  },
+  "channelReminders": "Challenge-Erinnerungen",
+  "@channelReminders": {
+    "description": "Android-Benachrichtigungskanal"
+  },
+  "channelRemindersDescription": "Tägliche Erinnerung an deine Challenges",
+  "@channelRemindersDescription": {
+    "description": "Kanalbeschreibung"
+  },
+  "channelSessions": "Laufende Aktivität",
+  "@channelSessions": {
+    "description": "Android-Benachrichtigungskanal"
+  },
+  "channelSessionsDescription": "Stoppuhr, solange du gerade dabei bist",
+  "@channelSessionsDescription": {
+    "description": "Kanalbeschreibung"
+  },
+  "sessionRunning": "Läuft",
+  "@sessionRunning": {
+    "description": "Timer-Benachrichtigung"
+  },
+  "sessionRunningTarget": "Läuft – Ziel {minutes} min",
+  "@sessionRunningTarget": {
+    "description": "Timer-Benachrichtigung",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "targetReached": "Zieldauer erreicht",
+  "@targetReached": {
+    "description": "Benachrichtigung"
+  },
+  "targetReachedBody": "Tippe auf „Stopp“, um die Zeit gutzuschreiben.",
+  "@targetReachedBody": {
+    "description": "Benachrichtigung"
+  },
+  "csvHeader": "Datum;Challenge;Status;Minuten;Notiz",
+  "@csvHeader": {
+    "description": "CSV-Kopfzeile, Trenner ; beibehalten"
+  },
+  "csvMissed": "nicht erledigt",
+  "@csvMissed": {
+    "description": "CSV-Status"
+  }
+}

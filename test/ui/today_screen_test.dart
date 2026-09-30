@@ -1,5 +1,6 @@
 import 'package:challenges/domain/active_challenge.dart';
 import 'package:challenges/domain/catalog.dart';
+import 'package:challenges/l10n/app_localizations.dart';
 import 'package:challenges/ui/theme.dart';
 import 'package:challenges/ui/today_screen.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,9 @@ Future<void> pumpToday(WidgetTester tester, FakeChallengeRepository repo,
   addTearDown(tester.view.reset);
   await tester.pumpWidget(MaterialApp(
     theme: buildTheme(),
+    locale: const Locale('de'),
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
     home: TodayScreen(
       repository: repo,
       clock: () => today,
@@ -136,6 +140,9 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(MaterialApp(
       theme: buildTheme(),
+      locale: const Locale('de'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: TodayScreen(
           repository: repo,
           clock: () => today,
