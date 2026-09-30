@@ -215,5 +215,19 @@
   "weekdayShort": "{day, select, 1{Пн} 2{Вт} 3{Ср} 4{Чт} 5{Пт} 6{Сб} other{Вс}}",
   "monthName": "{month, select, 1{Январь} 2{Февраль} 3{Март} 4{Апрель} 5{Май} 6{Июнь} 7{Июль} 8{Август} 9{Сентябрь} 10{Октябрь} 11{Ноябрь} other{Декабрь}}",
   "dateShort": "{day}.{month}",
-  "dateWithYear": "{day}.{month}.{year}"
+  "dateWithYear": "{day}.{month}.{year}",
+  "reminderAskDone": "Получилось сегодня?",
+  "reminderJournalAction": "Записать",
+  "reminderJournalInput": "Твоё оправдание",
+  "reminderEnterMinutes": "Внеси минуты в приложении.",
+  "channelReminders": "Напоминания о челленджах",
+  "channelRemindersDescription": "Ежедневное напоминание о челленджах",
+  "channelSessions": "Текущая активность",
+  "channelSessionsDescription": "Секундомер, пока ты занят",
+  "sessionRunning": "Идёт",
+  "sessionRunningTarget": "Идёт – цель {minutes} мин",
+  "targetReached": "Цель по времени достигнута",
+  "targetReachedBody": "Нажми «Стоп», чтобы засчитать время.",
+  "csvHeader": "Дата;Челлендж;Статус;Минуты;Заметка",
+  "csvMissed": "не выполнено"
 }

@@ -1075,5 +1075,66 @@
         "type": "String"
       }
     }
+  },
+  "reminderAskDone": "Hast du es heute geschafft?",
+  "@reminderAskDone": {
+    "description": "Benachrichtigung"
+  },
+  "reminderJournalAction": "Aufschreiben",
+  "@reminderJournalAction": {
+    "description": "Benachrichtigungs-Aktion"
+  },
+  "reminderJournalInput": "Deine Ausrede",
+  "@reminderJournalInput": {
+    "description": "Eingabefeld in der Benachrichtigung"
+  },
+  "reminderEnterMinutes": "Trag deine Minuten in der App ein.",
+  "@reminderEnterMinutes": {
+    "description": "Benachrichtigung Wochenziel Minuten"
+  },
+  "channelReminders": "Challenge-Erinnerungen",
+  "@channelReminders": {
+    "description": "Android-Benachrichtigungskanal"
+  },
+  "channelRemindersDescription": "Tägliche Erinnerung an deine Challenges",
+  "@channelRemindersDescription": {
+    "description": "Kanalbeschreibung"
+  },
+  "channelSessions": "Laufende Aktivität",
+  "@channelSessions": {
+    "description": "Android-Benachrichtigungskanal"
+  },
+  "channelSessionsDescription": "Stoppuhr, solange du gerade dabei bist",
+  "@channelSessionsDescription": {
+    "description": "Kanalbeschreibung"
+  },
+  "sessionRunning": "Läuft",
+  "@sessionRunning": {
+    "description": "Timer-Benachrichtigung"
+  },
+  "sessionRunningTarget": "Läuft – Ziel {minutes} min",
+  "@sessionRunningTarget": {
+    "description": "Timer-Benachrichtigung",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "targetReached": "Zieldauer erreicht",
+  "@targetReached": {
+    "description": "Benachrichtigung"
+  },
+  "targetReachedBody": "Tippe auf „Stopp“, um die Zeit gutzuschreiben.",
+  "@targetReachedBody": {
+    "description": "Benachrichtigung"
+  },
+  "csvHeader": "Datum;Challenge;Status;Minuten;Notiz",
+  "@csvHeader": {
+    "description": "CSV-Kopfzeile, Trenner ; beibehalten"
+  },
+  "csvMissed": "nicht erledigt",
+  "@csvMissed": {
+    "description": "CSV-Status"
   }
 }

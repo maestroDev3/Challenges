@@ -5,29 +5,32 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../domain/active_challenge.dart';
 import '../domain/reminders.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/background_texts.dart';
+import '../l10n/template_text.dart';
 
 typedef NotificationResponseHandler = void Function(NotificationResponse);
 
+/// Liefert die Sprachpakete in der aktuell gewählten Sprache.
+typedef TextsLoader = Future<AppLocalizations> Function();
+
 /// Android-Implementierung mit flutter_local_notifications.
 class LocalNotificationScheduler implements ReminderScheduler {
-  LocalNotificationScheduler._(this._plugin, {required bool askPermissions})
+  LocalNotificationScheduler._(this._plugin, this._texts,
+      {required bool askPermissions})
       : _permissionAsked = !askPermissions;
 
   final FlutterLocalNotificationsPlugin _plugin;
+  final TextsLoader _texts;
   bool _permissionAsked;
 
-  static const _channel = AndroidNotificationDetails(
-    'challenge_reminders',
-    'Challenge-Erinnerungen',
-    channelDescription: 'Tägliche Erinnerung an deine Challenges',
-    importance: Importance.high,
-    priority: Priority.high,
-    category: AndroidNotificationCategory.reminder,
-  );
+  static const _channelId = 'challenge_reminders';
+  static const _sessionChannelId = 'challenge_sessions';
 
   static Future<LocalNotificationScheduler> create({
     required NotificationResponseHandler onResponse,
     required NotificationResponseHandler onBackgroundResponse,
+    required TextsLoader texts,
     // Im Hintergrund (keine Activity) nicht nach Berechtigungen fragen.
     bool askPermissions = true,
   }) async {
@@ -46,7 +49,8 @@ class LocalNotificationScheduler implements ReminderScheduler {
       onDidReceiveNotificationResponse: onResponse,
       onDidReceiveBackgroundNotificationResponse: onBackgroundResponse,
     );
-    return LocalNotificationScheduler._(plugin, askPermissions: askPermissions);
+    return LocalNotificationScheduler._(plugin, texts,
+        askPermissions: askPermissions);
   }
 
   AndroidFlutterLocalNotificationsPlugin? get _android =>
@@ -72,47 +76,39 @@ class LocalNotificationScheduler implements ReminderScheduler {
     final times = upcomingReminders(challenge, DateTime.now());
     if (times.isEmpty) return;
     final exact = await _ensurePermissions();
-    final t = challenge.template;
-    final (body, actions) = switch (reminderActionsFor(t.kind)) {
-      ReminderActions.journalInput => (
-          'Welche Ausrede hattest du heute?',
-          const [
-            AndroidNotificationAction(
-              actionDone,
-              'Aufschreiben',
-              inputs: [AndroidNotificationActionInput(label: 'Deine Ausrede')],
-            ),
-          ],
-        ),
-      ReminderActions.none => (
-          'Trag deine Minuten in der App ein.',
-          const <AndroidNotificationAction>[],
-        ),
-      ReminderActions.doneMissed => (
-          'Hast du es heute geschafft?',
-          const [
-            AndroidNotificationAction(actionDone, '✓ Erledigt'),
-            AndroidNotificationAction(actionMissed, '✗ Nicht erledigt'),
-          ],
-        ),
+    final l10n = await _texts();
+    final texts = reminderTexts(l10n, challenge.template);
+    final actions = switch (reminderActionsFor(challenge.template.kind)) {
+      ReminderActions.journalInput => [
+          AndroidNotificationAction(
+            actionDone,
+            texts.journalAction,
+            inputs: [AndroidNotificationActionInput(label: texts.journalInput)],
+          ),
+        ],
+      ReminderActions.none => const <AndroidNotificationAction>[],
+      ReminderActions.doneMissed => [
+          AndroidNotificationAction(actionDone, texts.done),
+          AndroidNotificationAction(actionMissed, texts.missed),
+        ],
     };
 
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
-        _channel.channelId,
-        _channel.channelName,
-        channelDescription: _channel.channelDescription,
-        importance: _channel.importance,
-        priority: _channel.priority,
-        category: _channel.category,
+        _channelId,
+        l10n.channelReminders,
+        channelDescription: l10n.channelRemindersDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        category: AndroidNotificationCategory.reminder,
         actions: actions,
       ),
     );
     for (final (i, time) in times.indexed) {
       await _plugin.zonedSchedule(
         id: _slotId(challenge, i),
-        title: '${t.emoji} ${t.title}',
-        body: body,
+        title: texts.title,
+        body: texts.body,
         payload: challenge.id,
         scheduledDate: tz.TZDateTime(
             tz.local, time.year, time.month, time.day, time.hour, time.minute),
@@ -124,14 +120,6 @@ class LocalNotificationScheduler implements ReminderScheduler {
     }
   }
 
-  static const _sessionChannel = AndroidNotificationDetails(
-    'challenge_sessions',
-    'Laufende Aktivität',
-    channelDescription: 'Stoppuhr, solange du gerade dabei bist',
-    importance: Importance.low,
-    priority: Priority.low,
-  );
-
   int _sessionId(ActiveChallenge c) => notificationIdFor('session:${c.id}');
   int _targetId(ActiveChallenge c) => notificationIdFor('target:${c.id}');
 
@@ -140,29 +128,31 @@ class LocalNotificationScheduler implements ReminderScheduler {
     final start = challenge.sessionStartedAt;
     if (start == null) return;
     final exact = await _ensurePermissions();
+    final l10n = await _texts();
     final t = challenge.template;
+    final stop = AndroidNotificationAction(actionStop, '■ ${l10n.sessionStop}');
     await _plugin.show(
       id: _sessionId(challenge),
-      title: '${t.emoji} ${t.title}',
+      title: '${t.emoji} ${t.titleIn(l10n)}',
       body: switch (t.targetDuration) {
-        final d? => 'Läuft – Ziel ${d.inMinutes} min',
-        null => 'Läuft',
+        final d? => l10n.sessionRunningTarget(d.inMinutes),
+        null => l10n.sessionRunning,
       },
       payload: challenge.id,
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
-          _sessionChannel.channelId,
-          _sessionChannel.channelName,
-          channelDescription: _sessionChannel.channelDescription,
-          importance: _sessionChannel.importance,
-          priority: _sessionChannel.priority,
+          _sessionChannelId,
+          l10n.channelSessions,
+          channelDescription: l10n.channelSessionsDescription,
+          importance: Importance.low,
+          priority: Priority.low,
           ongoing: true,
           autoCancel: false,
           onlyAlertOnce: true,
           usesChronometer: true,
           when: start.millisecondsSinceEpoch,
           category: AndroidNotificationCategory.stopwatch,
-          actions: const [AndroidNotificationAction(actionStop, '■ Stopp')],
+          actions: [stop],
         ),
       ),
     );
@@ -170,18 +160,18 @@ class LocalNotificationScheduler implements ReminderScheduler {
     if (end != null && end.isAfter(DateTime.now())) {
       await _plugin.zonedSchedule(
         id: _targetId(challenge),
-        title: '${t.emoji} Zieldauer erreicht',
-        body: 'Tippe auf „Stopp“, um die Zeit gutzuschreiben.',
+        title: '${t.emoji} ${l10n.targetReached}',
+        body: l10n.targetReachedBody,
         payload: challenge.id,
         scheduledDate: tz.TZDateTime.from(end, tz.local),
         notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
-            _channel.channelId,
-            _channel.channelName,
-            channelDescription: _channel.channelDescription,
-            importance: _channel.importance,
-            priority: _channel.priority,
-            actions: const [AndroidNotificationAction(actionStop, '■ Stopp')],
+            _channelId,
+            l10n.channelReminders,
+            channelDescription: l10n.channelRemindersDescription,
+            importance: Importance.high,
+            priority: Priority.high,
+            actions: [stop],
           ),
         ),
         androidScheduleMode: exact

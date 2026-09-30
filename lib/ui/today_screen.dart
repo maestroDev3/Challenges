@@ -8,12 +8,12 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/milestones.dart';
 import '../domain/reminders.dart';
+import '../l10n/template_text.dart';
 import 'adjust_sheet.dart';
 import 'archive_screen.dart';
 import 'detail_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
-import 'template_text.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({

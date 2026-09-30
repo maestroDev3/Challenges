@@ -215,5 +215,19 @@
   "weekdayShort": "{day, select, 1{Mon} 2{Tue} 3{Wed} 4{Thu} 5{Fri} 6{Sat} other{Sun}}",
   "monthName": "{month, select, 1{January} 2{February} 3{March} 4{April} 5{May} 6{June} 7{July} 8{August} 9{September} 10{October} 11{November} other{December}}",
   "dateShort": "{day}/{month}",
-  "dateWithYear": "{day}/{month}/{year}"
+  "dateWithYear": "{day}/{month}/{year}",
+  "reminderAskDone": "Did you make it today?",
+  "reminderJournalAction": "Write it down",
+  "reminderJournalInput": "Your excuse",
+  "reminderEnterMinutes": "Enter your minutes in the app.",
+  "channelReminders": "Challenge reminders",
+  "channelRemindersDescription": "Daily reminder for your challenges",
+  "channelSessions": "Running activity",
+  "channelSessionsDescription": "Stopwatch while you are at it",
+  "sessionRunning": "Running",
+  "sessionRunningTarget": "Running – goal {minutes} min",
+  "targetReached": "Target duration reached",
+  "targetReachedBody": "Tap “Stop” to log the time.",
+  "csvHeader": "Date;Challenge;Status;Minutes;Note",
+  "csvMissed": "not done"
 }
