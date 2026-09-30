@@ -48,3 +48,6 @@ app.*.map.json
 .widget_preview/
 screenshots/out/
 screenshots/failures/
+
+# Von flutter gen-l10n erzeugt (aus lib/l10n/*.arb)
+lib/l10n/app_localizations*.dart

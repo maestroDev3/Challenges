@@ -84,6 +84,8 @@ befolgen (Architektur, State, Stil, Widgets, Tests, Definition of Done).
 - Datenzugriff nur über Repository-Interfaces, damit später ein Backend
   (Freunde-Funktion) angedockt werden kann.
 - `flutter analyze` muss ohne Befund laufen.
+- UI-Texte in drei Sprachen (DE/EN/RU) über ARB-Sprachpakete und Flutters `gen-l10n`
+  (einzige erlaubte Code-Generierung, siehe Skill Abschnitt 4a).
 
 ## Umgebungshinweis
 

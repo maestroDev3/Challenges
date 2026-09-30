@@ -28,6 +28,9 @@ jobs:
           if [ -f pubspec.yaml ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
       - run: flutter pub get
         if: steps.guard.outputs.ok == 'true'
+      # Sprachpakete (lib/l10n/*.arb) → AppLocalizations; nicht eingecheckt.
+      - run: flutter gen-l10n
+        if: steps.guard.outputs.ok == 'true'
       - name: Analyze
         if: steps.guard.outputs.ok == 'true'
         run: flutter analyze 2>&1 | tee analyze.log; exit ${PIPESTATUS[0]}
