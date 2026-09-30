@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../domain/active_challenge.dart';
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/language.dart';
@@ -18,6 +19,7 @@ class ChallengesApp extends StatefulWidget {
     this.backupFiles,
     this.settings,
     this.showIntro = true,
+    this.clock = DateTime.now,
   });
 
   final ChallengeRepository repository;
@@ -27,6 +29,9 @@ class ChallengesApp extends StatefulWidget {
 
   /// Intro mit Leitsatz beim Start; aus den Einstellungen (in `main` geladen).
   final bool showIntro;
+
+  /// Uhr für „heute“ – in Tests fest.
+  final Clock clock;
 
   @override
   State<ChallengesApp> createState() => _ChallengesAppState();
@@ -64,6 +69,7 @@ class _ChallengesAppState extends State<ChallengesApp> {
             showIntro: widget.showIntro,
             child: HomeShell(
               repository: widget.repository,
+              clock: widget.clock,
               scheduler: widget.scheduler,
               backupFiles: widget.backupFiles,
               settings: _settings,

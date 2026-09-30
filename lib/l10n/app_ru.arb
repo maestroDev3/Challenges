@@ -232,5 +232,10 @@
   "csvMissed": "не выполнено",
   "startsLabel": "Начало",
   "planChallenge": "Запланировать челлендж",
-  "saveAndPlan": "Сохранить и запланировать"
+  "saveAndPlan": "Сохранить и запланировать",
+  "sectionPlanned": "Запланировано",
+  "plannedStartsOn": "начнётся {date} · {relative}",
+  "startsIn": "{count, plural, one{через {count} день} few{через {count} дня} many{через {count} дней} other{через {count} дня}}",
+  "changeStartDate": "Изменить дату начала",
+  "startsTomorrow": "завтра"
 }

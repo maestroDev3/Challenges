@@ -232,5 +232,10 @@
   "csvMissed": "not done",
   "startsLabel": "Starts",
   "planChallenge": "Plan challenge",
-  "saveAndPlan": "Save & plan"
+  "saveAndPlan": "Save & plan",
+  "sectionPlanned": "Planned",
+  "plannedStartsOn": "starts on {date} · {relative}",
+  "startsIn": "{count, plural, =1{in 1 day} other{in {count} days}}",
+  "changeStartDate": "Change start date",
+  "startsTomorrow": "tomorrow"
 }
