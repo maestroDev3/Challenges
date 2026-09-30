@@ -229,5 +229,8 @@
   "targetReached": "Target duration reached",
   "targetReachedBody": "Tap “Stop” to log the time.",
   "csvHeader": "Date;Challenge;Status;Minutes;Note",
-  "csvMissed": "not done"
+  "csvMissed": "not done",
+  "startsLabel": "Starts",
+  "planChallenge": "Plan challenge",
+  "saveAndPlan": "Save & plan"
 }

@@ -105,6 +105,10 @@ class PauseRange {
 /// So weit im Voraus lässt sich ein Start planen.
 const maxPlanDays = 90;
 
+/// Einmalige Challenges mit festem Datum haben kein eigenes Startdatum.
+bool canPlanStart(ChallengeKind kind) =>
+    kind is! OneTimeKind || kind.date == null;
+
 class ActiveChallenge {
   const ActiveChallenge({
     required this.id,

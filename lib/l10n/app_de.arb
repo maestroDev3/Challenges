@@ -1136,5 +1136,17 @@
   "csvMissed": "nicht erledigt",
   "@csvMissed": {
     "description": "CSV-Status"
+  },
+  "startsLabel": "Beginnt",
+  "@startsLabel": {
+    "description": "Starttag einer Challenge"
+  },
+  "planChallenge": "Challenge planen",
+  "@planChallenge": {
+    "description": "Knopf bei Start in der Zukunft"
+  },
+  "saveAndPlan": "Speichern & planen",
+  "@saveAndPlan": {
+    "description": "Editor-Knopf bei Start in der Zukunft"
   }
 }

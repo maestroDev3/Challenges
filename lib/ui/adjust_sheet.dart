@@ -14,6 +14,23 @@ typedef TimePick = Future<TimeOfDay?> Function(
 Future<TimeOfDay?> pickTimeDefault(BuildContext context, TimeOfDay initial) =>
     showTimePicker(context: context, initialTime: initial);
 
+/// Datumsauswahl – im Test ersetzbar.
+typedef DatePick = Future<DateTime?> Function(
+  BuildContext context, {
+  required DateTime initial,
+  required DateTime first,
+  required DateTime last,
+});
+
+Future<DateTime?> pickDateDefault(
+  BuildContext context, {
+  required DateTime initial,
+  required DateTime first,
+  required DateTime last,
+}) =>
+    showDatePicker(
+        context: context, initialDate: initial, firstDate: first, lastDate: last);
+
 /// Einstellungen einer laufenden Challenge ändern, ohne den Verlauf zu
 /// verlieren. Liefert die geänderte Challenge (oder null bei Abbruch).
 Future<ActiveChallenge?> showAdjustSheet(
