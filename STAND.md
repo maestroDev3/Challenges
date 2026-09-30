@@ -8,18 +8,22 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## In Arbeit
 
-- –
+- #103 Startdatum planen (Epic #104) – Branch `epic/planen`, alle Tasks erledigt
+  (#126, #127, #128). Wartet auf: Test der APK (Release „test“) durch den Nutzer,
+  dann Merge nach `main`.
+  Entscheidungen: „geplant“ = `startedOn` in der Zukunft (kein neuer Status);
+  eigener Abschnitt „Geplant“ auf „Heute“.
 
 ## Als Nächstes
 
-- Nächste Story nach Wahl des Nutzers (Vorschläge: #103 Startdatum planen, #33 Fortschrittsfotos, #82 Dashboard)
+- Nach Merge von #103: #124 Wenn-Dann-Plan (Epic #104) oder Story nach Wahl des Nutzers
 
 ## Backlog nach Epic
 
 | Epic | Stories (Reihenfolge) |
 |---|---|
 | #36 Motivation und Dranbleiben | #33 Fortschrittsfotos → #82 Dashboard und Kennzahlen |
-| #104 Planen und Vorbereiten | #103 Startdatum planen |
+| #104 Planen und Vorbereiten | #103 Startdatum planen (in Arbeit) → #124 Wenn-Dann-Plan |
 | #38 Gemeinsam | #34 Challenges mit Partnerin/Freunden – erst nach Backend-Entscheidung |
 
 ## Zuletzt erledigt
