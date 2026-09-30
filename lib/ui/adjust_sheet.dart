@@ -4,6 +4,7 @@ import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
 import 'editor_screen.dart';
 import 'l10n.dart';
+import 'template_text.dart';
 import 'rule_selector.dart';
 
 /// Uhrzeitauswahl – im Test ersetzbar.
@@ -84,7 +85,7 @@ class _AdjustSheetState extends State<_AdjustSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('${c.template.emoji} ${c.template.title}',
+            Text('${c.template.emoji} ${c.template.titleIn(context.l10n)}',
                 style: text.titleLarge),
             const SizedBox(height: 4),
             Text(context.l10n.adjustKeepsHistory,

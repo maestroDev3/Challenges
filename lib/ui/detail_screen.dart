@@ -6,6 +6,7 @@ import '../domain/milestones.dart';
 import '../l10n/app_localizations.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'template_text.dart';
 import 'theme.dart';
 
 /// Rückblick auf eine Challenge: Kennzahlen, Monatskalender, Journal.
@@ -54,10 +55,13 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(c.template.title, style: text.headlineSmall),
+                    Text(c.template.titleIn(context.l10n),
+                        style: text.headlineSmall),
                     Text(
-                      context.l10n.detailSince(c.template.kindLabel,
-                          formatDate(c.startedOn, withYear: true)),
+                      context.l10n.detailSince(
+                          kindLabelIn(context.l10n, c.kind),
+                          formatDate(context.l10n, c.startedOn,
+                              withYear: true)),
                       style: TextStyle(color: scheme.onSurfaceVariant),
                     ),
                   ],
@@ -134,7 +138,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               ),
               Expanded(
                 child: Text(
-                  formatMonth(_month),
+                  formatMonth(context.l10n, _month),
                   textAlign: TextAlign.center,
                   style: text.titleLarge,
                 ),
@@ -164,7 +168,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             for (final e in c.journalEntries)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Text(formatDate(e.day),
+                leading: Text(formatDate(context.l10n, e.day),
                     style: TextStyle(color: scheme.onSurfaceVariant)),
                 title: Text(e.note ?? ''),
               ),
@@ -231,9 +235,9 @@ class _MonthGrid extends StatelessWidget {
     final daysInMonth = DateTime.utc(month.year, month.month + 1, 0).day;
     final leading = month.weekday - 1;
     final cells = <Widget>[
-      for (final w in const ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'])
+      for (var w = 1; w <= 7; w++)
         Center(
-          child: Text(w,
+          child: Text(weekdayShort(context.l10n, w),
               style: TextStyle(
                   color: scheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
         ),
@@ -280,8 +284,9 @@ class _DayCell extends StatelessWidget {
       null => (Colors.transparent, scheme.onSurfaceVariant.withValues(alpha: 0.5)),
     };
     final label = switch (status) {
-      final s? => '${formatWeekdayDate(day)}: ${dayStatusLabel(context.l10n, s)}',
-      null => formatWeekdayDate(day),
+      final s? =>
+        '${formatWeekdayDate(context.l10n, day)}: ${dayStatusLabel(context.l10n, s)}',
+      null => formatWeekdayDate(context.l10n, day),
     };
     return Semantics(
       label: label,

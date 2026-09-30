@@ -6,6 +6,7 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import 'editor_screen.dart';
 import 'l10n.dart';
+import 'template_text.dart';
 import 'rule_selector.dart';
 import 'theme.dart';
 
@@ -190,10 +191,10 @@ class _TemplateCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(template.title,
+                    Text(template.titleIn(context.l10n),
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 4),
-                    Text(template.kindLabel,
+                    Text(kindLabelIn(context.l10n, template.kind),
                         style: TextStyle(color: scheme.onSurfaceVariant)),
                   ],
                 ),
@@ -268,13 +269,13 @@ class _StartSheetState extends State<_StartSheet> {
           children: [
             Center(child: EmojiBadge(t.emoji, size: 72)),
             const SizedBox(height: 16),
-            Text(t.title,
+            Text(t.titleIn(context.l10n),
                 textAlign: TextAlign.center, style: text.headlineSmall),
             const SizedBox(height: 8),
-            Center(child: Chip(label: Text(t.kindLabel))),
+            Center(child: Chip(label: Text(kindLabelIn(context.l10n, t.kind)))),
             if (t.description.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text(t.description,
+              Text(t.descriptionIn(context.l10n),
                   textAlign: TextAlign.center, style: text.bodyLarge),
             ],
             const SizedBox(height: 16),

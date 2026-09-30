@@ -13,6 +13,7 @@ import 'archive_screen.dart';
 import 'detail_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'template_text.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -82,7 +83,7 @@ class TodayScreen extends StatelessWidget {
     await repository.finish(c.id);
     await scheduler?.cancel(c);
     messenger.showSnackBar(SnackBar(
-      content: Text(l10n.todayFinishedSnack(c.template.title)),
+      content: Text(l10n.todayFinishedSnack(c.template.titleIn(l10n))),
       action: SnackBarAction(
         label: l10n.commonUndo,
         onPressed: () async {
@@ -98,7 +99,8 @@ class TodayScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.l10n.deleteChallengeTitle),
-        content: Text(context.l10n.todayDeleteMessage(c.template.title)),
+        content: Text(context.l10n
+            .todayDeleteMessage(c.template.titleIn(context.l10n))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -303,7 +305,7 @@ class ChallengeCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text(formatWeekdayDate(day)),
+              title: Text(formatWeekdayDate(context.l10n, day)),
               subtitle: Text(context.l10n.correctSubtitle),
             ),
             ListTile(
@@ -415,7 +417,8 @@ class ChallengeCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(challenge.template.title, style: text.titleMedium),
+                      Text(challenge.template.titleIn(context.l10n),
+                          style: text.titleMedium),
                       const SizedBox(height: 4),
                       Wrap(
                         spacing: 12,
@@ -501,7 +504,7 @@ class ChallengeCard extends StatelessWidget {
             ),
             if (challenge.template.steps.isNotEmpty && !paused)
               _Checklist(
-                steps: challenge.template.steps,
+                steps: challenge.template.stepsIn(context.l10n),
                 done: challenge.stepsDoneOn(today),
                 onToggle: (i) => onSave(challenge.toggleStep(today, i)),
               ),
@@ -520,7 +523,8 @@ class ChallengeCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        context.l10n.pausedUntil(formatDate(pausedUntil)),
+                        context.l10n
+                            .pausedUntil(formatDate(context.l10n, pausedUntil)),
                         style: text.titleSmall,
                       ),
                     ),
@@ -801,8 +805,8 @@ class _Dot extends StatelessWidget {
     return Semantics(
       button: enabled,
       label: planned
-          ? context.l10n.plannedDay(formatWeekdayDate(day))
-          : formatWeekdayDate(day),
+          ? context.l10n.plannedDay(formatWeekdayDate(context.l10n, day))
+          : formatWeekdayDate(context.l10n, day),
       child: InkResponse(
         radius: 22,
         onTap: enabled ? () => onTap(day) : null,

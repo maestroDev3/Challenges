@@ -214,7 +214,7 @@ class _RestoreDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final date = formatDate(summary.exportedAt.toLocal(), withYear: true);
+    final date = formatDate(l10n, summary.exportedAt.toLocal(), withYear: true);
     return AlertDialog(
       title: Text(l10n.backupRestoreQuestion),
       content: Text(

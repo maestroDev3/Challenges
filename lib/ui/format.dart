@@ -1,23 +1,25 @@
-/// Datum als „06.10.“ bzw. „06.10.2026“ (ohne intl-Paket).
-String formatDate(DateTime d, {bool withYear = false}) {
-  String two(int n) => n.toString().padLeft(2, '0');
-  final base = '${two(d.day)}.${two(d.month)}.';
-  return withYear ? '$base${d.year}' : base;
-}
+import '../l10n/app_localizations.dart';
 
-const _weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+String _two(int n) => n.toString().padLeft(2, '0');
+
+/// Datum als „06.10.“ bzw. „06.10.2026“ – Reihenfolge und Trenner je Sprache
+/// (ohne intl-Datumsdaten).
+String formatDate(AppLocalizations l10n, DateTime d, {bool withYear = false}) =>
+    withYear
+        ? l10n.dateWithYear(_two(d.day), _two(d.month), '${d.year}')
+        : l10n.dateShort(_two(d.day), _two(d.month));
+
+/// Kurzer Wochentag, 1 = Montag.
+String weekdayShort(AppLocalizations l10n, int weekday) =>
+    l10n.weekdayShort('$weekday');
 
 /// Kurzer Wochentag mit Datum, z. B. „Sa, 24.10.“.
-String formatWeekdayDate(DateTime d) =>
-    '${_weekdays[d.weekday - 1]}, ${formatDate(d)}';
-
-const _months = [
-  'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
-];
+String formatWeekdayDate(AppLocalizations l10n, DateTime d) =>
+    '${weekdayShort(l10n, d.weekday)}, ${formatDate(l10n, d)}';
 
 /// Monat mit Jahr, z. B. „Oktober 2026“.
-String formatMonth(DateTime d) => '${_months[d.month - 1]} ${d.year}';
+String formatMonth(AppLocalizations l10n, DateTime d) =>
+    '${l10n.monthName('${d.month}')} ${d.year}';
 
 /// Restzeit als „13:22“ (Stunden:Minuten).
 String formatRemaining(Duration d) {

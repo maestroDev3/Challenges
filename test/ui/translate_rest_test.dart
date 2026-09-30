@@ -35,7 +35,7 @@ void main() {
     );
     expect(find.text('Discover'), findsWidgets);
     expect(find.text('Custom challenge'), findsOneWidget);
-    await tester.tap(find.text('Um 5 Uhr aufstehen'));
+    await tester.tap(find.text('Wake up at 5 am'));
     await tester.pumpAndSettle();
     expect(find.text('Start challenge'), findsOneWidget);
     expect(find.text('Reminder'), findsOneWidget);
