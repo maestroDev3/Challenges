@@ -46,19 +46,15 @@ Future<void> pumpBackup(
     ));
 
 void main() {
-  testWidgets('„Heute“ öffnet über ⋮ die Seite „Daten sichern“', (tester) async {
+  testWidgets('„Heute“ hat kein ⋮-Menü mehr (Daten sichern liegt in den Einstellungen)',
+      (tester) async {
     await tester.pumpApp(TodayScreen(
       repository: FakeChallengeRepository(),
       onDiscover: () {},
       clock: () => now,
-      backupFiles: FakeBackupFiles(),
     ));
-    await tester.tap(find.byTooltip('Weitere Optionen'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Daten sichern'));
-    await tester.pumpAndSettle();
-    expect(find.text('Backup speichern'), findsOneWidget);
-    expect(find.textContaining('nur auf diesem Handy'), findsOneWidget);
+    expect(find.byTooltip('Weitere Optionen'), findsNothing);
+    expect(find.text('Daten sichern'), findsNothing);
   });
 
   testWidgets('Backup speichern schreibt eine JSON-Datei mit Datum im Namen',
