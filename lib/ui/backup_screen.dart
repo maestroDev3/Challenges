@@ -8,7 +8,9 @@ import '../domain/challenge_repository.dart';
 import '../domain/csv_export.dart';
 import '../domain/reminders.dart';
 import '../domain/store_codec.dart';
+import '../l10n/app_localizations.dart';
 import 'format.dart';
+import 'l10n.dart';
 
 /// Sichern, Exportieren und Wiederherstellen aller Daten. Die Daten liegen nur
 /// auf dem Handy – diese Seite ist der Weg, sie bei Verlust oder Handywechsel
@@ -44,11 +46,13 @@ class _BackupScreenState extends State<BackupScreen> {
     );
   }
 
-  void _show(String message) {
+  /// Zeigt eine Meldung; der Text wird erst nach der `mounted`-Prüfung aus
+  /// den Sprachpaketen geholt.
+  void _show(String Function(AppLocalizations l10n) message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(SnackBar(content: Text(message(context.l10n))));
   }
 
   /// Führt [action] aus, sperrt solange die Knöpfe und meldet Dateifehler.
@@ -58,7 +62,7 @@ class _BackupScreenState extends State<BackupScreen> {
     try {
       await action();
     } on PlatformException {
-      _show('Die Datei konnte nicht gelesen oder geschrieben werden.');
+      _show((l10n) => l10n.backupFileError);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -71,7 +75,7 @@ class _BackupScreenState extends State<BackupScreen> {
           mimeType: 'application/json',
           content: encodeBackup(await _currentStore(), exportedAt: now),
         );
-        if (saved) _show('Backup gespeichert');
+        if (saved) _show((l10n) => l10n.backupSaved);
       });
 
   Future<void> _exportCsv() => _run(() async {
@@ -80,7 +84,7 @@ class _BackupScreenState extends State<BackupScreen> {
           mimeType: 'text/csv',
           content: exportCsv(await _currentStore()),
         );
-        if (saved) _show('Tabelle gespeichert');
+        if (saved) _show((l10n) => l10n.tableSaved);
       });
 
   Future<void> _restore() => _run(() async {
@@ -90,7 +94,7 @@ class _BackupScreenState extends State<BackupScreen> {
         try {
           summary = describeBackup(content);
         } on FormatException {
-          _show('Diese Datei ist kein gültiges Ritual-Backup.');
+          _show((l10n) => l10n.backupInvalid);
           return;
         }
         final confirmed = await showDialog<bool>(
@@ -99,7 +103,7 @@ class _BackupScreenState extends State<BackupScreen> {
         );
         if (confirmed != true) return;
         await restoreBackup(widget.repository, widget.scheduler, content);
-        _show('Backup wiederhergestellt');
+        _show((l10n) => l10n.backupRestored);
       });
 
   @override
@@ -109,7 +113,7 @@ class _BackupScreenState extends State<BackupScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar.large(title: Text('Daten sichern')),
+          SliverAppBar.large(title: Text(context.l10n.backupTitle)),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
             sliver: SliverList.list(
@@ -124,10 +128,7 @@ class _BackupScreenState extends State<BackupScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Deine Daten liegen nur auf diesem Handy. '
-                            'Speichere regelmäßig ein Backup, z. B. in Google '
-                            'Drive – so ist bei Verlust oder Handywechsel '
-                            'nichts verloren.',
+                            context.l10n.backupOnlyOnPhone,
                             style: text.bodyMedium,
                           ),
                         ),
@@ -137,33 +138,30 @@ class _BackupScreenState extends State<BackupScreen> {
                 ),
                 const SizedBox(height: 16),
                 _Section(
-                  title: 'Sichern',
-                  description: 'Alle Challenges, Check-ins und eigenen Vorlagen '
-                      'in einer Datei. Du wählst selbst, wo sie landet.',
+                  title: context.l10n.backupSectionSave,
+                  description: context.l10n.backupSectionSaveHint,
                   child: FilledButton.icon(
                     onPressed: _busy ? null : _saveBackup,
                     icon: const Icon(Icons.save_alt),
-                    label: const Text('Backup speichern'),
+                    label: Text(context.l10n.backupSave),
                   ),
                 ),
                 _Section(
-                  title: 'Exportieren',
-                  description: 'Alle Check-ins als Tabelle, z. B. für Excel '
-                      'oder Google Sheets. Nicht zum Wiederherstellen.',
+                  title: context.l10n.backupSectionExport,
+                  description: context.l10n.backupSectionExportHint,
                   child: OutlinedButton.icon(
                     onPressed: _busy ? null : _exportCsv,
                     icon: const Icon(Icons.table_chart_outlined),
-                    label: const Text('Als Tabelle exportieren (CSV)'),
+                    label: Text(context.l10n.backupExportCsv),
                   ),
                 ),
                 _Section(
-                  title: 'Wiederherstellen',
-                  description: 'Ersetzt deinen aktuellen Stand komplett durch '
-                      'den Stand aus einer Backup-Datei.',
+                  title: context.l10n.backupSectionRestore,
+                  description: context.l10n.backupSectionRestoreHint,
                   child: OutlinedButton.icon(
                     onPressed: _busy ? null : _restore,
                     icon: const Icon(Icons.restore),
-                    label: const Text('Backup wiederherstellen'),
+                    label: Text(context.l10n.backupRestore),
                   ),
                 ),
               ],
@@ -215,26 +213,26 @@ class _RestoreDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String count(int n, String one, String many) => '$n ${n == 1 ? one : many}';
+    final l10n = context.l10n;
     final date = formatDate(summary.exportedAt.toLocal(), withYear: true);
     return AlertDialog(
-      title: const Text('Backup wiederherstellen?'),
+      title: Text(l10n.backupRestoreQuestion),
       content: Text(
-        'Gesichert am $date:\n'
-        '• ${count(summary.active, 'laufende Challenge', 'laufende Challenges')}\n'
-        '• ${count(summary.archived, 'abgeschlossene Challenge', 'abgeschlossene Challenges')}\n'
-        '• ${count(summary.templates, 'eigene Vorlage', 'eigene Vorlagen')}\n\n'
-        'Dein aktueller Stand wird dabei vollständig ersetzt.',
+        '${l10n.backupSavedOn(date)}\n'
+        '• ${l10n.backupCountActive(summary.active)}\n'
+        '• ${l10n.backupCountArchived(summary.archived)}\n'
+        '• ${l10n.backupCountTemplates(summary.templates)}\n\n'
+        '${l10n.backupReplaceWarning}',
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Abbrechen'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
           onPressed: () => Navigator.pop(context, true),
-          child: const Text('Ersetzen'),
+          child: Text(context.l10n.backupReplace),
         ),
       ],
     );

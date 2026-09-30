@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/profile.dart';
 import '../domain/settings.dart';
+import 'l10n.dart';
 import 'theme.dart';
 
 /// Profil mit Name und Übersicht über alle Challenges.
@@ -32,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
             actions: [
               if (onOpenSettings case final open?)
                 IconButton(
-                  tooltip: 'Einstellungen',
+                  tooltip: context.l10n.settingsTitle,
                   icon: const Icon(Icons.settings_outlined),
                   onPressed: open,
                 ),
@@ -46,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
                 builder: (context, snapshot) {
                   final name = snapshot.data?.name.trim() ?? '';
                   return Text(
-                    name.isEmpty ? 'Dein Profil' : name,
+                    name.isEmpty ? context.l10n.profileDefaultName : name,
                     style: text.displaySmall,
                   );
                 },
@@ -76,9 +77,7 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(height: 24),
                       if (stats.isEmpty)
                         Text(
-                          'Noch keine Challenges – starte deine erste unter '
-                          '„Entdecken“. Hier siehst du dann, was du schon '
-                          'geschafft hast.',
+                          context.l10n.profileEmpty,
                           style: text.bodyLarge,
                         )
                       else
@@ -86,14 +85,21 @@ class ProfileScreen extends StatelessWidget {
                           spacing: 12,
                           runSpacing: 12,
                           children: [
-                            _Stat(label: 'Laufend', value: stats.running),
-                            _Stat(label: 'Geschafft', value: stats.completed),
                             _Stat(
-                                label: 'Tage erledigt', value: stats.doneDays),
+                                label: context.l10n.statRunning,
+                                value: stats.running),
                             _Stat(
-                                label: 'Längste Streak',
+                                label: context.l10n.statCompleted,
+                                value: stats.completed),
+                            _Stat(
+                                label: context.l10n.statDaysDone,
+                                value: stats.doneDays),
+                            _Stat(
+                                label: context.l10n.statLongestStreak,
                                 value: stats.longestStreak),
-                            _Stat(label: 'Abzeichen', value: stats.badges),
+                            _Stat(
+                                label: context.l10n.badgesTitle,
+                                value: stats.badges),
                           ],
                         ),
                     ],

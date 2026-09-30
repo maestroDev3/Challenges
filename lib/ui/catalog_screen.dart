@@ -5,6 +5,7 @@ import '../domain/catalog.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import 'editor_screen.dart';
+import 'l10n.dart';
 import 'rule_selector.dart';
 import 'theme.dart';
 
@@ -46,7 +47,7 @@ class CatalogScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(context),
         icon: const Icon(Icons.add),
-        label: const Text('Eigene Challenge'),
+        label: Text(context.l10n.customChallenge),
       ),
       body: StreamBuilder<ChallengeStore>(
         stream: repository.watchStore(),
@@ -61,14 +62,14 @@ class CatalogScreen extends StatelessWidget {
               );
           return CustomScrollView(
             slivers: [
-              const SliverAppBar.large(title: Text('Entdecken')),
+              SliverAppBar.large(title: Text(context.l10n.navDiscover)),
               if (custom.isNotEmpty) ...[
-                const _SectionHeader('Meine Challenges'),
+                _SectionHeader(context.l10n.catalogMine),
                 SliverList.builder(
                   itemCount: custom.length,
                   itemBuilder: (context, i) => card(custom[i]),
                 ),
-                const _SectionHeader('Vorlagen'),
+                _SectionHeader(context.l10n.catalogTemplates),
               ],
               SliverList.builder(
                 itemCount: challengeCatalog.length,
@@ -116,17 +117,17 @@ class CatalogScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Vorlage löschen?'),
-        content: Text('„${t.title}“ wird endgültig gelöscht.'),
+        title: Text(context.l10n.deleteTemplateTitle),
+        content: Text(context.l10n.deleteTemplateMessage(t.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Löschen'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -136,8 +137,8 @@ class CatalogScreen extends StatelessWidget {
       await repository.deleteTemplate(t.id);
     } on StateError {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Läuft gerade – schließ die Challenge zuerst ab.'),
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(context.l10n.templateInUse),
       ));
     }
   }
@@ -199,7 +200,7 @@ class _TemplateCard extends StatelessWidget {
               ),
               if (running)
                 Chip(
-                  label: const Text('läuft'),
+                  label: Text(context.l10n.runningChip),
                   backgroundColor: scheme.secondaryContainer,
                   visualDensity: VisualDensity.compact,
                 ),
@@ -280,7 +281,7 @@ class _StartSheetState extends State<_StartSheet> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notifications_active_outlined),
-              title: const Text('Erinnerung'),
+              title: Text(context.l10n.reminderLabel),
               trailing: Text(_reminder.toString(), style: text.titleMedium),
               onTap: widget.running ? null : _pickTime,
             ),
@@ -295,7 +296,9 @@ class _StartSheetState extends State<_StartSheet> {
             const SizedBox(height: 16),
             FilledButton(
               onPressed: widget.running || _busy ? null : _start,
-              child: Text(widget.running ? 'Läuft bereits' : 'Challenge starten'),
+              child: Text(widget.running
+                  ? context.l10n.alreadyRunning
+                  : context.l10n.startChallenge),
             ),
             if (widget.onEdit != null || widget.onDelete != null) ...[
               const SizedBox(height: 8),
@@ -306,13 +309,13 @@ class _StartSheetState extends State<_StartSheet> {
                     TextButton.icon(
                       onPressed: onEdit,
                       icon: const Icon(Icons.edit_outlined),
-                      label: const Text('Bearbeiten'),
+                      label: Text(context.l10n.commonEdit),
                     ),
                   if (widget.onDelete case final onDelete?)
                     TextButton.icon(
                       onPressed: onDelete,
                       icon: const Icon(Icons.delete_outline),
-                      label: const Text('Löschen'),
+                      label: Text(context.l10n.commonDelete),
                     ),
                 ],
               ),

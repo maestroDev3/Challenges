@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../domain/active_challenge.dart';
+import '../l10n/app_localizations.dart';
+import 'l10n.dart';
 
 /// Auswahl der Regel für Fehltage mit kurzer Erklärung.
 class RuleSelector extends StatelessWidget {
@@ -17,12 +19,11 @@ class RuleSelector extends StatelessWidget {
   /// Nur diese Regeln werden angeboten (siehe `allowedRules`).
   final Set<StreakRule> allowed;
 
-  static String explain(StreakRule rule) => switch (rule) {
-        StreakRule.relaxed => 'Ein Fehltag setzt nur die Streak auf 0.',
-        StreakRule.joker =>
-          'Alle 7 Tage am Stück gibt es einen Joker 🛡️ (max. 2). Er rettet die Streak bei einem Fehltag.',
-        StreakRule.strict =>
-          'Ein Fehltag bedeutet Neustart bei Tag 1 – wie bei 75 Hard.',
+  static String explain(AppLocalizations l10n, StreakRule rule) =>
+      switch (rule) {
+        StreakRule.relaxed => l10n.ruleRelaxedExplain,
+        StreakRule.joker => l10n.ruleJokerExplain,
+        StreakRule.strict => l10n.ruleStrictExplain,
       };
 
   @override
@@ -32,10 +33,10 @@ class RuleSelector extends StatelessWidget {
       children: [
         SegmentedButton<StreakRule>(
           segments: [
-            for (final (rule, label) in const [
-              (StreakRule.relaxed, 'Locker'),
-              (StreakRule.joker, 'Joker'),
-              (StreakRule.strict, 'Hart'),
+            for (final (rule, label) in [
+              (StreakRule.relaxed, context.l10n.ruleRelaxed),
+              (StreakRule.joker, context.l10n.joker),
+              (StreakRule.strict, context.l10n.ruleStrict),
             ])
               if (allowed.contains(rule))
                 ButtonSegment(value: rule, label: Text(label)),
@@ -46,7 +47,7 @@ class RuleSelector extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          explain(value),
+          explain(context.l10n, value),
           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
