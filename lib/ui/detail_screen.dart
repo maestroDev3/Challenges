@@ -4,9 +4,9 @@ import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
 import '../domain/milestones.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/template_text.dart';
 import 'format.dart';
 import 'l10n.dart';
-import 'template_text.dart';
 import 'theme.dart';
 
 /// Rückblick auf eine Challenge: Kennzahlen, Monatskalender, Journal.

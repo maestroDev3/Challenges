@@ -4,9 +4,9 @@ import '../domain/active_challenge.dart';
 import '../domain/catalog.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
+import '../l10n/template_text.dart';
 import 'editor_screen.dart';
 import 'l10n.dart';
-import 'template_text.dart';
 import 'rule_selector.dart';
 import 'theme.dart';
 

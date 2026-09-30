@@ -4,10 +4,10 @@ import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/milestones.dart';
 import '../domain/reminders.dart';
+import '../l10n/template_text.dart';
 import 'detail_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
-import 'template_text.dart';
 import 'theme.dart';
 
 /// Abgeschlossene und beendete Challenges mit Rückblick.

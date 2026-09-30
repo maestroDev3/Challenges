@@ -1,4 +1,5 @@
 import 'package:challenges/domain/active_challenge.dart';
+import 'package:challenges/domain/catalog.dart';
 import 'package:challenges/ui/home_shell.dart';
 import 'package:challenges/ui/settings_screen.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_backup_files.dart';
 import '../support/fake_repository.dart';
+import '../support/fake_scheduler.dart';
 import '../support/fake_settings_repository.dart';
 import '../support/pump_app.dart';
 
@@ -92,5 +94,29 @@ void main() {
     await tester.tap(find.text('Daten sichern'));
     await tester.pumpAndSettle();
     expect(find.text('Backup speichern'), findsOneWidget);
+  });
+
+  testWidgets('Sprachwechsel plant die Erinnerungen mit neuem Text neu',
+      (tester) async {
+    final repo = FakeChallengeRepository(initial: [
+      ActiveChallenge(
+        id: 'wake',
+        template: templateById('wake-5am')!,
+        startedOn: DateTime(2026, 10, 1),
+        reminder: const ReminderTime(5, 0),
+      ),
+    ]);
+    final scheduler = FakeReminderScheduler();
+    await tester.pumpApp(SettingsScreen(
+      settings: FakeSettingsRepository(),
+      repository: repo,
+      scheduler: scheduler,
+      clock: () => now,
+    ));
+    await tester.tap(find.text('Sprache'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('English'));
+    await tester.pumpAndSettle();
+    expect(scheduler.scheduled, {'wake'});
   });
 }

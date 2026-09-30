@@ -9,6 +9,7 @@ import '../domain/csv_export.dart';
 import '../domain/reminders.dart';
 import '../domain/store_codec.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/background_texts.dart';
 import 'format.dart';
 import 'l10n.dart';
 
@@ -79,10 +80,11 @@ class _BackupScreenState extends State<BackupScreen> {
       });
 
   Future<void> _exportCsv() => _run(() async {
+        final texts = csvTextsFor(context.l10n);
         final saved = await widget.files.save(
           name: exportFileName(widget.clock()),
           mimeType: 'text/csv',
-          content: exportCsv(await _currentStore()),
+          content: exportCsv(await _currentStore(), texts: texts),
         );
         if (saved) _show((l10n) => l10n.tableSaved);
       });

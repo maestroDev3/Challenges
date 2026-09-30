@@ -1,6 +1,6 @@
 import '../domain/challenge.dart';
-import '../l10n/app_localizations.dart';
-import 'format.dart';
+import 'app_localizations.dart';
+import 'dates.dart';
 
 /// Anzeige-Texte einer Vorlage in der gewählten Sprache. Gespeichert bleibt
 /// immer der deutsche Text; Katalog-Vorlagen werden über ihre ID übersetzt,

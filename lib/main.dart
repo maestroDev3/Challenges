@@ -6,6 +6,7 @@ import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/android_backup_files.dart';
+import 'data/app_texts.dart';
 import 'data/home_widget_updater.dart';
 import 'data/local_challenge_repository.dart';
 import 'data/local_notification_scheduler.dart';
@@ -15,12 +16,13 @@ import 'domain/reminders.dart';
 import 'domain/widget_data.dart';
 import 'ui/app.dart';
 
-const WidgetUpdater _widget = HomeWidgetUpdater();
-
-/// Hält das Homescreen-Widget aktuell; Fehler (z. B. kein Widget) sind egal.
-Future<void> _refreshWidget(ChallengeRepository repository) async {
+/// Hält das Homescreen-Widget aktuell (in der gewählten Sprache); Fehler
+/// (z. B. kein Widget) sind egal.
+Future<void> _refreshWidget(
+    ChallengeRepository repository, SharedPreferences prefs) async {
   try {
-    await _widget.update(await repository.active(), DateTime.now());
+    final WidgetUpdater widget = HomeWidgetUpdater(() => loadAppTexts(prefs));
+    await widget.update(await repository.active(), DateTime.now());
   } on Object catch (_) {
     // Widget ist optional – die App funktioniert ohne.
   }
@@ -45,13 +47,14 @@ Future<void> onNotificationActionInBackground(NotificationResponse r) async {
     final scheduler = await LocalNotificationScheduler.create(
       onResponse: (_) {},
       onBackgroundResponse: onNotificationActionInBackground,
+      texts: () => loadAppTexts(prefs),
       askPermissions: false,
     );
     await _reschedule(repository, scheduler, r.payload);
   } on Object catch (_) {
     // Beim nächsten App-Start wird ohnehin neu geplant.
   }
-  await _refreshWidget(repository);
+  await _refreshWidget(repository, prefs);
 }
 
 Future<void> _reschedule(
@@ -72,7 +75,7 @@ Future<void> onWidgetTapped(Uri? uri) async {
   final prefs = await SharedPreferences.getInstance();
   final repository = LocalChallengeRepository(prefs);
   await handleWidgetTap(repository, uri, now: DateTime.now());
-  await _refreshWidget(repository);
+  await _refreshWidget(repository, prefs);
 }
 
 Future<void> main() async {
@@ -93,14 +96,17 @@ Future<void> main() async {
       await _reschedule(repository, scheduler, r.payload);
     },
     onBackgroundResponse: onNotificationActionInBackground,
+    texts: () => loadAppTexts(prefs),
   );
   await syncReminders(repository, scheduler, now: DateTime.now());
 
   await HomeWidget.registerInteractivityCallback(onWidgetTapped);
-  repository.watch().listen((_) => _refreshWidget(repository));
+  repository.watch().listen((_) => _refreshWidget(repository, prefs));
 
   final settings = LocalSettingsRepository(prefs);
   final initialSettings = await settings.load();
+  // Sprachwechsel: Widget-Texte sofort anpassen.
+  settings.watch().skip(1).listen((_) => _refreshWidget(repository, prefs));
 
   runApp(ChallengesApp(
     repository: repository,

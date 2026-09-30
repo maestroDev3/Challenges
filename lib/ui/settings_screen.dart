@@ -58,6 +58,12 @@ class SettingsScreen extends StatelessWidget {
     await settings.save(choice.language == null
         ? current.copyWith(clearLanguage: true)
         : current.copyWith(language: choice.language));
+    // Erinnerungen tragen Text – mit der neuen Sprache neu planen.
+    if (scheduler case final scheduler?) {
+      for (final challenge in await repository.active()) {
+        await scheduler.schedule(challenge);
+      }
+    }
   }
 
   @override
