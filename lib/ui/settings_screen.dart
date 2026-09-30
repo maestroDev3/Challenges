@@ -64,7 +64,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Einstellungen')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: StreamBuilder<AppSettings>(
         stream: settings.watch(),
         builder: (context, snapshot) {
@@ -74,37 +74,34 @@ class SettingsScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.only(bottom: 32),
             children: [
-              const _SectionTitle('Profil'),
+              _SectionTitle(context.l10n.navProfile),
               ListTile(
                 leading: const Icon(Icons.badge_outlined),
-                title: const Text('Name'),
-                subtitle: Text(
-                    current.name.isEmpty ? 'Nicht gesetzt' : current.name),
+                title: Text(context.l10n.settingsName),
+                subtitle: Text(current.name.isEmpty
+                    ? context.l10n.settingsNameNotSet
+                    : current.name),
                 onTap: () => _editName(context, current),
               ),
-              const _SectionTitle('Erinnerungen'),
+              _SectionTitle(context.l10n.settingsReminders),
               ListTile(
                 leading: const Icon(Icons.alarm),
-                title: const Text('Uhrzeit für neue Challenges'),
+                title: Text(context.l10n.settingsNewChallengeTime),
                 subtitle: Text(reminder == null
-                    ? 'Je nach Challenge'
+                    ? context.l10n.settingsPerChallenge
                     : reminder.toString()),
                 trailing: reminder == null
                     ? null
                     : IconButton(
-                        tooltip: 'Zurücksetzen',
+                        tooltip: context.l10n.settingsReset,
                         icon: const Icon(Icons.close),
                         onPressed: () => settings.save(
                             current.copyWith(clearDefaultReminder: true)),
                       ),
                 onTap: () => _pickReminder(context, current),
               ),
-              const _Hint(
-                'Wird beim Starten einer neuen Challenge vorgeschlagen, wenn '
-                'die Challenge keine eigene Uhrzeit hat. Laufende Challenges '
-                'behalten ihre Uhrzeit – die änderst du über „Anpassen“.',
-              ),
-              const _SectionTitle('App'),
+              _Hint(context.l10n.settingsNewChallengeTimeHint),
+              _SectionTitle(context.l10n.settingsApp),
               ListTile(
                 leading: const Icon(Icons.translate),
                 title: Text(context.l10n.settingsLanguage),
@@ -116,18 +113,18 @@ class SettingsScreen extends StatelessWidget {
               ),
               SwitchListTile(
                 secondary: const Icon(Icons.auto_awesome_outlined),
-                title: const Text('Intro beim Start zeigen'),
-                subtitle: const Text('Leitsatz beim Öffnen der App'),
+                title: Text(context.l10n.settingsShowIntro),
+                subtitle: Text(context.l10n.settingsShowIntroHint),
                 value: current.showIntro,
                 onChanged: (value) =>
                     settings.save(current.copyWith(showIntro: value)),
               ),
               if (backupFiles case final files?) ...[
-                const _SectionTitle('Daten'),
+                _SectionTitle(context.l10n.settingsData),
                 ListTile(
                   leading: Icon(Icons.save_outlined, color: scheme.primary),
-                  title: const Text('Daten sichern'),
-                  subtitle: const Text('Backup, Export, Wiederherstellen'),
+                  title: Text(context.l10n.backupTitle),
+                  subtitle: Text(context.l10n.settingsBackupHint),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
@@ -235,23 +232,24 @@ class _NameDialogState extends State<_NameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Name'),
+      title: Text(context.l10n.settingsName),
       content: TextField(
         controller: _controller,
         autofocus: true,
         textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(hintText: 'Wie sollen wir dich nennen?'),
+        decoration:
+            InputDecoration(hintText: context.l10n.settingsNameHint),
         onSubmitted: (value) => Navigator.pop(context, value),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Abbrechen'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
           onPressed: () => Navigator.pop(context, _controller.text),
-          child: const Text('Speichern'),
+          child: Text(context.l10n.commonSave),
         ),
       ],
     );

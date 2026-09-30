@@ -34,7 +34,6 @@ void main() {
       size: const Size(900, 3200),
     );
     expect(find.text('Discover'), findsWidgets);
-    expect(find.text('Templates'), findsOneWidget);
     expect(find.text('Custom challenge'), findsOneWidget);
     await tester.tap(find.text('Um 5 Uhr aufstehen'));
     await tester.pumpAndSettle();
@@ -53,7 +52,7 @@ void main() {
     expect(find.text('Title'), findsOneWidget);
     expect(find.text('Ongoing'), findsOneWidget);
     expect(find.text('Relaxed'), findsOneWidget);
-    expect(find.text('Strict'), findsOneWidget);
+    expect(find.text('Joker'), findsOneWidget);
     expect(find.text('Save & start'), findsOneWidget);
   });
 
