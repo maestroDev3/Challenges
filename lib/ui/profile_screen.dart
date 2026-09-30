@@ -81,9 +81,7 @@ class ProfileScreen extends StatelessWidget {
                           style: text.bodyLarge,
                         )
                       else
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
+                        _StatGrid(
                           children: [
                             _Stat(
                                 label: context.l10n.statRunning,
@@ -114,6 +112,44 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+/// Kacheln in Reihen zu je drei; alle gleich breit, eine Reihe gleich hoch.
+class _StatGrid extends StatelessWidget {
+  const _StatGrid({required this.children});
+
+  static const _columns = 3;
+  static const _gap = 12.0;
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = [
+      for (var i = 0; i < children.length; i += _columns)
+        children.sublist(i, (i + _columns).clamp(0, children.length)),
+    ];
+    return Column(
+      children: [
+        for (final (index, row) in rows.indexed) ...[
+          if (index > 0) const SizedBox(height: _gap),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var c = 0; c < _columns; c++) ...[
+                  if (c > 0) const SizedBox(width: _gap),
+                  Expanded(
+                    child: c < row.length ? row[c] : const SizedBox.shrink(),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class _Stat extends StatelessWidget {
   const _Stat({required this.label, required this.value});
 
@@ -125,8 +161,8 @@ class _Stat extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     return Container(
-      constraints: const BoxConstraints(minWidth: 140),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      key: const ValueKey('stat-tile'),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
