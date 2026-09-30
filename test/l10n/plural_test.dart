@@ -25,4 +25,11 @@ void main() {
       expect(ru.daysCount(21), '21 день');
     });
   });
+
+  test('Russisch: Anzahlen in der Backup-Abfrage', () {
+    final ru = lookupAppLocalizations(const Locale('ru'));
+    expect(ru.backupCountActive(1), '1 активный челлендж');
+    expect(ru.backupCountActive(3), '3 активных челленджа');
+    expect(ru.backupCountActive(5), '5 активных челленджей');
+  });
 }
