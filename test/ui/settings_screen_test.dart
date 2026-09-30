@@ -1,5 +1,4 @@
 import 'package:challenges/domain/active_challenge.dart';
-import 'package:challenges/domain/settings.dart';
 import 'package:challenges/ui/home_shell.dart';
 import 'package:challenges/ui/settings_screen.dart';
 import 'package:flutter/material.dart';
