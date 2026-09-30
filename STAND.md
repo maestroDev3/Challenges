@@ -4,19 +4,19 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-09-29
+**Zuletzt aktualisiert:** 2026-09-30
 
 ## In Arbeit
 
-- #78 Profil und Einstellungen (Epic #80) – eigener Tab „Profil“, Einstellungen über
-  Zahnrad, „Daten sichern“ zieht dorthin um.
-  Tasks: #99 Einstellungen speichern (Branch grün, PR fehlt) · #100 Tab „Profil“
-  (Code fertig, CI noch nicht gelaufen) · #101 Seite „Einstellungen“ · #102 Einstellungen wirken.
-  **Blockiert:** GitHub Actions startet keine Jobs (Zahlung/Ausgabenlimit).
+- #78 Profil und Einstellungen (Epic #80) – Branch `epic/profil-einstellungen`, alle Tasks
+  erledigt (#99, #100, #101, #102). Wartet auf: Test der APK (Release „test“) durch den
+  Nutzer, dann Merge nach `main`.
+  Entscheidungen: eigener Tab „Profil“, Einstellungen über Zahnrad; „Daten sichern“ nur
+  noch in den Einstellungen.
 
 ## Als Nächstes
 
-- Actions-Abrechnung klären, dann #78 fortsetzen
+- Nach Merge von #78: #79 Sprache wählbar (DE/EN/RU) – Entscheidung zu gen-l10n nötig
 
 ## Backlog nach Epic
 
