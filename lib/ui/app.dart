@@ -16,12 +16,16 @@ class ChallengesApp extends StatelessWidget {
     this.scheduler,
     this.backupFiles,
     this.settings,
+    this.showIntro = true,
   });
 
   final ChallengeRepository repository;
   final ReminderScheduler? scheduler;
   final BackupFiles? backupFiles;
   final SettingsRepository? settings;
+
+  /// Intro mit Leitsatz beim Start; aus den Einstellungen (in `main` geladen).
+  final bool showIntro;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,7 @@ class ChallengesApp extends StatelessWidget {
       supportedLocales: const [Locale('de')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: _IntroGate(
+        showIntro: showIntro,
         child: HomeShell(
           repository: repository,
           scheduler: scheduler,
@@ -48,7 +53,9 @@ class ChallengesApp extends StatelessWidget {
 
 /// Zeigt einmal pro Start das Intro und blendet dann in die App über.
 class _IntroGate extends StatefulWidget {
-  const _IntroGate({required this.child});
+  const _IntroGate({required this.child, required this.showIntro});
+
+  final bool showIntro;
 
   final Widget child;
 
@@ -57,7 +64,7 @@ class _IntroGate extends StatefulWidget {
 }
 
 class _IntroGateState extends State<_IntroGate> {
-  bool _introDone = false;
+  late bool _introDone = !widget.showIntro;
 
   @override
   Widget build(BuildContext context) {

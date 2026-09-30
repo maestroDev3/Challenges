@@ -16,9 +16,13 @@ class CatalogScreen extends StatelessWidget {
     required this.repository,
     this.onStarted,
     this.clock = DateTime.now,
+    this.defaultReminder,
   });
 
   final ChallengeRepository repository;
+
+  /// Standard-Erinnerung aus den Einstellungen für Vorlagen ohne eigene Uhrzeit.
+  final ReminderTime? defaultReminder;
 
   /// Wird nach dem Start aufgerufen (z. B. um die Erinnerung zu planen).
   final ChallengeStarted? onStarted;
@@ -31,6 +35,7 @@ class CatalogScreen extends StatelessWidget {
         initial: initial,
         clock: clock,
         onStarted: onStarted,
+        defaultReminder: defaultReminder,
       ),
     ));
   }
@@ -86,6 +91,7 @@ class CatalogScreen extends StatelessWidget {
       builder: (sheetContext) => _StartSheet(
         template: t,
         running: running,
+        defaultReminder: defaultReminder,
         onStart: (reminder, rule) async {
           final c = await repository.start(t, reminder, rule: rule);
           await onStarted?.call(c);
@@ -212,10 +218,12 @@ class _StartSheet extends StatefulWidget {
     required this.onStart,
     this.onEdit,
     this.onDelete,
+    this.defaultReminder,
   });
 
   final ChallengeTemplate template;
   final bool running;
+  final ReminderTime? defaultReminder;
   final Future<void> Function(ReminderTime reminder, StreakRule rule) onStart;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -225,7 +233,8 @@ class _StartSheet extends StatefulWidget {
 }
 
 class _StartSheetState extends State<_StartSheet> {
-  late ReminderTime _reminder = defaultReminderFor(widget.template.id);
+  late ReminderTime _reminder = defaultReminderFor(widget.template.id,
+      fallback: widget.defaultReminder);
   StreakRule _rule = StreakRule.relaxed;
   bool _busy = false;
 
