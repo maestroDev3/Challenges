@@ -4,19 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../domain/active_challenge.dart';
-import '../domain/backup_files.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/milestones.dart';
 import '../domain/reminders.dart';
 import 'adjust_sheet.dart';
 import 'archive_screen.dart';
-import 'backup_screen.dart';
 import 'detail_screen.dart';
 import 'format.dart';
-
-/// Einträge im ⋮-Menü von „Heute“.
-enum _TodayMenu { backup }
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -26,7 +21,6 @@ class TodayScreen extends StatelessWidget {
     this.clock = DateTime.now,
     this.scheduler,
     this.pickTime = pickTimeDefault,
-    this.backupFiles,
   });
 
   final ChallengeRepository repository;
@@ -34,10 +28,6 @@ class TodayScreen extends StatelessWidget {
   final Clock clock;
   final ReminderScheduler? scheduler;
   final TimePick pickTime;
-
-  /// Datei-Dialog für „Daten sichern“; ohne ihn gibt es kein ⋮-Menü.
-  /// Vorläufiger Ort, bis es die Einstellungen gibt (#78).
-  final BackupFiles? backupFiles;
 
   Future<void> _adjust(BuildContext context, ActiveChallenge c) async {
     final updated = await showAdjustSheet(
@@ -151,33 +141,6 @@ class TodayScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (backupFiles case final files?)
-                    PopupMenuButton<_TodayMenu>(
-                      tooltip: 'Weitere Optionen',
-                      icon: const Icon(Icons.more_vert),
-                      onSelected: (choice) => switch (choice) {
-                        _TodayMenu.backup => Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => BackupScreen(
-                                repository: repository,
-                                files: files,
-                                scheduler: scheduler,
-                                clock: clock,
-                              ),
-                            ),
-                          ),
-                      },
-                      itemBuilder: (context) => const [
-                        PopupMenuItem(
-                          value: _TodayMenu.backup,
-                          child: ListTile(
-                            leading: Icon(Icons.save_outlined),
-                            title: Text('Daten sichern'),
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ],
-                    ),
                 ],
               ),
               if (snapshot.hasData && items.isEmpty)

@@ -24,6 +24,7 @@ class ChallengeEditorScreen extends StatefulWidget {
     this.initial,
     this.clock = DateTime.now,
     this.onStarted,
+    this.defaultReminder,
   });
 
   final ChallengeRepository repository;
@@ -32,6 +33,9 @@ class ChallengeEditorScreen extends StatefulWidget {
   final ChallengeTemplate? initial;
   final Clock clock;
   final ChallengeStarted? onStarted;
+
+  /// Standard-Erinnerung aus den Einstellungen; ohne sie 09:00.
+  final ReminderTime? defaultReminder;
 
   @override
   State<ChallengeEditorScreen> createState() => _ChallengeEditorScreenState();
@@ -52,7 +56,8 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   _KindChoice _kind = _KindChoice.ongoing;
   WeeklyUnit _unit = WeeklyUnit.times;
   late DateTime _date = dayOf(widget.clock()).add(const Duration(days: 1));
-  ReminderTime _reminder = const ReminderTime(9, 0);
+  late ReminderTime _reminder =
+      widget.defaultReminder ?? const ReminderTime(9, 0);
   StreakRule _rule = StreakRule.relaxed;
   final Set<int> _weekdays = {};
   bool _busy = false;

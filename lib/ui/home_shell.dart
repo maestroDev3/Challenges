@@ -4,7 +4,10 @@ import '../domain/active_challenge.dart';
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
+import '../domain/settings.dart';
 import 'catalog_screen.dart';
+import 'profile_screen.dart';
+import 'settings_screen.dart';
 import 'today_screen.dart';
 
 class HomeShell extends StatefulWidget {
@@ -14,6 +17,7 @@ class HomeShell extends StatefulWidget {
     this.clock = DateTime.now,
     this.scheduler,
     this.backupFiles,
+    this.settings,
   });
 
   final ChallengeRepository repository;
@@ -25,11 +29,20 @@ class HomeShell extends StatefulWidget {
   /// Datei-Dialog für „Daten sichern“; null in Tests ohne Dateien.
   final BackupFiles? backupFiles;
 
+  /// Einstellungen für Profil; null in Tests ohne Einstellungen.
+  final SettingsRepository? settings;
+
   @override
   State<HomeShell> createState() => _HomeShellState();
 }
 
 class _HomeShellState extends State<HomeShell> {
+  /// Ersatz, wenn keine Einstellungen übergeben wurden (nur in Tests).
+  late final SettingsRepository _defaultSettings = MemorySettingsRepository();
+
+  /// Einmal abonniert, damit Neuaufbauten der Shell nicht neu abonnieren.
+  late final Stream<AppSettings> _settingsStream =
+      (widget.settings ?? _defaultSettings).watch();
   int _tab = 0;
   late final AppLifecycleListener _lifecycle;
 
@@ -61,15 +74,33 @@ class _HomeShellState extends State<HomeShell> {
             clock: widget.clock,
             onDiscover: () => setState(() => _tab = 1),
             scheduler: widget.scheduler,
-            backupFiles: widget.backupFiles,
           ),
-          CatalogScreen(
+          StreamBuilder<AppSettings>(
+            stream: _settingsStream,
+            builder: (context, snapshot) => CatalogScreen(
+              repository: widget.repository,
+              clock: widget.clock,
+              defaultReminder: snapshot.data?.defaultReminder,
+              onStarted: (c) async {
+                await widget.scheduler?.schedule(c);
+                if (mounted) setState(() => _tab = 0);
+              },
+            ),
+          ),
+          ProfileScreen(
             repository: widget.repository,
-            clock: widget.clock,
-            onStarted: (c) async {
-              await widget.scheduler?.schedule(c);
-              if (mounted) setState(() => _tab = 0);
-            },
+            settings: widget.settings ?? _defaultSettings,
+            onOpenSettings: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => SettingsScreen(
+                  settings: widget.settings ?? _defaultSettings,
+                  repository: widget.repository,
+                  backupFiles: widget.backupFiles,
+                  scheduler: widget.scheduler,
+                  clock: widget.clock,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -86,6 +117,11 @@ class _HomeShellState extends State<HomeShell> {
             icon: Icon(Icons.explore_outlined),
             selectedIcon: Icon(Icons.explore),
             label: 'Entdecken',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profil',
           ),
         ],
       ),

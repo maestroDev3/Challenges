@@ -9,6 +9,7 @@ import 'data/android_backup_files.dart';
 import 'data/home_widget_updater.dart';
 import 'data/local_challenge_repository.dart';
 import 'data/local_notification_scheduler.dart';
+import 'data/local_settings_repository.dart';
 import 'domain/challenge_repository.dart';
 import 'domain/reminders.dart';
 import 'domain/widget_data.dart';
@@ -98,9 +99,14 @@ Future<void> main() async {
   await HomeWidget.registerInteractivityCallback(onWidgetTapped);
   repository.watch().listen((_) => _refreshWidget(repository));
 
+  final settings = LocalSettingsRepository(prefs);
+  final initialSettings = await settings.load();
+
   runApp(ChallengesApp(
     repository: repository,
     scheduler: scheduler,
     backupFiles: const AndroidBackupFiles(),
+    settings: settings,
+    showIntro: initialSettings.showIntro,
   ));
 }

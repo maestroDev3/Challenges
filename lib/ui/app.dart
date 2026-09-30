@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
+import '../domain/settings.dart';
 import 'home_shell.dart';
 import 'intro_screen.dart';
 import 'theme.dart';
@@ -14,11 +15,17 @@ class ChallengesApp extends StatelessWidget {
     required this.repository,
     this.scheduler,
     this.backupFiles,
+    this.settings,
+    this.showIntro = true,
   });
 
   final ChallengeRepository repository;
   final ReminderScheduler? scheduler;
   final BackupFiles? backupFiles;
+  final SettingsRepository? settings;
+
+  /// Intro mit Leitsatz beim Start; aus den Einstellungen (in `main` geladen).
+  final bool showIntro;
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +39,12 @@ class ChallengesApp extends StatelessWidget {
       supportedLocales: const [Locale('de')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: _IntroGate(
+        showIntro: showIntro,
         child: HomeShell(
           repository: repository,
           scheduler: scheduler,
           backupFiles: backupFiles,
+          settings: settings,
         ),
       ),
     );
@@ -44,7 +53,9 @@ class ChallengesApp extends StatelessWidget {
 
 /// Zeigt einmal pro Start das Intro und blendet dann in die App über.
 class _IntroGate extends StatefulWidget {
-  const _IntroGate({required this.child});
+  const _IntroGate({required this.child, required this.showIntro});
+
+  final bool showIntro;
 
   final Widget child;
 
@@ -53,7 +64,7 @@ class _IntroGate extends StatefulWidget {
 }
 
 class _IntroGateState extends State<_IntroGate> {
-  bool _introDone = false;
+  late bool _introDone = !widget.showIntro;
 
   @override
   Widget build(BuildContext context) {
