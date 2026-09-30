@@ -12,6 +12,7 @@ import 'adjust_sheet.dart';
 import 'archive_screen.dart';
 import 'detail_screen.dart';
 import 'format.dart';
+import 'l10n.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -77,12 +78,13 @@ class TodayScreen extends StatelessWidget {
 
   Future<void> _finish(BuildContext context, ActiveChallenge c) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     await repository.finish(c.id);
     await scheduler?.cancel(c);
     messenger.showSnackBar(SnackBar(
-      content: Text('„${c.template.title}“ abgeschlossen'),
+      content: Text(l10n.todayFinishedSnack(c.template.title)),
       action: SnackBarAction(
-        label: 'Rückgängig',
+        label: l10n.commonUndo,
         onPressed: () async {
           final reopened = await repository.reopen(c.id);
           await scheduler?.schedule(reopened);
@@ -95,19 +97,17 @@ class TodayScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Challenge löschen?'),
-        content: Text(
-            '„${c.template.title}“ und der ganze Verlauf werden endgültig gelöscht. '
-            'Zum Aufbewahren lieber „Abschließen“.'),
+        title: Text(context.l10n.deleteChallengeTitle),
+        content: Text(context.l10n.todayDeleteMessage(c.template.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Löschen'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -127,10 +127,10 @@ class TodayScreen extends StatelessWidget {
           return CustomScrollView(
             slivers: [
               SliverAppBar.large(
-                title: const Text('Heute'),
+                title: Text(context.l10n.navToday),
                 actions: [
                   IconButton(
-                    tooltip: 'Erledigt',
+                    tooltip: context.l10n.todayArchiveTooltip,
                     icon: const Icon(Icons.emoji_events_outlined),
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -196,17 +196,17 @@ class _EmptyState extends StatelessWidget {
         children: [
           const Text('🔥', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 16),
-          Text('Noch keine Challenge aktiv', style: text.titleLarge),
+          Text(context.l10n.todayEmptyTitle, style: text.titleLarge),
           const SizedBox(height: 8),
           Text(
-            'Such dir eine Challenge aus und bau deine erste Streak auf.',
+            context.l10n.todayEmptyBody,
             textAlign: TextAlign.center,
             style: text.bodyMedium,
           ),
           const SizedBox(height: 24),
           FilledButton(
             onPressed: onDiscover,
-            child: const Text('Challenge finden'),
+            child: Text(context.l10n.todayFindChallenge),
           ),
         ],
       ),
@@ -253,15 +253,14 @@ class ChallengeCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const ListTile(
-              title: Text('Pausieren'),
-              subtitle: Text(
-                  'Für Krankheit oder Urlaub: Pausentage brechen die Streak nicht, Erinnerungen ruhen.'),
+            ListTile(
+              title: Text(context.l10n.pauseTitle),
+              subtitle: Text(context.l10n.pauseExplanation),
             ),
-            for (final (days, label) in const [
-              (1, 'Nur heute'),
-              (3, '3 Tage'),
-              (7, '1 Woche'),
+            for (final (days, label) in [
+              (1, context.l10n.pauseToday),
+              (3, context.l10n.daysCount(3)),
+              (7, context.l10n.pauseWeek),
             ])
               ListTile(
                 leading: const Icon(Icons.pause_circle_outline),
@@ -270,7 +269,7 @@ class ChallengeCard extends StatelessWidget {
               ),
             ListTile(
               leading: const Icon(Icons.event_outlined),
-              title: const Text('Bis Datum …'),
+              title: Text(context.l10n.pauseUntilDate),
               onTap: () => Navigator.pop(context, 0),
             ),
           ],
@@ -305,21 +304,21 @@ class ChallengeCard extends StatelessWidget {
           children: [
             ListTile(
               title: Text(formatWeekdayDate(day)),
-              subtitle: const Text('Tag nachtragen oder korrigieren'),
+              subtitle: Text(context.l10n.correctSubtitle),
             ),
             ListTile(
               leading: const Icon(Icons.check_rounded),
-              title: const Text('Erledigt'),
+              title: Text(context.l10n.commonDone),
               onTap: () => Navigator.pop(context, _DayChoice.done),
             ),
             ListTile(
               leading: const Icon(Icons.close_rounded),
-              title: const Text('Nicht erledigt'),
+              title: Text(context.l10n.commonNotDone),
               onTap: () => Navigator.pop(context, _DayChoice.missed),
             ),
             ListTile(
               leading: const Icon(Icons.radio_button_unchecked),
-              title: const Text('Leer'),
+              title: Text(context.l10n.correctEmpty),
               onTap: () => Navigator.pop(context, _DayChoice.empty),
             ),
           ],
@@ -330,7 +329,9 @@ class ChallengeCard extends StatelessWidget {
     int? minutes;
     if (choice == _DayChoice.done && minutesKind) {
       minutes = int.tryParse(await _ask(context,
-              title: 'Wie viele Minuten?', hint: 'Minuten', number: true) ??
+              title: context.l10n.askMinutes,
+              hint: context.l10n.minutesHint,
+              number: true) ??
           '');
       if (minutes == null || minutes <= 0) return;
     }
@@ -350,14 +351,14 @@ class ChallengeCard extends StatelessWidget {
     switch (challenge.kind) {
       case JournalKind():
         final note = await _ask(context,
-            title: 'Welche Ausrede hattest du heute?', hint: 'Ehrlich sein …');
+            title: context.l10n.journalPrompt, hint: context.l10n.journalHint);
         if (note == null || note.trim().isEmpty) return;
         await onSave(
             challenge.checkIn(today, CheckInStatus.done, note: note.trim()));
       case WeeklyGoalKind(unit: WeeklyUnit.minutes):
         final raw = await _ask(context,
-            title: 'Wie viele Minuten warst du draußen?',
-            hint: 'Minuten',
+            title: context.l10n.askMinutesOutside,
+            hint: context.l10n.minutesHint,
             number: true);
         final minutes = int.tryParse(raw ?? '');
         if (minutes == null || minutes <= 0) return;
@@ -424,16 +425,16 @@ class ChallengeCard extends StatelessWidget {
                             '🔥 ${challenge.currentStreak(today)}',
                             style: text.titleSmall,
                           ),
-                          if (_progressLabel() case final label?)
+                          if (_progressLabel(context) case final label?)
                             Text(label,
                                 style: TextStyle(color: scheme.onSurfaceVariant)),
                           if (jokers != null)
                             Tooltip(
-                              message: 'Joker',
+                              message: context.l10n.joker,
                               child: Text('🛡️ $jokers', style: text.titleSmall),
                             ),
                           if (attempt > 1)
-                            Text('Versuch $attempt',
+                            Text(context.l10n.attempt(attempt),
                                 style: TextStyle(color: scheme.onSurfaceVariant)),
                         ],
                       ),
@@ -441,7 +442,7 @@ class ChallengeCard extends StatelessWidget {
                   ),
                 ),
                 PopupMenuButton<String>(
-                  tooltip: 'Mehr',
+                  tooltip: context.l10n.commonMore,
                   onSelected: (action) => switch (action) {
                     'adjust' => onAdjust(challenge),
                     'pause' => _pause(context),
@@ -449,36 +450,36 @@ class ChallengeCard extends StatelessWidget {
                     _ => onDelete(challenge),
                   },
                   itemBuilder: (_) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'adjust',
                       child: ListTile(
-                        leading: Icon(Icons.tune),
-                        title: Text('Anpassen'),
+                        leading: const Icon(Icons.tune),
+                        title: Text(context.l10n.menuAdjust),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
                     if (!paused)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'pause',
                         child: ListTile(
-                          leading: Icon(Icons.pause_circle_outline),
-                          title: Text('Pausieren'),
+                          leading: const Icon(Icons.pause_circle_outline),
+                          title: Text(context.l10n.pauseTitle),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'finish',
                       child: ListTile(
-                        leading: Icon(Icons.flag_outlined),
-                        title: Text('Abschließen'),
+                        leading: const Icon(Icons.flag_outlined),
+                        title: Text(context.l10n.menuFinish),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: ListTile(
-                        leading: Icon(Icons.delete_outline),
-                        title: Text('Löschen'),
+                        leading: const Icon(Icons.delete_outline),
+                        title: Text(context.l10n.commonDelete),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
@@ -508,7 +509,7 @@ class ChallengeCard extends StatelessWidget {
             if (challenge.isCompleted)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8, right: 8),
-                child: Text('Geschafft! 🏆',
+                child: Text(context.l10n.completedBanner,
                     textAlign: TextAlign.center,
                     style: text.titleMedium?.copyWith(color: scheme.primary)),
               ),
@@ -519,7 +520,7 @@ class ChallengeCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Pausiert bis ${formatDate(pausedUntil)}',
+                        context.l10n.pausedUntil(formatDate(pausedUntil)),
                         style: text.titleSmall,
                       ),
                     ),
@@ -527,7 +528,7 @@ class ChallengeCard extends StatelessWidget {
                       style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
                       onPressed: () => onPauseChanged(challenge.resume(today)),
                       icon: const Icon(Icons.play_arrow_rounded),
-                      label: const Text('Fortsetzen'),
+                      label: Text(context.l10n.resume),
                     ),
                   ],
                 ),
@@ -546,7 +547,7 @@ class ChallengeCard extends StatelessWidget {
                   onPressed: () =>
                       onPauseChanged(challenge.startWindow(today)),
                   icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Jetzt starten'),
+                  label: Text(context.l10n.startNow),
                 ),
               ),
             if (!paused && window == _WindowState.running)
@@ -556,7 +557,8 @@ class ChallengeCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'noch ${formatRemaining(challenge.remaining(today) ?? Duration.zero)} h',
+                        context.l10n.remainingTime(formatRemaining(
+                            challenge.remaining(today) ?? Duration.zero)),
                         style: text.titleLarge?.copyWith(
                           color: scheme.primary,
                           fontFamily: 'Roboto',
@@ -567,7 +569,7 @@ class ChallengeCard extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () => onPauseChanged(challenge.cancelWindow()),
-                      child: const Text('Abbrechen'),
+                      child: Text(context.l10n.commonCancel),
                     ),
                   ],
                 ),
@@ -575,7 +577,7 @@ class ChallengeCard extends StatelessWidget {
             if (!paused && window == _WindowState.ended)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8, right: 8),
-                child: Text('Geschafft?',
+                child: Text(context.l10n.windowEndedQuestion,
                     textAlign: TextAlign.center, style: text.titleLarge),
               ),
             if (!paused && status != null && !isWeekly)
@@ -583,8 +585,8 @@ class ChallengeCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8, right: 8),
                 child: Text(
                   status == CheckInStatus.done
-                      ? 'Heute erledigt'
-                      : 'Heute nicht geschafft',
+                      ? context.l10n.todayDoneStatus
+                      : context.l10n.todayMissedStatus,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
@@ -597,7 +599,7 @@ class ChallengeCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _ChoiceButton(
-                      label: 'Nicht erledigt',
+                      label: context.l10n.commonNotDone,
                       icon: Icons.close_rounded,
                       selected: status == CheckInStatus.missed,
                       onPressed: _missed,
@@ -606,7 +608,7 @@ class ChallengeCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _ChoiceButton(
-                      label: 'Erledigt',
+                      label: context.l10n.commonDone,
                       icon: Icons.check_rounded,
                       selected: status == CheckInStatus.done,
                       onPressed: () => _done(context),
@@ -621,16 +623,16 @@ class ChallengeCard extends StatelessWidget {
     );
   }
 
-  String? _progressLabel() => switch (challenge.kind) {
+  String? _progressLabel(BuildContext context) => switch (challenge.kind) {
         DailyKind(days: final d?) =>
           '${((challenge.progress(today) ?? 0) * d).round()}/$d',
         WeeklyGoalKind(unit: WeeklyUnit.times, target: final n) =>
           '${challenge.doneDaysInWeek(today)}/$n×',
         WeeklyGoalKind(target: final m) =>
-          '${challenge.minutesInWeek(today)}/$m min',
+          context.l10n.minutesProgress(challenge.minutesInWeek(today), m),
         OneTimeKind() => challenge.isCompleted || challenge.windowStartedAt != null
             ? null
-            : 'einmalig',
+            : context.l10n.oneTimeLabel,
         _ => null,
       };
 }
@@ -759,7 +761,7 @@ class _Checklist extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Schritte ${done.length}/${steps.length}',
+          Text(context.l10n.stepsProgress(done.length, steps.length),
               style: TextStyle(color: scheme.onSurfaceVariant)),
           for (final (i, step) in steps.indexed)
             CheckboxListTile(
@@ -799,7 +801,7 @@ class _Dot extends StatelessWidget {
     return Semantics(
       button: enabled,
       label: planned
-          ? '${formatWeekdayDate(day)} (geplant)'
+          ? context.l10n.plannedDay(formatWeekdayDate(day))
           : formatWeekdayDate(day),
       child: InkResponse(
         radius: 22,
@@ -868,12 +870,12 @@ Future<String?> _ask(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Abbrechen'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
           onPressed: () => Navigator.pop(context, controller.text),
-          child: const Text('Speichern'),
+          child: Text(context.l10n.commonSave),
         ),
       ],
     ),
@@ -971,8 +973,8 @@ class _SessionRow extends StatelessWidget {
             child: running == null
                 ? Text(
                     switch (target) {
-                      final t? => 'Ziel: ${t.inMinutes} min',
-                      null => 'Zeit mitlaufen lassen',
+                      final t? => context.l10n.sessionTarget(t.inMinutes),
+                      null => context.l10n.sessionFree,
                     },
                     style: TextStyle(color: scheme.onSurfaceVariant),
                   )
@@ -995,14 +997,14 @@ class _SessionRow extends StatelessWidget {
               style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
               onPressed: onStart,
               icon: const Icon(Icons.timer_outlined),
-              label: const Text('Starten'),
+              label: Text(context.l10n.sessionStart),
             )
           else
             FilledButton.icon(
               style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
               onPressed: onStop,
               icon: const Icon(Icons.stop_rounded),
-              label: const Text('Stopp'),
+              label: Text(context.l10n.sessionStop),
             ),
         ],
       ),

@@ -6,6 +6,7 @@ import '../domain/milestones.dart';
 import '../domain/reminders.dart';
 import 'detail_screen.dart';
 import 'format.dart';
+import 'l10n.dart';
 import 'theme.dart';
 
 /// Abgeschlossene und beendete Challenges mit Rückblick.
@@ -20,21 +21,21 @@ class ArchiveScreen extends StatelessWidget {
     await scheduler?.schedule(started);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('„${c.template.title}“ läuft wieder')),
+      SnackBar(content: Text(context.l10n.archiveRunningAgain(c.template.title))),
     );
   }
 
   Future<void> _reopen(BuildContext context, ActiveChallenge c) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       final reopened = await repository.reopen(c.id);
       await scheduler?.schedule(reopened);
       messenger.showSnackBar(SnackBar(
-          content: Text('„${c.template.title}“ ist wieder unter Heute')));
+          content: Text(l10n.archiveBackInToday(c.template.title))));
     } on StateError {
       messenger.showSnackBar(SnackBar(
-          content: Text(
-              '„${c.template.title}“ läuft bereits – schließ die laufende zuerst ab.')));
+          content: Text(l10n.archiveAlreadyRunning(c.template.title))));
     }
   }
 
@@ -42,18 +43,17 @@ class ArchiveScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Challenge löschen?'),
-        content: Text(
-            '„${c.template.title}“ und der ganze Verlauf werden endgültig gelöscht.'),
+        title: Text(context.l10n.deleteChallengeTitle),
+        content: Text(context.l10n.archiveDeleteMessage(c.template.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Löschen'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -65,7 +65,7 @@ class ArchiveScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Erledigt')),
+      appBar: AppBar(title: Text(context.l10n.archiveTitle)),
       body: StreamBuilder<ChallengeStore>(
         stream: repository.watchStore(),
         builder: (context, snapshot) {
@@ -81,10 +81,11 @@ class ArchiveScreen extends StatelessWidget {
                   children: [
                     const Text('🏆', style: TextStyle(fontSize: 56)),
                     const SizedBox(height: 16),
-                    Text('Noch nichts abgeschlossen', style: text.titleLarge),
+                    Text(context.l10n.archiveEmptyTitle,
+                        style: text.titleLarge),
                     const SizedBox(height: 8),
                     Text(
-                      'Geschaffte und beendete Challenges landen hier – mit Verlauf und bester Streak.',
+                      context.l10n.archiveEmptyBody,
                       textAlign: TextAlign.center,
                       style: text.bodyMedium,
                     ),
@@ -157,7 +158,9 @@ class _ArchiveCard extends StatelessWidget {
                   ),
                 ),
                 Chip(
-                  label: Text(completed ? 'Geschafft' : 'Beendet'),
+                  label: Text(completed
+                      ? context.l10n.resultDone
+                      : context.l10n.archiveEnded),
                   avatar: Icon(
                     completed ? Icons.emoji_events : Icons.flag_outlined,
                     size: 18,
@@ -168,23 +171,23 @@ class _ArchiveCard extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                 ),
                 PopupMenuButton<String>(
-                  tooltip: 'Mehr',
+                  tooltip: context.l10n.commonMore,
                   onSelected: (action) =>
                       action == 'reopen' ? onReopen() : onDelete(),
-                  itemBuilder: (_) => const [
+                  itemBuilder: (_) => [
                     PopupMenuItem(
                       value: 'reopen',
                       child: ListTile(
-                        leading: Icon(Icons.undo),
-                        title: Text('Wieder aufnehmen'),
+                        leading: const Icon(Icons.undo),
+                        title: Text(context.l10n.archiveReopen),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
                     PopupMenuItem(
                       value: 'delete',
                       child: ListTile(
-                        leading: Icon(Icons.delete_outline),
-                        title: Text('Löschen'),
+                        leading: const Icon(Icons.delete_outline),
+                        title: Text(context.l10n.commonDelete),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
@@ -200,12 +203,12 @@ class _ArchiveCard extends StatelessWidget {
                     spacing: 12,
                     runSpacing: 2,
                     children: [
-                      Text('Beste Streak ${challenge.bestStreak}',
+                      Text(context.l10n.archiveBestStreak(challenge.bestStreak),
                           style: text.bodyMedium),
                       if (badges(challenge) case [..., final top])
                         Text('🏅 $top', style: text.bodyMedium),
                       Text(
-                          '${challenge.doneDays} ${challenge.doneDays == 1 ? 'Tag' : 'Tage'} erledigt',
+                          context.l10n.archiveDaysDone(challenge.doneDays),
                           style: TextStyle(color: scheme.onSurfaceVariant)),
                     ],
                   ),
@@ -213,7 +216,7 @@ class _ArchiveCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onRestart,
                   icon: const Icon(Icons.replay),
-                  label: const Text('Nochmal starten'),
+                  label: Text(context.l10n.archiveRestart),
                 ),
               ],
             ),
@@ -235,17 +238,19 @@ Future<void> showCelebration(BuildContext context, ActiveChallenge c) {
       final text = Theme.of(context).textTheme;
       return AlertDialog(
         icon: Text(c.template.emoji, style: const TextStyle(fontSize: 48)),
-        title: const Text('Geschafft! 🏆'),
+        title: Text(context.l10n.completedBanner),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(c.template.title,
                 textAlign: TextAlign.center, style: text.titleMedium),
             const SizedBox(height: 12),
-            Text('Dauer: $days Tage · Beste Streak: ${c.bestStreak}',
+            Text(
+                context.l10n.celebrationDuration(
+                    context.l10n.daysCount(days), c.bestStreak),
                 textAlign: TextAlign.center),
             const SizedBox(height: 4),
-            const Text('Du findest sie jetzt unter „Erledigt“.',
+            Text(context.l10n.celebrationWhere,
                 textAlign: TextAlign.center),
           ],
         ),
@@ -253,7 +258,7 @@ Future<void> showCelebration(BuildContext context, ActiveChallenge c) {
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
             onPressed: () => Navigator.pop(context),
-            child: const Text('Weiter'),
+            child: Text(context.l10n.commonContinue),
           ),
         ],
       );
@@ -267,11 +272,11 @@ Future<void> showMilestone(BuildContext context, ActiveChallenge c, int days) {
     context: context,
     builder: (context) => AlertDialog(
       icon: const Text('🏅', style: TextStyle(fontSize: 48)),
-      title: const Text('Meilenstein erreicht'),
+      title: Text(context.l10n.milestoneTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('$days Tage am Stück',
+          Text(context.l10n.milestoneDays(days),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
@@ -282,7 +287,7 @@ Future<void> showMilestone(BuildContext context, ActiveChallenge c, int days) {
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
           onPressed: () => Navigator.pop(context),
-          child: const Text('Weiter'),
+          child: Text(context.l10n.commonContinue),
         ),
       ],
     ),
