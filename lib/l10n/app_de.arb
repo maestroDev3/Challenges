@@ -1148,5 +1148,34 @@
   "saveAndPlan": "Speichern & planen",
   "@saveAndPlan": {
     "description": "Editor-Knopf bei Start in der Zukunft"
+  },
+  "sectionPlanned": "Geplant",
+  "@sectionPlanned": {
+    "description": "Abschnitt auf Heute"
+  },
+  "plannedStartsOn": "startet am {date} · {relative}",
+  "@plannedStartsOn": {
+    "description": "Geplante Karte; relative = startsIn",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "relative": {
+        "type": "String"
+      }
+    }
+  },
+  "startsIn": "{count, plural, =1{morgen} other{in {count} Tagen}}",
+  "@startsIn": {
+    "description": "Tage bis zum Start",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "changeStartDate": "Startdatum ändern",
+  "@changeStartDate": {
+    "description": "Menü geplante Challenge"
   }
 }
