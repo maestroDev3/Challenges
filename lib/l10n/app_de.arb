@@ -19,5 +19,476 @@
   "languageSystem": "Systemsprache",
   "@languageSystem": {
     "description": "Sprache folgt dem Handy"
+  },
+  "commonCancel": "Abbrechen",
+  "@commonCancel": {
+    "description": "Knopf"
+  },
+  "commonSave": "Speichern",
+  "@commonSave": {
+    "description": "Knopf"
+  },
+  "commonDelete": "Löschen",
+  "@commonDelete": {
+    "description": "Knopf/Menü"
+  },
+  "commonDone": "Erledigt",
+  "@commonDone": {
+    "description": "Check-in erledigt"
+  },
+  "commonNotDone": "Nicht erledigt",
+  "@commonNotDone": {
+    "description": "Check-in nicht erledigt"
+  },
+  "commonMore": "Mehr",
+  "@commonMore": {
+    "description": "Tooltip des ⋮-Menüs"
+  },
+  "commonContinue": "Weiter",
+  "@commonContinue": {
+    "description": "Knopf"
+  },
+  "minutesHint": "Minuten",
+  "@minutesHint": {
+    "description": "Eingabehinweis"
+  },
+  "daysCount": "{count, plural, =1{1 Tag} other{{count} Tage}}",
+  "@daysCount": {
+    "description": "Anzahl Tage",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayFinishedSnack": "„{title}“ abgeschlossen",
+  "@todayFinishedSnack": {
+    "description": "Snackbar nach Abschließen",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "commonUndo": "Rückgängig",
+  "@commonUndo": {
+    "description": "Snackbar-Aktion"
+  },
+  "deleteChallengeTitle": "Challenge löschen?",
+  "@deleteChallengeTitle": {
+    "description": "Dialogtitel"
+  },
+  "todayDeleteMessage": "„{title}“ und der ganze Verlauf werden endgültig gelöscht. Zum Aufbewahren lieber „Abschließen“.",
+  "@todayDeleteMessage": {
+    "description": "Dialogtext",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "todayArchiveTooltip": "Erledigt",
+  "@todayArchiveTooltip": {
+    "description": "Tooltip: Archiv öffnen"
+  },
+  "todayEmptyTitle": "Noch keine Challenge aktiv",
+  "@todayEmptyTitle": {
+    "description": "Leerzustand"
+  },
+  "todayEmptyBody": "Such dir eine Challenge aus und bau deine erste Streak auf.",
+  "@todayEmptyBody": {
+    "description": "Leerzustand"
+  },
+  "todayFindChallenge": "Challenge finden",
+  "@todayFindChallenge": {
+    "description": "Knopf im Leerzustand"
+  },
+  "pauseTitle": "Pausieren",
+  "@pauseTitle": {
+    "description": "Menü und Sheet-Titel"
+  },
+  "pauseExplanation": "Für Krankheit oder Urlaub: Pausentage brechen die Streak nicht, Erinnerungen ruhen.",
+  "@pauseExplanation": {
+    "description": "Pause-Sheet"
+  },
+  "pauseToday": "Nur heute",
+  "@pauseToday": {
+    "description": "Pause-Option"
+  },
+  "pauseWeek": "1 Woche",
+  "@pauseWeek": {
+    "description": "Pause-Option"
+  },
+  "pauseUntilDate": "Bis Datum …",
+  "@pauseUntilDate": {
+    "description": "Pause-Option"
+  },
+  "correctSubtitle": "Tag nachtragen oder korrigieren",
+  "@correctSubtitle": {
+    "description": "Nachtrage-Sheet"
+  },
+  "correctEmpty": "Leer",
+  "@correctEmpty": {
+    "description": "Nachtrage-Option: kein Eintrag"
+  },
+  "askMinutes": "Wie viele Minuten?",
+  "@askMinutes": {
+    "description": "Dialogtitel"
+  },
+  "journalPrompt": "Welche Ausrede hattest du heute?",
+  "@journalPrompt": {
+    "description": "Tagebuch-Dialog"
+  },
+  "journalHint": "Ehrlich sein …",
+  "@journalHint": {
+    "description": "Tagebuch-Eingabehinweis"
+  },
+  "askMinutesOutside": "Wie viele Minuten warst du draußen?",
+  "@askMinutesOutside": {
+    "description": "Dialogtitel Wochenziel Minuten"
+  },
+  "joker": "Joker",
+  "@joker": {
+    "description": "Streak-Joker"
+  },
+  "attempt": "Versuch {number}",
+  "@attempt": {
+    "description": "Versuch bei harter Regel",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "menuAdjust": "Anpassen",
+  "@menuAdjust": {
+    "description": "Menü"
+  },
+  "menuFinish": "Abschließen",
+  "@menuFinish": {
+    "description": "Menü"
+  },
+  "completedBanner": "Geschafft! 🏆",
+  "@completedBanner": {
+    "description": "Ziel erreicht"
+  },
+  "pausedUntil": "Pausiert bis {date}",
+  "@pausedUntil": {
+    "description": "Karte",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "resume": "Fortsetzen",
+  "@resume": {
+    "description": "Knopf"
+  },
+  "startNow": "Jetzt starten",
+  "@startNow": {
+    "description": "Einmalige Challenge starten"
+  },
+  "remainingTime": "noch {time} h",
+  "@remainingTime": {
+    "description": "Countdown",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "windowEndedQuestion": "Geschafft?",
+  "@windowEndedQuestion": {
+    "description": "Countdown abgelaufen"
+  },
+  "todayDoneStatus": "Heute erledigt",
+  "@todayDoneStatus": {
+    "description": "Status"
+  },
+  "todayMissedStatus": "Heute nicht geschafft",
+  "@todayMissedStatus": {
+    "description": "Status"
+  },
+  "oneTimeLabel": "einmalig",
+  "@oneTimeLabel": {
+    "description": "Fortschritt einmaliger Challenge"
+  },
+  "minutesProgress": "{done}/{target} min",
+  "@minutesProgress": {
+    "description": "Wochenziel Minuten",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "stepsProgress": "Schritte {done}/{total}",
+  "@stepsProgress": {
+    "description": "Checkliste",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "plannedDay": "{day} (geplant)",
+  "@plannedDay": {
+    "description": "Screenreader: geplanter Tag",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionTarget": "Ziel: {minutes} min",
+  "@sessionTarget": {
+    "description": "Timer",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionFree": "Zeit mitlaufen lassen",
+  "@sessionFree": {
+    "description": "Timer ohne Ziel"
+  },
+  "sessionStart": "Starten",
+  "@sessionStart": {
+    "description": "Timer"
+  },
+  "sessionStop": "Stopp",
+  "@sessionStop": {
+    "description": "Timer"
+  },
+  "detailSince": "{kind} · seit {date}",
+  "@detailSince": {
+    "description": "Untertitel Detail",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statStreak": "Streak",
+  "@statStreak": {
+    "description": "Kennzahl"
+  },
+  "statBestStreak": "Beste Streak",
+  "@statBestStreak": {
+    "description": "Kennzahl"
+  },
+  "statResult": "Ergebnis",
+  "@statResult": {
+    "description": "Kennzahl einmalige Challenge"
+  },
+  "resultDone": "Geschafft",
+  "@resultDone": {
+    "description": "Ergebnis/Archiv-Chip"
+  },
+  "resultOpen": "Offen",
+  "@resultOpen": {
+    "description": "Ergebnis"
+  },
+  "statSuccessRate": "Erfolgsquote",
+  "@statSuccessRate": {
+    "description": "Kennzahl"
+  },
+  "statAttempt": "Versuch",
+  "@statAttempt": {
+    "description": "Kennzahl"
+  },
+  "badgesTitle": "Abzeichen",
+  "@badgesTitle": {
+    "description": "Überschrift/Kennzahl"
+  },
+  "thisWeekTimes": "Diese Woche: {done}/{target}×",
+  "@thisWeekTimes": {
+    "description": "Wochenziel",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "thisWeekMinutes": "Diese Woche: {done}/{target} min",
+  "@thisWeekMinutes": {
+    "description": "Wochenziel",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "previousMonth": "Voriger Monat",
+  "@previousMonth": {
+    "description": "Tooltip"
+  },
+  "nextMonth": "Nächster Monat",
+  "@nextMonth": {
+    "description": "Tooltip"
+  },
+  "journalEntries": "Einträge",
+  "@journalEntries": {
+    "description": "Tagebuch-Überschrift"
+  },
+  "statusDone": "erledigt",
+  "@statusDone": {
+    "description": "Tagesstatus (Legende, Screenreader)"
+  },
+  "statusMissed": "verpasst",
+  "@statusMissed": {
+    "description": "Tagesstatus"
+  },
+  "statusOpen": "offen",
+  "@statusOpen": {
+    "description": "Tagesstatus"
+  },
+  "statusPaused": "pausiert",
+  "@statusPaused": {
+    "description": "Tagesstatus"
+  },
+  "archiveRunningAgain": "„{title}“ läuft wieder",
+  "@archiveRunningAgain": {
+    "description": "Snackbar",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveBackInToday": "„{title}“ ist wieder unter Heute",
+  "@archiveBackInToday": {
+    "description": "Snackbar",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveAlreadyRunning": "„{title}“ läuft bereits – schließ die laufende zuerst ab.",
+  "@archiveAlreadyRunning": {
+    "description": "Snackbar",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveDeleteMessage": "„{title}“ und der ganze Verlauf werden endgültig gelöscht.",
+  "@archiveDeleteMessage": {
+    "description": "Dialogtext",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveTitle": "Erledigt",
+  "@archiveTitle": {
+    "description": "Titel Archiv"
+  },
+  "archiveEmptyTitle": "Noch nichts abgeschlossen",
+  "@archiveEmptyTitle": {
+    "description": "Leerzustand"
+  },
+  "archiveEmptyBody": "Geschaffte und beendete Challenges landen hier – mit Verlauf und bester Streak.",
+  "@archiveEmptyBody": {
+    "description": "Leerzustand"
+  },
+  "archiveEnded": "Beendet",
+  "@archiveEnded": {
+    "description": "Chip"
+  },
+  "archiveReopen": "Wieder aufnehmen",
+  "@archiveReopen": {
+    "description": "Menü"
+  },
+  "archiveBestStreak": "Beste Streak {count}",
+  "@archiveBestStreak": {
+    "description": "Archivkarte",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveDaysDone": "{count, plural, =1{1 Tag erledigt} other{{count} Tage erledigt}}",
+  "@archiveDaysDone": {
+    "description": "Archivkarte",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveRestart": "Nochmal starten",
+  "@archiveRestart": {
+    "description": "Knopf"
+  },
+  "celebrationDuration": "Dauer: {days} · Beste Streak: {streak}",
+  "@celebrationDuration": {
+    "description": "Feier-Dialog; days = daysCount",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "celebrationWhere": "Du findest sie jetzt unter „Erledigt“.",
+  "@celebrationWhere": {
+    "description": "Feier-Dialog"
+  },
+  "milestoneTitle": "Meilenstein erreicht",
+  "@milestoneTitle": {
+    "description": "Dialogtitel"
+  },
+  "milestoneDays": "{count, plural, =1{1 Tag am Stück} other{{count} Tage am Stück}}",
+  "@milestoneDays": {
+    "description": "Meilenstein",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustKeepsHistory": "Verlauf und Streak bleiben erhalten.",
+  "@adjustKeepsHistory": {
+    "description": "Anpassen-Sheet"
+  },
+  "reminderLabel": "Erinnerung",
+  "@reminderLabel": {
+    "description": "Uhrzeit der Erinnerung"
+  },
+  "ruleOnMissedDays": "Regel bei Fehltagen",
+  "@ruleOnMissedDays": {
+    "description": "Überschrift Streak-Regel"
+  },
+  "ruleAppliesToHistory": "Die Regel gilt für den ganzen bisherigen Verlauf.",
+  "@ruleAppliesToHistory": {
+    "description": "Hinweis"
+  },
+  "adjustEditDetails": "Art und Details bearbeiten",
+  "@adjustEditDetails": {
+    "description": "Knopf"
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
 import 'editor_screen.dart';
+import 'l10n.dart';
 import 'rule_selector.dart';
 
 /// Uhrzeitauswahl – im Test ersetzbar.
@@ -86,19 +87,19 @@ class _AdjustSheetState extends State<_AdjustSheet> {
             Text('${c.template.emoji} ${c.template.title}',
                 style: text.titleLarge),
             const SizedBox(height: 4),
-            Text('Verlauf und Streak bleiben erhalten.',
+            Text(context.l10n.adjustKeepsHistory,
                 style: text.bodyMedium),
             const SizedBox(height: 12),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notifications_active_outlined),
-              title: const Text('Erinnerung'),
+              title: Text(context.l10n.reminderLabel),
               trailing: Text(_reminder.toString(), style: text.titleMedium),
               onTap: _pick,
             ),
             if (allowed.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text('Regel bei Fehltagen', style: text.titleSmall),
+              Text(context.l10n.ruleOnMissedDays, style: text.titleSmall),
               const SizedBox(height: 8),
               RuleSelector(
                 value: _rule,
@@ -106,7 +107,7 @@ class _AdjustSheetState extends State<_AdjustSheet> {
                 onChanged: (r) => setState(() => _rule = r),
               ),
               const SizedBox(height: 4),
-              Text('Die Regel gilt für den ganzen bisherigen Verlauf.',
+              Text(context.l10n.ruleAppliesToHistory,
                   style: text.bodySmall),
             ],
             if (widget.onEditDetails case final edit?) ...[
@@ -114,7 +115,7 @@ class _AdjustSheetState extends State<_AdjustSheet> {
               TextButton.icon(
                 onPressed: edit,
                 icon: const Icon(Icons.edit_outlined),
-                label: const Text('Art und Details bearbeiten'),
+                label: Text(context.l10n.adjustEditDetails),
               ),
             ],
             const SizedBox(height: 16),
@@ -123,7 +124,7 @@ class _AdjustSheetState extends State<_AdjustSheet> {
                 reminder: _reminder,
                 rule: ruleFor(c.kind, _rule),
               )),
-              child: const Text('Speichern'),
+              child: Text(context.l10n.commonSave),
             ),
           ],
         ),
