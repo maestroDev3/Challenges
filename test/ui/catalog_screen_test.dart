@@ -1,5 +1,6 @@
 import 'package:challenges/domain/active_challenge.dart';
 import 'package:challenges/domain/catalog.dart';
+import 'package:challenges/l10n/app_localizations.dart';
 import 'package:challenges/ui/catalog_screen.dart';
 import 'package:challenges/ui/theme.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,9 @@ Future<void> pumpCatalog(WidgetTester tester, FakeChallengeRepository repo) asyn
   addTearDown(tester.view.reset);
   await tester.pumpWidget(MaterialApp(
     theme: buildTheme(),
+    locale: const Locale('de'),
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
     home: CatalogScreen(repository: repo),
   ));
   await tester.pumpAndSettle();
