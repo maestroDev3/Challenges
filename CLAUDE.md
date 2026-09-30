@@ -20,7 +20,10 @@ Status einer Story (Label, genau eins; erledigt = geschlossen):
 
 Regeln:
 - Tasks werden erst geschrieben, wenn eine Story von `backlog` nach `ready` wechselt.
-- Neue Ideen des Nutzers landen als `backlog`-Story im passenden Epic.
+- Neue Ideen des Nutzers landen als `backlog`-Story im passenden **offenen** Epic.
+- **Geschlossene Epics bleiben geschlossen** (Entscheidung Nutzer, 30.09.): Passt eine
+  Idee nur zu einem geschlossenen Epic, wird ein neues Epic angelegt – nie ein altes
+  wieder geöffnet.
 - Welche Story als Nächstes umgesetzt wird, entscheidet der Nutzer; ohne Vorgabe die
   nächste `ready`-Story laut Reihenfolge im Epic.
 
