@@ -7,6 +7,7 @@ import '../domain/reminders.dart';
 import '../domain/settings.dart';
 import 'catalog_screen.dart';
 import 'profile_screen.dart';
+import 'settings_screen.dart';
 import 'today_screen.dart';
 
 class HomeShell extends StatefulWidget {
@@ -69,7 +70,6 @@ class _HomeShellState extends State<HomeShell> {
             clock: widget.clock,
             onDiscover: () => setState(() => _tab = 1),
             scheduler: widget.scheduler,
-            backupFiles: widget.backupFiles,
           ),
           CatalogScreen(
             repository: widget.repository,
@@ -82,6 +82,17 @@ class _HomeShellState extends State<HomeShell> {
           ProfileScreen(
             repository: widget.repository,
             settings: widget.settings ?? _defaultSettings,
+            onOpenSettings: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => SettingsScreen(
+                  settings: widget.settings ?? _defaultSettings,
+                  repository: widget.repository,
+                  backupFiles: widget.backupFiles,
+                  scheduler: widget.scheduler,
+                  clock: widget.clock,
+                ),
+              ),
+            ),
           ),
         ],
       ),
