@@ -5,7 +5,9 @@ import '../domain/catalog.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../l10n/template_text.dart';
+import 'adjust_sheet.dart';
 import 'editor_screen.dart';
+import 'format.dart';
 import 'l10n.dart';
 import 'rule_selector.dart';
 import 'theme.dart';
@@ -19,9 +21,13 @@ class CatalogScreen extends StatelessWidget {
     this.onStarted,
     this.clock = DateTime.now,
     this.defaultReminder,
+    this.pickDate = pickDateDefault,
   });
 
   final ChallengeRepository repository;
+
+  /// Datumsauswahl für einen geplanten Start (im Test ersetzbar).
+  final DatePick pickDate;
 
   /// Standard-Erinnerung aus den Einstellungen für Vorlagen ohne eigene Uhrzeit.
   final ReminderTime? defaultReminder;
@@ -38,6 +44,7 @@ class CatalogScreen extends StatelessWidget {
         clock: clock,
         onStarted: onStarted,
         defaultReminder: defaultReminder,
+        pickDate: pickDate,
       ),
     ));
   }
@@ -94,8 +101,11 @@ class CatalogScreen extends StatelessWidget {
         template: t,
         running: running,
         defaultReminder: defaultReminder,
-        onStart: (reminder, rule) async {
-          final c = await repository.start(t, reminder, rule: rule);
+        clock: clock,
+        pickDate: pickDate,
+        onStart: (reminder, rule, startOn) async {
+          final c =
+              await repository.start(t, reminder, rule: rule, startOn: startOn);
           await onStarted?.call(c);
         },
         onEdit: t.isCustom
@@ -221,12 +231,17 @@ class _StartSheet extends StatefulWidget {
     this.onEdit,
     this.onDelete,
     this.defaultReminder,
+    required this.clock,
+    required this.pickDate,
   });
 
   final ChallengeTemplate template;
   final bool running;
   final ReminderTime? defaultReminder;
-  final Future<void> Function(ReminderTime reminder, StreakRule rule) onStart;
+  final Clock clock;
+  final DatePick pickDate;
+  final Future<void> Function(
+      ReminderTime reminder, StreakRule rule, DateTime? startOn) onStart;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -240,6 +255,21 @@ class _StartSheetState extends State<_StartSheet> {
   StreakRule _rule = StreakRule.relaxed;
   bool _busy = false;
 
+  /// Geplanter Starttag oder null für „heute“.
+  DateTime? _startOn;
+
+  Future<void> _pickStart() async {
+    final today = dayOf(widget.clock());
+    final picked = await widget.pickDate(
+      context,
+      initial: _startOn ?? today.add(const Duration(days: 1)),
+      first: today,
+      last: today.add(const Duration(days: maxPlanDays)),
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _startOn = dayOf(picked) == today ? null : dayOf(picked));
+  }
+
   Future<void> _pickTime() async {
     final picked = await showTimePicker(
       context: context,
@@ -252,7 +282,7 @@ class _StartSheetState extends State<_StartSheet> {
 
   Future<void> _start() async {
     setState(() => _busy = true);
-    await widget.onStart(_reminder, _rule);
+    await widget.onStart(_reminder, _rule, _startOn);
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -286,6 +316,20 @@ class _StartSheetState extends State<_StartSheet> {
               trailing: Text(_reminder.toString(), style: text.titleMedium),
               onTap: widget.running ? null : _pickTime,
             ),
+            if (!widget.running && canPlanStart(t.kind))
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.event_outlined),
+                title: Text(context.l10n.startsLabel),
+                trailing: Text(
+                  switch (_startOn) {
+                    final day? => formatDate(context.l10n, day, withYear: true),
+                    null => context.l10n.navToday,
+                  },
+                  style: text.titleMedium,
+                ),
+                onTap: _pickStart,
+              ),
             if (!widget.running && allowedRules(t.kind).isNotEmpty) ...[
               const SizedBox(height: 8),
               RuleSelector(
@@ -299,7 +343,9 @@ class _StartSheetState extends State<_StartSheet> {
               onPressed: widget.running || _busy ? null : _start,
               child: Text(widget.running
                   ? context.l10n.alreadyRunning
-                  : context.l10n.startChallenge),
+                  : _startOn != null
+                      ? context.l10n.planChallenge
+                      : context.l10n.startChallenge),
             ),
             if (widget.onEdit != null || widget.onDelete != null) ...[
               const SizedBox(height: 8),
