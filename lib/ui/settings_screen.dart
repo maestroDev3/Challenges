@@ -72,7 +72,7 @@ class SettingsScreen extends StatelessWidget {
               const _SectionTitle('Erinnerungen'),
               ListTile(
                 leading: const Icon(Icons.alarm),
-                title: const Text('Standard-Erinnerung'),
+                title: const Text('Uhrzeit für neue Challenges'),
                 subtitle: Text(reminder == null
                     ? 'Je nach Challenge'
                     : reminder.toString()),
@@ -85,6 +85,11 @@ class SettingsScreen extends StatelessWidget {
                             current.copyWith(clearDefaultReminder: true)),
                       ),
                 onTap: () => _pickReminder(context, current),
+              ),
+              const _Hint(
+                'Wird beim Starten einer neuen Challenge vorgeschlagen, wenn '
+                'die Challenge keine eigene Uhrzeit hat. Laufende Challenges '
+                'behalten ihre Uhrzeit – die änderst du über „Anpassen“.',
               ),
               const _SectionTitle('App'),
               SwitchListTile(
@@ -135,6 +140,28 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
       child: Text(title,
           style: text.labelLarge?.copyWith(color: scheme.primary)),
+    );
+  }
+}
+
+/// Erklärender Text unter einer Einstellung.
+class _Hint extends StatelessWidget {
+  const _Hint(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(72, 0, 16, 8),
+      child: Text(
+        text,
+        style: Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(color: scheme.onSurfaceVariant),
+      ),
     );
   }
 }
