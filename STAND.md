@@ -24,7 +24,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 |---|---|
 | #36 Motivation und Dranbleiben | #33 Fortschrittsfotos → #82 Dashboard und Kennzahlen → #134 Wochenrückblick → #135 Warnung vor dem Serienende |
 | #104 Planen und Vorbereiten | #103 Startdatum planen (in Arbeit) → #124 Wenn-Dann-Plan |
-| #35 Challenges selbst gestalten | #136 Challenge-Programme (z. B. 75 Hard) |
+| #137 Programme | #136 Challenge-Programme (z. B. 75 Hard) |
 | #38 Gemeinsam | #34 Challenges mit Partnerin/Freunden – erst nach Backend-Entscheidung |
 
 ## Zuletzt erledigt
