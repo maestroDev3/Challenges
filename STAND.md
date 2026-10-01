@@ -4,7 +4,7 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-09-30
+**Zuletzt aktualisiert:** 2026-10-01
 
 ## In Arbeit
 
@@ -18,14 +18,30 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 - Nach Merge von #103: #124 Wenn-Dann-Plan (Epic #104) oder Story nach Wahl des Nutzers
 
-## Backlog nach Epic
+## Backlog nach Initiative → Epic
 
-| Epic | Stories (Reihenfolge) |
-|---|---|
-| #36 Motivation und Dranbleiben | #33 Fortschrittsfotos → #82 Dashboard und Kennzahlen → #134 Wochenrückblick → #135 Warnung vor dem Serienende |
-| #104 Planen und Vorbereiten | #103 Startdatum planen (in Arbeit) → #124 Wenn-Dann-Plan |
-| #137 Programme | #136 Challenge-Programme (z. B. 75 Hard) |
-| #38 Gemeinsam | #34 Challenges mit Partnerin/Freunden – erst nach Backend-Entscheidung |
+**#139 Dranbleiben**
+
+| Epic | Stand | Stories (Reihenfolge) |
+|---|---|---|
+| #104 Planen und Vorbereiten | 0 von 2 zu | #103 Startdatum planen (in Arbeit) → #124 Wenn-Dann-Plan |
+| #36 Motivation und Dranbleiben | 1 von 5 zu | #33 Fortschrittsfotos → #82 Dashboard und Kennzahlen → #134 Wochenrückblick → #135 Warnung vor dem Serienende |
+
+**#138 Challenges gestalten**
+
+| Epic | Stand | Stories (Reihenfolge) |
+|---|---|---|
+| #137 Programme | 0 von 1 zu | #136 Challenge-Programme (z. B. 75 Hard) |
+
+**#141 Gemeinsam**
+
+| Epic | Stand | Stories (Reihenfolge) |
+|---|---|---|
+| #38 Gemeinsam | 0 von 1 zu | #34 Challenges mit Partnerin/Freunden – erst nach Backend-Entscheidung |
+
+**Ruht**
+
+- #140 App und Daten – alle Epics erledigt (#49 Marke, #37 Daten sichern, #80 Profil und Einstellungen)
 
 ## Zuletzt erledigt
 
@@ -38,4 +54,5 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## Offene Entscheidungen (nur der Nutzer)
 
+- #140 App und Daten: alle Epics erledigt, „Fertig, wenn“ erfüllt – schließen oder ruhen lassen?
 - Backend für „Gemeinsam“ (z. B. Firebase, Supabase)
