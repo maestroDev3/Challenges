@@ -20,12 +20,29 @@ Status einer Story (Label, genau eins; erledigt = geschlossen):
 
 Regeln:
 - Tasks werden erst geschrieben, wenn eine Story von `backlog` nach `ready` wechselt.
-- Neue Ideen des Nutzers landen als `backlog`-Story im passenden **offenen** Epic.
-- **Geschlossene Epics bleiben geschlossen** (Entscheidung Nutzer, 30.09.): Passt eine
-  Idee nur zu einem geschlossenen Epic, wird ein neues Epic angelegt – nie ein altes
-  wieder geöffnet.
 - Welche Story als Nächstes umgesetzt wird, entscheidet der Nutzer; ohne Vorgabe die
   nächste `ready`-Story laut Reihenfolge im Epic.
+
+## Epics: Konvention (Entscheidung Nutzer, 30.09./01.10.)
+
+Grundlage: Recherche zu Jira, Azure DevOps, Linear, SAFe, Shape Up und GitHub –
+überall gilt: Ein Epic ist ein **endliches Vorhaben**, dauerhafte Themen liegen
+eine Ebene darüber.
+
+- **Epics sind endlich.** Ein Epic beschreibt ein Ergebnis (Titel ergebnisbezogen,
+  nie „… II“ oder Nummern) und wird geschlossen, sobald alle Stories geschlossen sind.
+  Im Abschlusskommentar stehen ggf. Folge-Epics zum selben Thema.
+- **Geschlossen bleibt geschlossen.** Claude öffnet **nie** ein geschlossenes Issue
+  wieder – weder Epic noch Story noch Task. Neue Arbeit zu etwas Erledigtem wird ein
+  **neues** Issue mit „Bezug: #nr“.
+- **Neue Ideen** werden `backlog`-Story in einem **offenen** Epic, das genau dieses Ziel
+  verfolgt. Gibt es keins, legt Claude **sofort ein neues Epic** an (ohne Rückfrage, um
+  nicht zu blockieren) und trägt es in `STAND.md` unter „Offene Entscheidungen“ als
+  „neu angelegt – bitte bestätigen oder umsortieren“ ein.
+- **Keine Stories ohne Epic** – jede Story hat genau ein Epic als Parent.
+- **Themen-Ebene darüber:** Gibt es mehr als 10 offene Epics oder überschneiden sich
+  zwei Epics inhaltlich deutlich, schlägt Claude dem Nutzer eine Themen-Ebene vor;
+  eingeführt wird sie nur mit seiner Zustimmung.
 
 ## Stand pflegen (`STAND.md`)
 
