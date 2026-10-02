@@ -13,11 +13,12 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    final repo = FakeChallengeRepository();
+    final now = DateTime(2026, 10, 5, 9);
+    final repo = FakeChallengeRepository(today: now);
     final scheduler = FakeReminderScheduler();
     useGermanDevice(tester);
     await tester.pumpWidget(
-        ChallengesApp(repository: repo, scheduler: scheduler));
+        ChallengesApp(repository: repo, scheduler: scheduler, clock: () => now));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Challenge finden'));

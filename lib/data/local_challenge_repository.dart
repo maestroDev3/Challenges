@@ -71,12 +71,14 @@ class LocalChallengeRepository implements ChallengeRepository {
     ChallengeTemplate template,
     ReminderTime reminder, {
     StreakRule rule = StreakRule.relaxed,
+    DateTime? startOn,
   }) async {
+    final now = _clock();
+    final startDay = _checkedStart(startOn, now);
     final store = await _load();
     for (final c in store.active) {
       if (c.template.id == template.id) return c;
     }
-    final now = _clock();
     final taken = {for (final c in [...store.active, ...store.archived]) c.id};
     final base = '${template.id}-${now.microsecondsSinceEpoch}';
     var id = base;
@@ -86,7 +88,7 @@ class LocalChallengeRepository implements ChallengeRepository {
     final c = ActiveChallenge(
       id: id,
       template: template,
-      startedOn: dayOf(now),
+      startedOn: startDay,
       reminder: reminder,
       rule: ruleFor(template.kind, rule),
     );
@@ -206,5 +208,16 @@ class LocalChallengeRepository implements ChallengeRepository {
     await _prefs.setString(_keyV2, encodeStore(next));
     await _prefs.remove(_keyV1);
     _changes.add(next);
+  }
+
+  /// Starttag: heute oder geplant bis [maxPlanDays] voraus.
+  DateTime _checkedStart(DateTime? startOn, DateTime now) {
+    final today = dayOf(now);
+    final day = dayOf(startOn ?? now);
+    final days = day.difference(today).inDays;
+    if (days < 0 || days > maxPlanDays) {
+      throw ArgumentError.value(startOn, 'startOn', 'heute bis $maxPlanDays Tage voraus');
+    }
+    return day;
   }
 }

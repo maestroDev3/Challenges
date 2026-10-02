@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../domain/active_challenge.dart';
 import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
+import 'adjust_sheet.dart';
 import 'catalog_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
@@ -26,6 +27,7 @@ class ChallengeEditorScreen extends StatefulWidget {
     this.clock = DateTime.now,
     this.onStarted,
     this.defaultReminder,
+    this.pickDate = pickDateDefault,
   });
 
   final ChallengeRepository repository;
@@ -37,6 +39,9 @@ class ChallengeEditorScreen extends StatefulWidget {
 
   /// Standard-Erinnerung aus den Einstellungen; ohne sie 09:00.
   final ReminderTime? defaultReminder;
+
+  /// Datumsauswahl für einen geplanten Start (im Test ersetzbar).
+  final DatePick pickDate;
 
   @override
   State<ChallengeEditorScreen> createState() => _ChallengeEditorScreenState();
@@ -60,6 +65,9 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   late ReminderTime _reminder =
       widget.defaultReminder ?? const ReminderTime(9, 0);
   StreakRule _rule = StreakRule.relaxed;
+
+  /// Geplanter Starttag oder null für „heute“.
+  DateTime? _startOn;
   final Set<int> _weekdays = {};
   bool _busy = false;
 
@@ -173,8 +181,8 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
     setState(() => _busy = true);
     await widget.repository.saveTemplate(template);
     if (!_isEdit) {
-      final c =
-          await widget.repository.start(template, _reminder, rule: _rule);
+      final c = await widget.repository.start(template, _reminder,
+          rule: _rule, startOn: canPlanStart(template.kind) ? _startOn : null);
       await widget.onStarted?.call(c);
     }
     if (mounted) Navigator.of(context).pop();
@@ -203,6 +211,18 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
       lastDate: today.add(const Duration(days: 365)),
     );
     if (picked != null && mounted) setState(() => _date = picked);
+  }
+
+  Future<void> _pickStart() async {
+    final today = dayOf(widget.clock());
+    final picked = await widget.pickDate(
+      context,
+      initial: _startOn ?? today.add(const Duration(days: 1)),
+      first: today,
+      last: today.add(const Duration(days: maxPlanDays)),
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _startOn = dayOf(picked) == today ? null : dayOf(picked));
   }
 
   Future<void> _pickTime() async {
@@ -343,12 +363,28 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
                 trailing: Text(_reminder.toString(), style: text.titleMedium),
                 onTap: _pickTime,
               ),
+            if (!_isEdit && _kind != _KindChoice.oneTime)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.event_outlined),
+                title: Text(context.l10n.startsLabel),
+                trailing: Text(
+                  switch (_startOn) {
+                    final day? => formatDate(context.l10n, day, withYear: true),
+                    null => context.l10n.navToday,
+                  },
+                  style: text.titleMedium,
+                ),
+                onTap: _pickStart,
+              ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: valid && !_busy ? _save : null,
               child: Text(_isEdit
                   ? context.l10n.commonSave
-                  : context.l10n.saveAndStart),
+                  : _startOn != null && _kind != _KindChoice.oneTime
+                      ? context.l10n.saveAndPlan
+                      : context.l10n.saveAndStart),
             ),
           ],
         ),

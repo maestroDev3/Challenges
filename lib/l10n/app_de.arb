@@ -1136,5 +1136,50 @@
   "csvMissed": "nicht erledigt",
   "@csvMissed": {
     "description": "CSV-Status"
+  },
+  "startsLabel": "Beginnt",
+  "@startsLabel": {
+    "description": "Starttag einer Challenge"
+  },
+  "planChallenge": "Challenge planen",
+  "@planChallenge": {
+    "description": "Knopf bei Start in der Zukunft"
+  },
+  "saveAndPlan": "Speichern & planen",
+  "@saveAndPlan": {
+    "description": "Editor-Knopf bei Start in der Zukunft"
+  },
+  "sectionPlanned": "Geplant",
+  "@sectionPlanned": {
+    "description": "Abschnitt auf Heute"
+  },
+  "plannedStartsOn": "startet am {date} · {relative}",
+  "@plannedStartsOn": {
+    "description": "Geplante Karte; relative = startsIn",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "relative": {
+        "type": "String"
+      }
+    }
+  },
+  "startsIn": "{count, plural, other{in {count} Tagen}}",
+  "@startsIn": {
+    "description": "Tage bis zum Start (ab 2; für 1 gilt startsTomorrow)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "changeStartDate": "Startdatum ändern",
+  "@changeStartDate": {
+    "description": "Menü geplante Challenge"
+  },
+  "startsTomorrow": "morgen",
+  "@startsTomorrow": {
+    "description": "Start am nächsten Tag"
   }
 }

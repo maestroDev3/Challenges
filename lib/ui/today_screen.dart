@@ -14,6 +14,7 @@ import 'archive_screen.dart';
 import 'detail_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'theme.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -23,6 +24,7 @@ class TodayScreen extends StatelessWidget {
     this.clock = DateTime.now,
     this.scheduler,
     this.pickTime = pickTimeDefault,
+    this.pickDate = pickDateDefault,
   });
 
   final ChallengeRepository repository;
@@ -30,6 +32,22 @@ class TodayScreen extends StatelessWidget {
   final Clock clock;
   final ReminderScheduler? scheduler;
   final TimePick pickTime;
+
+  /// Datumsauswahl für „Startdatum ändern“ (im Test ersetzbar).
+  final DatePick pickDate;
+
+  /// Neuer Starttag für eine geplante Challenge.
+  Future<void> _changeStart(BuildContext context, ActiveChallenge c) async {
+    final today = dayOf(clock());
+    final picked = await pickDate(
+      context,
+      initial: dayOf(c.startedOn),
+      first: today,
+      last: today.add(const Duration(days: maxPlanDays)),
+    );
+    if (picked == null) return;
+    await _reschedule(c.withStart(picked, today: clock()));
+  }
 
   Future<void> _adjust(BuildContext context, ActiveChallenge c) async {
     final updated = await showAdjustSheet(
@@ -126,6 +144,15 @@ class TodayScreen extends StatelessWidget {
         stream: repository.watch(),
         builder: (context, snapshot) {
           final items = snapshot.data ?? const <ActiveChallenge>[];
+          final now = clock();
+          final running = [
+            for (final c in items)
+              if (!c.isUpcoming(now)) c,
+          ];
+          final planned = [
+            for (final c in items)
+              if (c.isUpcoming(now)) c,
+          ]..sort((a, b) => a.startedOn.compareTo(b.startedOn));
           return CustomScrollView(
             slivers: [
               SliverAppBar.large(
@@ -152,17 +179,17 @@ class TodayScreen extends StatelessWidget {
                 )
               else
                 SliverList.builder(
-                  itemCount: items.length,
+                  itemCount: running.length,
                   itemBuilder: (context, i) => _Ticker(
                     // Nur laufende Countdowns brauchen eine Live-Anzeige.
-                    active: items[i].windowStartedAt != null ||
-                        items[i].sessionStartedAt != null,
-                    interval: items[i].sessionStartedAt != null
+                    active: running[i].windowStartedAt != null ||
+                        running[i].sessionStartedAt != null,
+                    interval: running[i].sessionStartedAt != null
                         ? const Duration(seconds: 1)
                         : const Duration(seconds: 30),
                     clock: clock,
                     builder: (now) => ChallengeCard(
-                      challenge: items[i],
+                      challenge: running[i],
                       today: now,
                       onSave: (c) => _save(context, c),
                       onFinish: (c) => _finish(context, c),
@@ -174,10 +201,123 @@ class TodayScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              if (planned.isNotEmpty) ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+                    child: Text(
+                      context.l10n.sectionPlanned,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                ),
+                SliverList.builder(
+                  itemCount: planned.length,
+                  itemBuilder: (context, i) => _PlannedCard(
+                    challenge: planned[i],
+                    today: now,
+                    onStartNow: () => _reschedule(planned[i].startNow(clock())),
+                    onChangeStart: () => _changeStart(context, planned[i]),
+                    onDelete: () => _delete(context, planned[i]),
+                  ),
+                ),
+              ],
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Karte einer geplanten Challenge: nur Starttag und Menü – noch keine
+/// Check-ins, keine Streak.
+class _PlannedCard extends StatelessWidget {
+  const _PlannedCard({
+    required this.challenge,
+    required this.today,
+    required this.onStartNow,
+    required this.onChangeStart,
+    required this.onDelete,
+  });
+
+  final ActiveChallenge challenge;
+  final DateTime today;
+  final VoidCallback onStartNow;
+  final VoidCallback onChangeStart;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    return Card(
+      color: scheme.surfaceContainerLowest,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+        child: Row(
+          children: [
+            EmojiBadge(challenge.template.emoji),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(challenge.template.titleIn(l10n),
+                      style: text.titleMedium),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.plannedStartsOn(
+                      formatDate(l10n, challenge.startedOn),
+                      switch (challenge.daysUntilStart(today)) {
+                        1 => l10n.startsTomorrow,
+                        final days => l10n.startsIn(days),
+                      },
+                    ),
+                    style: TextStyle(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuButton<String>(
+              tooltip: l10n.commonMore,
+              onSelected: (action) => switch (action) {
+                'start' => onStartNow(),
+                'change' => onChangeStart(),
+                _ => onDelete(),
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'start',
+                  child: ListTile(
+                    leading: const Icon(Icons.play_arrow_rounded),
+                    title: Text(l10n.startNow),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'change',
+                  child: ListTile(
+                    leading: const Icon(Icons.event_outlined),
+                    title: Text(l10n.changeStartDate),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: ListTile(
+                    leading: const Icon(Icons.delete_outline),
+                    title: Text(l10n.commonDelete),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

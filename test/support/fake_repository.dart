@@ -66,6 +66,7 @@ class FakeChallengeRepository implements ChallengeRepository {
     ChallengeTemplate template,
     ReminderTime reminder, {
     StreakRule rule = StreakRule.relaxed,
+    DateTime? startOn,
   }) async {
     for (final c in _items) {
       if (c.template.id == template.id) return c;
@@ -74,7 +75,7 @@ class FakeChallengeRepository implements ChallengeRepository {
     final c = ActiveChallenge(
       id: restarts == 0 ? template.id : '${template.id}-$restarts',
       template: template,
-      startedOn: dayOf(_now),
+      startedOn: dayOf(startOn ?? _now),
       reminder: reminder,
       rule: ruleFor(template.kind, rule),
     );
