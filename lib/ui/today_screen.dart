@@ -14,6 +14,7 @@ import 'archive_screen.dart';
 import 'detail_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'plan_line.dart';
 import 'theme.dart';
 
 class TodayScreen extends StatelessWidget {
@@ -268,6 +269,10 @@ class _PlannedCard extends StatelessWidget {
                 children: [
                   Text(challenge.template.titleIn(l10n),
                       style: text.titleMedium),
+                  if (challenge.plan case final plan?) ...[
+                    const SizedBox(height: 2),
+                    PlanLine(plan),
+                  ],
                   const SizedBox(height: 4),
                   Text(
                     l10n.plannedStartsOn(
@@ -559,6 +564,10 @@ class ChallengeCard extends StatelessWidget {
                     children: [
                       Text(challenge.template.titleIn(context.l10n),
                           style: text.titleMedium),
+                      if (challenge.plan case final plan?) ...[
+                        const SizedBox(height: 2),
+                        PlanLine(plan),
+                      ],
                       const SizedBox(height: 4),
                       Wrap(
                         spacing: 12,

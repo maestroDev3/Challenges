@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../l10n/template_text.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'plan_line.dart';
 import 'theme.dart';
 
 /// Rückblick auf eine Challenge: Kennzahlen, Monatskalender, Journal.
@@ -69,6 +70,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               ),
             ],
           ),
+          if (c.plan case final plan?) ...[
+            const SizedBox(height: 16),
+            PlanLine(plan, style: text.titleMedium),
+          ],
           const SizedBox(height: 24),
           Wrap(
             spacing: 12,
