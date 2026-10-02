@@ -3,13 +3,14 @@
 Flutter-App (Android) für persönliche Challenges, später mit Freunden.
 Claude arbeitet in diesem Repo **autonom**. Diese Datei ist verbindlich.
 
-## Struktur: Epic → Story → Task
+## Struktur: Initiative → Epic → Story → Task
 
 Alles lebt in GitHub-Issues, verknüpft über Sub-Issues:
 
 | Ebene | Label | Inhalt |
 |---|---|---|
-| Epic | `epic` | Großes Ziel; Stories als Sub-Issues, Reihenfolge in der Beschreibung |
+| Initiative | `initiative` | Langlebiges Oberthema; Epics als Sub-Issues |
+| Epic | `epic` | Endliches Vorhaben; Stories als Sub-Issues, Reihenfolge in der Beschreibung |
 | Story | `story` | Für den Nutzer sichtbares Feature; Tasks als Sub-Issues |
 | Task | `task` | Genau ein PR, TDD, testbare Akzeptanzkriterien |
 
@@ -20,9 +21,61 @@ Status einer Story (Label, genau eins; erledigt = geschlossen):
 
 Regeln:
 - Tasks werden erst geschrieben, wenn eine Story von `backlog` nach `ready` wechselt.
-- Neue Ideen des Nutzers landen als `backlog`-Story im passenden Epic.
 - Welche Story als Nächstes umgesetzt wird, entscheidet der Nutzer; ohne Vorgabe die
   nächste `ready`-Story laut Reihenfolge im Epic.
+
+## Initiativen und Epics: Konvention (Entscheidung Nutzer, 30.09./01.10.)
+
+Grundlage: Recherche zu Jira, Azure DevOps, Linear, SAFe, Shape Up und GitHub sowie
+eine Diskussion zweier Agenten. Überall gilt: Ein Epic ist ein **endliches Vorhaben**,
+dauerhafte Themen liegen eine Ebene darüber (bei uns: Initiativen).
+
+**Initiativen** (Label `initiative`)
+- Langlebiges Oberthema mit Zielbild: Warum, Nutzen, Gehört dazu / nicht dazu, Epics,
+  „Fertig, wenn“ (1–3 grobe Aussagen). Kein Status-Label, keine Reihenfolge, kein
+  Fortschrittswert (der GitHub-Balken zählt nur direkte Kinder und wird ignoriert).
+- Ohne offene Epics **ruht** eine Initiative und bleibt offen (`STAND.md`: „Ruht“).
+- **Nur der Nutzer schließt Initiativen.** Claude schlägt es vor, wenn alle Epics zu
+  sind und „Fertig, wenn“ erfüllt ist. Beim Schließen: ein Satz zu Ergebnis oder Grund
+  als Kommentar.
+- Folgearbeit zu einer geschlossenen Initiative = **neue** Initiative mit eigenem,
+  ergebnisbezogenem Titel (kein „v2“) und „Bezug: #alt“.
+
+**Epics** (Label `epic`)
+- **Endlich.** Ergebnisbezogener Titel, nie „… II“ oder Nummern. Geschlossen, sobald
+  alle Stories geschlossen sind; im Abschlusskommentar ggf. Folge-Epics.
+- **Genau eine Initiative als Parent**, gewählt nach dem Hauptnutzen. Passt ein Epic
+  auch zu einer zweiten, steht dort „Siehe auch: #nr“. Geschlossene Epics dürfen an
+  eine offene Initiative gehängt werden – das ist kein Wiederöffnen (getestet 01.10.).
+
+**Für alle Ebenen**
+- **Geschlossen bleibt geschlossen.** Claude öffnet **nie** ein geschlossenes Issue
+  wieder – weder Initiative, Epic, Story noch Task. Neue Arbeit zu etwas Erledigtem
+  wird ein **neues** Issue mit „Bezug: #nr“.
+- **Keine Waisen:** jede Story hat genau ein Epic, jedes Epic genau eine Initiative.
+- **Neue Idee:** `backlog`-Story in einem offenen Epic, das genau dieses Ziel verfolgt
+  → sonst neues Epic in der passenden offenen Initiative → sonst neue Initiative.
+  Claude legt sofort an (keine Rückfrage, um nicht zu blockieren) und trägt alles,
+  was oberhalb einer Story neu ist, in `STAND.md` unter „Offene Entscheidungen“ ein
+  („neu angelegt – bitte bestätigen oder umsortieren“).
+
+## Issue-Vorlagen (Jira-Stil)
+
+Jedes Issue sagt, **wofür** es da ist, **welchen Nutzen** es hat und **wann es fertig**
+ist. Vorlagen: `.github/ISSUE_TEMPLATE/` (Initiative, Epic, Story, Task) – Claude
+schreibt Issues per API immer nach dieser Gliederung.
+
+- **Story:** Ziel als „Als Nutzer möchte ich …, damit …“, Nutzen, Nicht-Umfang,
+  **Akzeptanzkriterien aus Nutzersicht** (beim APK-Test prüfbar), Entscheidungen, Tasks.
+- **Task:** Zweck (welches Story-Kriterium), Umsetzung, **technische
+  Akzeptanzkriterien – jedes wird genau ein Test**, Abhängig von. Definition of Done
+  per Verweis auf den Skill, nicht kopiert.
+- **Epic:** Ergebnis, Nutzen, Umfang/Nicht-Umfang, Stories (Reihenfolge),
+  „Fertig, wenn“ als Verweiszeile auf „Mergen“.
+- Kein Gherkin (bei TDD sind die Tests die Given/When/Then-Form); bei Verhalten
+  „Wenn …, dann …“.
+- **Nachziehen:** Backlog-Stories bekommen die volle Vorlage beim Wechsel nach
+  `ready`. Geschlossene Issues werden nie angepasst.
 
 ## Stand pflegen (`STAND.md`)
 
@@ -30,9 +83,10 @@ Regeln:
 Claude-Projekt als Kontext. Sie muss immer zu den Issues passen.
 
 - Claude aktualisiert `STAND.md`, sobald sich etwas davon ändert: Story wechselt
-  den Status (`backlog`/`ready`/`in-progress`) oder wird geschlossen, neue Story
-  oder neues Epic, Reihenfolge ändert sich, Entscheidung getroffen.
-- Inhalt: In Arbeit · Als Nächstes · Backlog nach Epic · Zuletzt erledigt
+  den Status (`backlog`/`ready`/`in-progress`) oder wird geschlossen, neue Story,
+  neues Epic oder neue Initiative, Reihenfolge ändert sich, Entscheidung getroffen.
+- Inhalt: In Arbeit · Als Nächstes · Backlog nach Initiative → Epic (offene Epics mit
+  „x von y Stories zu“, ruhende Initiativen unter „Ruht“) · Zuletzt erledigt
   (höchstens 5, neueste oben) · Offene Entscheidungen · Datum „Zuletzt aktualisiert“.
 - Beim Schließen einer Story gehört die Änderung in den letzten PR der Story.
   Reine Statusänderungen ohne PR: direkter Commit auf `main`
