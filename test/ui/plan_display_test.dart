@@ -2,6 +2,7 @@ import 'package:challenges/domain/active_challenge.dart';
 import 'package:challenges/domain/catalog.dart';
 import 'package:challenges/ui/detail_screen.dart';
 import 'package:challenges/ui/today_screen.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_repository.dart';
