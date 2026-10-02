@@ -77,7 +77,7 @@ class LocalNotificationScheduler implements ReminderScheduler {
     if (times.isEmpty) return;
     final exact = await _ensurePermissions();
     final l10n = await _texts();
-    final texts = reminderTexts(l10n, challenge.template);
+    final texts = reminderTexts(l10n, challenge.template, plan: challenge.plan);
     final actions = switch (reminderActionsFor(challenge.template.kind)) {
       ReminderActions.journalInput => [
           AndroidNotificationAction(

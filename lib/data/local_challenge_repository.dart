@@ -72,6 +72,8 @@ class LocalChallengeRepository implements ChallengeRepository {
     ReminderTime reminder, {
     StreakRule rule = StreakRule.relaxed,
     DateTime? startOn,
+    String? planWhen,
+    String? planWhere,
   }) async {
     final now = _clock();
     final startDay = _checkedStart(startOn, now);
@@ -91,7 +93,7 @@ class LocalChallengeRepository implements ChallengeRepository {
       startedOn: startDay,
       reminder: reminder,
       rule: ruleFor(template.kind, rule),
-    );
+    ).withPlan(when: planWhen, where: planWhere);
     await _write(store, active: [...store.active, c]);
     return c;
   }
