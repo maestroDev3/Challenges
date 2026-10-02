@@ -166,8 +166,8 @@ Map<String, dynamic> _challengeToJson(ActiveChallenge c) => {
       'status': c.status.name,
       if (c.finishedOn case final f?) 'finishedOn': f.toIso8601String(),
       'rule': c.rule.name,
-      if (c.planWhen case final w?) 'planWhen': w,
-      if (c.planWhere case final w?) 'planWhere': w,
+      'planWhen': ?c.planWhen,
+      'planWhere': ?c.planWhere,
       if (c.windowStartedAt case final w?) 'windowStartedAt': w.toIso8601String(),
       if (c.sessionStartedAt case final s?) 'sessionStartedAt': s.toIso8601String(),
       if (c.activityLog.isNotEmpty)
