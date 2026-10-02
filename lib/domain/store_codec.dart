@@ -166,6 +166,8 @@ Map<String, dynamic> _challengeToJson(ActiveChallenge c) => {
       'status': c.status.name,
       if (c.finishedOn case final f?) 'finishedOn': f.toIso8601String(),
       'rule': c.rule.name,
+      'planWhen': ?c.planWhen,
+      'planWhere': ?c.planWhere,
       if (c.windowStartedAt case final w?) 'windowStartedAt': w.toIso8601String(),
       if (c.sessionStartedAt case final s?) 'sessionStartedAt': s.toIso8601String(),
       if (c.activityLog.isNotEmpty)
@@ -213,6 +215,8 @@ ActiveChallenge? _challengeFromJson(
     finishedOn: finishedOn == null ? null : DateTime.parse(finishedOn),
     rule: ruleFor(template.kind,
         StreakRule.values.byName(j['rule'] as String? ?? 'relaxed')),
+    planWhen: j['planWhen'] as String?,
+    planWhere: j['planWhere'] as String?,
     windowStartedAt: switch (j['windowStartedAt']) {
       final String w => DateTime.parse(w),
       _ => null,

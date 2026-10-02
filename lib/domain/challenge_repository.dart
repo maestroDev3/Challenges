@@ -32,12 +32,15 @@ abstract interface class ChallengeRepository {
 
   /// Startet eine Challenge – heute oder geplant am Tag [startOn] (bis
   /// [maxPlanDays] voraus, sonst [ArgumentError]). Läuft oder ist die Vorlage
-  /// bereits geplant, wird diese Challenge zurückgegeben.
+  /// bereits geplant, wird diese Challenge zurückgegeben. [planWhen] und
+  /// [planWhere] bilden den optionalen Wenn-Dann-Plan.
   Future<ActiveChallenge> start(
     ChallengeTemplate template,
     ReminderTime reminder, {
     StreakRule rule = StreakRule.relaxed,
     DateTime? startOn,
+    String? planWhen,
+    String? planWhere,
   });
 
   Future<void> save(ActiveChallenge challenge);

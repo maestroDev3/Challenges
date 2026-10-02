@@ -15,10 +15,16 @@ typedef ReminderTexts = ({
   String journalInput,
 });
 
-ReminderTexts reminderTexts(AppLocalizations l10n, ChallengeTemplate template) =>
+/// Mit Wenn-Dann-[plan] ersetzt der Plan die Standardfrage.
+ReminderTexts reminderTexts(
+  AppLocalizations l10n,
+  ChallengeTemplate template, {
+  String? plan,
+}) =>
     (
       title: '${template.emoji} ${template.titleIn(l10n)}',
       body: switch (reminderActionsFor(template.kind)) {
+        _ when plan != null => '$plan.',
         ReminderActions.journalInput => l10n.journalPrompt,
         ReminderActions.none => l10n.reminderEnterMinutes,
         ReminderActions.doneMissed => l10n.reminderAskDone,

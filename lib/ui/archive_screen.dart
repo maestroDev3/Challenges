@@ -18,7 +18,8 @@ class ArchiveScreen extends StatelessWidget {
   final ReminderScheduler? scheduler;
 
   Future<void> _restart(BuildContext context, ActiveChallenge c) async {
-    final started = await repository.start(c.template, c.reminder, rule: c.rule);
+    final started = await repository.start(c.template, c.reminder,
+        rule: c.rule, planWhen: c.planWhen, planWhere: c.planWhere);
     await scheduler?.schedule(started);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
