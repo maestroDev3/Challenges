@@ -119,13 +119,15 @@ void main() {
     expect(repo.items.single.plan, isNull);
   });
 
-  testWidgets('Felder und Vorschläge auf Englisch und Russisch', (tester) async {
+  testWidgets('Felder und Vorschläge auf Englisch', (tester) async {
     await openStartSheet(tester, FakeChallengeRepository(today: now),
         locale: const Locale('en'), title: 'Cold showers');
     expect(find.text('When?'), findsOneWidget);
     expect(find.text('Where?'), findsOneWidget);
     expect(find.widgetWithText(ActionChip, 'After waking up'), findsOneWidget);
+  });
 
+  testWidgets('Felder und Vorschläge auf Russisch', (tester) async {
     await openStartSheet(tester, FakeChallengeRepository(today: now),
         locale: const Locale('ru'), title: 'Холодный душ');
     expect(find.text('Когда?'), findsOneWidget);
