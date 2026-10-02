@@ -105,6 +105,12 @@ class PauseRange {
 /// So weit im Voraus lässt sich ein Start planen.
 const maxPlanDays = 90;
 
+/// Höchstlänge je Teil des Wenn-Dann-Plans („Wann?“, „Wo?“).
+const maxPlanLength = 60;
+
+/// Markiert in [ActiveChallenge._copy] „Feld nicht ändern“.
+const _keep = Object();
+
 /// Einmalige Challenges mit festem Datum haben kein eigenes Startdatum.
 bool canPlanStart(ChallengeKind kind) =>
     kind is! OneTimeKind || kind.date == null;
@@ -124,6 +130,8 @@ class ActiveChallenge {
     this.windowStartedAt,
     this.sessionStartedAt,
     this.activityLog = const {},
+    this.planWhen,
+    this.planWhere,
   });
 
   final String id;
@@ -148,6 +156,32 @@ class ActiveChallenge {
 
   /// Mit dem Timer erfasste Minuten je Tag.
   final Map<DateTime, int> activityLog;
+
+  /// Wenn-Dann-Plan: wann genau (Auslöser, z. B. „Nach dem Aufstehen“).
+  final String? planWhen;
+
+  /// Wenn-Dann-Plan: wo genau (z. B. „im Bad“).
+  final String? planWhere;
+
+  /// Der Plan als ein Satz („Nach dem Aufstehen, im Bad“) oder null.
+  String? get plan {
+    final parts = [?planWhen, ?planWhere];
+    return parts.isEmpty ? null : parts.join(', ');
+  }
+
+  /// Setzt den Wenn-Dann-Plan neu; leere Teile entfallen. Mehr als
+  /// [maxPlanLength] Zeichen je Teil: [ArgumentError].
+  ActiveChallenge withPlan({String? when, String? where}) {
+    String? clean(String? s, String name) {
+      final v = s?.trim() ?? '';
+      if (v.length > maxPlanLength) {
+        throw ArgumentError.value(s, name, 'höchstens $maxPlanLength Zeichen');
+      }
+      return v.isEmpty ? null : v;
+    }
+
+    return _copy(planWhen: clean(when, 'when'), planWhere: clean(where, 'where'));
+  }
 
   ChallengeKind get kind => template.kind;
 
@@ -192,6 +226,40 @@ class ActiveChallenge {
     Map<DateTime, int>? activityLog,
     bool clearFinished = false,
   }) =>
+      _copy(
+        startedOn: startedOn,
+        template: template,
+        reminder: reminder,
+        checkIns: checkIns,
+        status: status,
+        finishedOn: clearFinished ? null : finishedOn ?? this.finishedOn,
+        pauses: pauses,
+        rule: rule,
+        stepLog: stepLog,
+        windowStartedAt:
+            clearWindow ? null : windowStartedAt ?? this.windowStartedAt,
+        sessionStartedAt:
+            clearSession ? null : sessionStartedAt ?? this.sessionStartedAt,
+        activityLog: activityLog,
+      );
+
+  /// Kopie; nullable Felder werden immer übernommen wie übergeben.
+  ActiveChallenge _copy({
+    DateTime? startedOn,
+    ChallengeTemplate? template,
+    ReminderTime? reminder,
+    List<CheckIn>? checkIns,
+    ChallengeStatus? status,
+    Object? finishedOn = _keep,
+    List<PauseRange>? pauses,
+    StreakRule? rule,
+    Map<DateTime, Set<int>>? stepLog,
+    Object? windowStartedAt = _keep,
+    Object? sessionStartedAt = _keep,
+    Map<DateTime, int>? activityLog,
+    Object? planWhen = _keep,
+    Object? planWhere = _keep,
+  }) =>
       ActiveChallenge(
         id: id,
         template: template ?? this.template,
@@ -199,15 +267,23 @@ class ActiveChallenge {
         reminder: reminder ?? this.reminder,
         checkIns: checkIns ?? this.checkIns,
         status: status ?? this.status,
-        finishedOn: clearFinished ? null : finishedOn ?? this.finishedOn,
+        finishedOn: identical(finishedOn, _keep)
+            ? this.finishedOn
+            : finishedOn as DateTime?,
         pauses: pauses ?? this.pauses,
         rule: rule ?? this.rule,
         stepLog: stepLog ?? this.stepLog,
-        windowStartedAt:
-            clearWindow ? null : windowStartedAt ?? this.windowStartedAt,
-        sessionStartedAt:
-            clearSession ? null : sessionStartedAt ?? this.sessionStartedAt,
+        windowStartedAt: identical(windowStartedAt, _keep)
+            ? this.windowStartedAt
+            : windowStartedAt as DateTime?,
+        sessionStartedAt: identical(sessionStartedAt, _keep)
+            ? this.sessionStartedAt
+            : sessionStartedAt as DateTime?,
         activityLog: activityLog ?? this.activityLog,
+        planWhen:
+            identical(planWhen, _keep) ? this.planWhen : planWhen as String?,
+        planWhere:
+            identical(planWhere, _keep) ? this.planWhere : planWhere as String?,
       );
 
   /// Startet den Aktivitäts-Timer; läuft schon einer, ändert sich nichts.

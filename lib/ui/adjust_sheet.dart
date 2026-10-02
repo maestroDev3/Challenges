@@ -5,6 +5,7 @@ import '../domain/challenge_repository.dart';
 import '../l10n/template_text.dart';
 import 'editor_screen.dart';
 import 'l10n.dart';
+import 'plan_fields.dart';
 import 'rule_selector.dart';
 
 /// Uhrzeitauswahl – im Test ersetzbar.
@@ -81,6 +82,16 @@ class _AdjustSheet extends StatefulWidget {
 class _AdjustSheetState extends State<_AdjustSheet> {
   late ReminderTime _reminder = widget.challenge.reminder;
   late StreakRule _rule = widget.challenge.rule;
+  late final _planWhen = TextEditingController(text: widget.challenge.planWhen);
+  late final _planWhere =
+      TextEditingController(text: widget.challenge.planWhere);
+
+  @override
+  void dispose() {
+    _planWhen.dispose();
+    _planWhere.dispose();
+    super.dispose();
+  }
 
   Future<void> _pick() async {
     final picked = await widget.pickTime(
@@ -96,8 +107,9 @@ class _AdjustSheetState extends State<_AdjustSheet> {
     final text = Theme.of(context).textTheme;
     final allowed = allowedRules(c.kind);
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+            24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,11 +149,12 @@ class _AdjustSheetState extends State<_AdjustSheet> {
               ),
             ],
             const SizedBox(height: 16),
+            PlanFields(when: _planWhen, where: _planWhere),
+            const SizedBox(height: 16),
             FilledButton(
-              onPressed: () => Navigator.of(context).pop(c.copyWith(
-                reminder: _reminder,
-                rule: ruleFor(c.kind, _rule),
-              )),
+              onPressed: () => Navigator.of(context).pop(c
+                  .copyWith(reminder: _reminder, rule: ruleFor(c.kind, _rule))
+                  .withPlan(when: _planWhen.text, where: _planWhere.text)),
               child: Text(context.l10n.commonSave),
             ),
           ],
