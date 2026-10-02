@@ -4,7 +4,7 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-10-01
+**Zuletzt aktualisiert:** 2026-10-02
 
 ## In Arbeit
 
@@ -33,15 +33,17 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 |---|---|---|
 | #137 Programme | 0 von 1 zu | #136 Challenge-Programme (z. B. 75 Hard) |
 
+**#140 App und Daten**
+
+| Epic | Stand | Stories (Reihenfolge) |
+|---|---|---|
+| #142 App startet immer | 0 von 1 zu | #143 Start übersteht unerwartete Daten und Fehler |
+
 **#141 Gemeinsam**
 
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
 | #38 Gemeinsam | 0 von 1 zu | #34 Challenges mit Partnerin/Freunden – erst nach Backend-Entscheidung |
-
-**Ruht**
-
-- #140 App und Daten – alle Epics erledigt (#49 Marke, #37 Daten sichern, #80 Profil und Einstellungen)
 
 ## Zuletzt erledigt
 
@@ -54,5 +56,5 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## Offene Entscheidungen (nur der Nutzer)
 
-- #140 App und Daten: alle Epics erledigt, „Fertig, wenn“ erfüllt – schließen oder ruhen lassen?
+- #142 App startet immer (Epic in #140): neu angelegt – bitte bestätigen oder umsortieren
 - Backend für „Gemeinsam“ (z. B. Firebase, Supabase)
