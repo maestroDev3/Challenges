@@ -237,5 +237,14 @@
   "plannedStartsOn": "starts on {date} · {relative}",
   "startsIn": "{count, plural, =1{in 1 day} other{in {count} days}}",
   "changeStartDate": "Change start date",
-  "startsTomorrow": "tomorrow"
+  "startsTomorrow": "tomorrow",
+  "planHeading": "If-then plan (optional)",
+  "planExplain": "When and where exactly? Then you won't have to decide in the moment.",
+  "planWhenLabel": "When?",
+  "planWhereLabel": "Where?",
+  "planWhereHint": "e.g. in the bathroom",
+  "planSuggestWakeUp": "After waking up",
+  "planSuggestBreakfast": "After breakfast",
+  "planSuggestWork": "After work",
+  "planSuggestBed": "Before bed"
 }

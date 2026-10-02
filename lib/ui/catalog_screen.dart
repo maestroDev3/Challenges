@@ -9,6 +9,7 @@ import 'adjust_sheet.dart';
 import 'editor_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'plan_fields.dart';
 import 'rule_selector.dart';
 import 'theme.dart';
 
@@ -103,9 +104,12 @@ class CatalogScreen extends StatelessWidget {
         defaultReminder: defaultReminder,
         clock: clock,
         pickDate: pickDate,
-        onStart: (reminder, rule, startOn) async {
-          final c =
-              await repository.start(t, reminder, rule: rule, startOn: startOn);
+        onStart: (reminder, rule, startOn, plan) async {
+          final c = await repository.start(t, reminder,
+              rule: rule,
+              startOn: startOn,
+              planWhen: plan.when,
+              planWhere: plan.where);
           await onStarted?.call(c);
         },
         onEdit: t.isCustom
@@ -240,8 +244,8 @@ class _StartSheet extends StatefulWidget {
   final ReminderTime? defaultReminder;
   final Clock clock;
   final DatePick pickDate;
-  final Future<void> Function(
-      ReminderTime reminder, StreakRule rule, DateTime? startOn) onStart;
+  final Future<void> Function(ReminderTime reminder, StreakRule rule,
+      DateTime? startOn, ({String when, String where}) plan) onStart;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -257,6 +261,16 @@ class _StartSheetState extends State<_StartSheet> {
 
   /// Geplanter Starttag oder null für „heute“.
   DateTime? _startOn;
+
+  final _planWhen = TextEditingController();
+  final _planWhere = TextEditingController();
+
+  @override
+  void dispose() {
+    _planWhen.dispose();
+    _planWhere.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickStart() async {
     final today = dayOf(widget.clock());
@@ -282,7 +296,8 @@ class _StartSheetState extends State<_StartSheet> {
 
   Future<void> _start() async {
     setState(() => _busy = true);
-    await widget.onStart(_reminder, _rule, _startOn);
+    await widget.onStart(_reminder, _rule, _startOn,
+        (when: _planWhen.text, where: _planWhere.text));
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -291,8 +306,9 @@ class _StartSheetState extends State<_StartSheet> {
     final t = widget.template;
     final text = Theme.of(context).textTheme;
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+            24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -337,6 +353,10 @@ class _StartSheetState extends State<_StartSheet> {
                 allowed: allowedRules(t.kind),
                 onChanged: (r) => setState(() => _rule = r),
               ),
+            ],
+            if (!widget.running) ...[
+              const SizedBox(height: 16),
+              PlanFields(when: _planWhen, where: _planWhere),
             ],
             const SizedBox(height: 16),
             FilledButton(
