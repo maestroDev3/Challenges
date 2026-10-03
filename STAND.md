@@ -4,7 +4,7 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-10-02
+**Zuletzt aktualisiert:** 2026-10-03
 
 ## In Arbeit
 
@@ -36,6 +36,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
 | #142 App startet immer | 0 von 1 zu | #143 Start übersteht unerwartete Daten und Fehler |
+| #151 Technik und Qualität | 0 von 1 zu | #152 Smoke-Test prüft bis zum Heute-Screen |
 
 **#141 Gemeinsam**
 
@@ -55,4 +56,8 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 ## Offene Entscheidungen (nur der Nutzer)
 
 - #142 App startet immer (Epic in #140): neu angelegt – bitte bestätigen oder umsortieren
+- #151 Technik und Qualität (Epic in #140): neu angelegt – bitte bestätigen oder
+  umsortieren. Der Nutzer wünscht ein dauerhaftes Sammelbecken für Technik-Themen;
+  laut Konvention sind Epics endlich. Alternative: eigene Initiative „Technik und
+  Qualität“ mit Epics je Vorhaben.
 - Backend für „Gemeinsam“ (z. B. Firebase, Supabase)
