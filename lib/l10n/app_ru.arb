@@ -261,5 +261,10 @@
   "weekReviewClose": "Завершить неделю",
   "durationHoursMinutes": "{hours} ч {minutes}",
   "durationMinutes": "{minutes} мин",
-  "profileLastWeek": "Посмотреть прошлую неделю"
+  "profileLastWeek": "Посмотреть прошлую неделю",
+  "settingsWeekReview": "Итоги недели в воскресенье",
+  "settingsWeekReviewHint": "По воскресеньям уведомление «Твоя неделя» с итогами.",
+  "settingsWeekReviewTime": "Время итогов недели",
+  "weekReviewNotificationTitle": "Твоя неделя",
+  "weekReviewNotificationBody": "Время подвести итоги – нажми, чтобы посмотреть."
 }

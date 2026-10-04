@@ -261,5 +261,10 @@
   "weekReviewClose": "Close the week",
   "durationHoursMinutes": "{hours} h {minutes}",
   "durationMinutes": "{minutes} min",
-  "profileLastWeek": "See last week"
+  "profileLastWeek": "See last week",
+  "settingsWeekReview": "Weekly review on Sunday",
+  "settingsWeekReviewHint": "A “Your week” notification with your balance every Sunday.",
+  "settingsWeekReviewTime": "Weekly review time",
+  "weekReviewNotificationTitle": "Your week",
+  "weekReviewNotificationBody": "Time to take stock – tap for your review."
 }

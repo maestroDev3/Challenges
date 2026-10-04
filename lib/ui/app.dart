@@ -20,6 +20,8 @@ class ChallengesApp extends StatefulWidget {
     this.settings,
     this.showIntro = true,
     this.clock = DateTime.now,
+    this.openWeekReview = false,
+    this.navigatorKey,
   });
 
   final ChallengeRepository repository;
@@ -32,6 +34,13 @@ class ChallengesApp extends StatefulWidget {
 
   /// Uhr für „heute“ – in Tests fest.
   final Clock clock;
+
+  /// Beim Start direkt den Wochenrückblick öffnen (Start per
+  /// Benachrichtigung).
+  final bool openWeekReview;
+
+  /// Erlaubt `main`, bei getippter Benachrichtigung zu navigieren.
+  final GlobalKey<NavigatorState>? navigatorKey;
 
   @override
   State<ChallengesApp> createState() => _ChallengesAppState();
@@ -58,6 +67,7 @@ class _ChallengesAppState extends State<ChallengesApp> {
             resolveLanguage(snapshot.data?.language, systemLanguages);
         return MaterialApp(
           title: 'Ritual',
+          navigatorKey: widget.navigatorKey,
           debugShowCheckedModeBanner: false,
           theme: buildTheme(),
           darkTheme: buildTheme(),
@@ -73,6 +83,7 @@ class _ChallengesAppState extends State<ChallengesApp> {
               scheduler: widget.scheduler,
               backupFiles: widget.backupFiles,
               settings: _settings,
+              openWeekReview: widget.openWeekReview,
             ),
           ),
         );
