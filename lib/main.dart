@@ -122,15 +122,15 @@ Future<void> main() async {
 
   // Sprachwechsel: Widget-Texte sofort anpassen.
   settings.watch().skip(1).listen((_) => _refreshWidget(repository, prefs));
-  final openWeekReview = await scheduler.launchedByWeekReview();
+  final launchedByWeekReview = await scheduler.launchedByWeekReview();
 
   runApp(ChallengesApp(
     repository: repository,
     scheduler: scheduler,
     backupFiles: const AndroidBackupFiles(),
     settings: settings,
-    showIntro: initialSettings.showIntro && !openWeekReview,
-    openWeekReview: openWeekReview,
+    showIntro: initialSettings.showIntro && !launchedByWeekReview,
+    openWeekReview: launchedByWeekReview,
     navigatorKey: navigatorKey,
   ));
 }
