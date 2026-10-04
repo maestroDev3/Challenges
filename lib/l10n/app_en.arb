@@ -266,5 +266,22 @@
   "settingsWeekReviewHint": "A “Your week” notification with your balance every Sunday.",
   "settingsWeekReviewTime": "Weekly review time",
   "weekReviewNotificationTitle": "Your week",
-  "weekReviewNotificationBody": "Time to take stock – tap for your review."
+  "weekReviewNotificationBody": "Time to take stock – tap for your review.",
+  "navStatistics": "Statistics",
+  "statsTitle": "Statistics",
+  "statsSubtitleMonth": "Your {month}",
+  "statsSubtitleYear": "Your {year}",
+  "statsPeriodMonth": "Month",
+  "statsPeriodYear": "Year",
+  "statsDaysDone": "Days done",
+  "statsDaysDoneHint": "across all rituals",
+  "statsLongestStreak": "Longest streak",
+  "statsRate": "Rate",
+  "statsRateHint": "{done} of {due} due",
+  "statsRituals": "Rituals",
+  "statsRitualsHint": "active / completed",
+  "statsPerRitual": "Per ritual",
+  "statsStreakLabel": "Streak",
+  "statsBadgeChip": "{days} · {title}",
+  "statsEmpty": "No numbers yet – start your first ritual under “Discover”. This is where you will see what you have achieved."
 }

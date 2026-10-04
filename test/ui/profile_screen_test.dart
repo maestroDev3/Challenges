@@ -32,7 +32,7 @@ void main() {
       settings: FakeSettingsRepository(const AppSettings(name: 'Mia')),
       clock: () => now,
     ));
-    expect(find.byType(NavigationDestination), findsNWidgets(3));
+    expect(find.byType(NavigationDestination), findsNWidgets(4));
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
     expect(find.text('Mia'), findsOneWidget);
@@ -46,27 +46,27 @@ void main() {
     expect(find.text('Dein Profil'), findsOneWidget);
   });
 
-  testWidgets('zeigt die Kennzahlen', (tester) async {
+  testWidgets('Kennzahl-Kacheln gibt es im Profil nicht mehr', (tester) async {
     await tester.pumpApp(ProfileScreen(
       repository: FakeChallengeRepository(initial: [running('wake-5am', 8)]),
       settings: FakeSettingsRepository(),
     ));
-    expect(find.text('Laufend'), findsOneWidget);
-    expect(find.text('Tage erledigt'), findsOneWidget);
-    expect(find.text('8'), findsNWidgets(2)); // Tage und längste Streak
-    expect(find.text('Längste Streak'), findsOneWidget);
-    expect(find.text('Abzeichen'), findsOneWidget);
+    expect(find.text('Laufend'), findsNothing);
+    expect(find.text('Tage erledigt'), findsNothing);
+    expect(find.text('Letzte Woche ansehen'), findsOneWidget);
   });
 
-  testWidgets('Kennzahlen folgen Änderungen am Stand', (tester) async {
+  testWidgets('„Letzte Woche ansehen“ erscheint mit der ersten Challenge',
+      (tester) async {
     final repo = FakeChallengeRepository();
     await tester.pumpApp(ProfileScreen(
       repository: repo,
       settings: FakeSettingsRepository(),
     ));
+    expect(find.text('Letzte Woche ansehen'), findsNothing);
     await repo.start(templateById('cold-shower')!, const ReminderTime(7, 0));
     await tester.pumpAndSettle();
-    expect(find.text('Laufend'), findsOneWidget);
+    expect(find.text('Letzte Woche ansehen'), findsOneWidget);
   });
 
   testWidgets('ohne Challenges erscheint ein Hinweis', (tester) async {
@@ -75,7 +75,7 @@ void main() {
       settings: FakeSettingsRepository(),
     ));
     expect(find.textContaining('Noch keine Challenges'), findsOneWidget);
-    expect(find.text('Laufend'), findsNothing);
+    expect(find.text('Letzte Woche ansehen'), findsNothing);
   });
 
   testWidgets('Namensänderung erscheint sofort', (tester) async {

@@ -1336,5 +1336,99 @@
   "weekReviewNotificationBody": "Zeit für die Bilanz – tippe für deinen Rückblick.",
   "@weekReviewNotificationBody": {
     "description": "Text der Sonntags-Benachrichtigung"
+  },
+  "navStatistics": "Statistik",
+  "@navStatistics": {
+    "description": "Tab Statistik"
+  },
+  "statsTitle": "Statistik",
+  "@statsTitle": {
+    "description": "Überschrift Tab Statistik"
+  },
+  "statsSubtitleMonth": "Dein {month}",
+  "@statsSubtitleMonth": {
+    "description": "Untertitel bei Zeitraum Monat",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "statsSubtitleYear": "Dein {year}",
+  "@statsSubtitleYear": {
+    "description": "Untertitel bei Zeitraum Jahr",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "statsPeriodMonth": "Monat",
+  "@statsPeriodMonth": {
+    "description": "Umschalter Zeitraum"
+  },
+  "statsPeriodYear": "Jahr",
+  "@statsPeriodYear": {
+    "description": "Umschalter Zeitraum"
+  },
+  "statsDaysDone": "Tage erledigt",
+  "@statsDaysDone": {
+    "description": "Kachel"
+  },
+  "statsDaysDoneHint": "über alle Rituale",
+  "@statsDaysDoneHint": {
+    "description": "Kachel-Untertitel"
+  },
+  "statsLongestStreak": "Längste Serie",
+  "@statsLongestStreak": {
+    "description": "Kachel"
+  },
+  "statsRate": "Quote",
+  "@statsRate": {
+    "description": "Kachel"
+  },
+  "statsRateHint": "{done} von {due} fällig",
+  "@statsRateHint": {
+    "description": "Kachel-Untertitel",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "statsRituals": "Rituale",
+  "@statsRituals": {
+    "description": "Kachel"
+  },
+  "statsRitualsHint": "aktiv / geschafft",
+  "@statsRitualsHint": {
+    "description": "Kachel-Untertitel"
+  },
+  "statsPerRitual": "Pro Ritual",
+  "@statsPerRitual": {
+    "description": "Abschnitt"
+  },
+  "statsStreakLabel": "Serie",
+  "@statsStreakLabel": {
+    "description": "Beschriftung der Zahl je Ritual"
+  },
+  "statsBadgeChip": "{days} · {title}",
+  "@statsBadgeChip": {
+    "description": "Abzeichen mit Challenge",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statsEmpty": "Noch keine Zahlen – starte dein erstes Ritual unter „Entdecken“. Hier siehst du dann, was du geschafft hast.",
+  "@statsEmpty": {
+    "description": "Leerhinweis Statistik"
   }
 }
