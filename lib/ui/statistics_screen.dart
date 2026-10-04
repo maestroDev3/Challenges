@@ -8,6 +8,7 @@ import '../domain/statistics.dart';
 import '../l10n/template_text.dart';
 import 'detail_screen.dart';
 import 'l10n.dart';
+import 'stats_charts.dart';
 import 'theme.dart';
 
 /// Tab „Statistik“: Kennzahlen über alle Rituale, Liste pro Ritual und
@@ -140,7 +141,49 @@ class _Body extends StatelessWidget {
               else ...[
                 _TileGrid(stats: stats),
                 const SizedBox(height: 24),
-                // Diagramme (Heatmap, Wochen, Wochentage, Zeit) folgen in #158.
+                _SectionTitle(l10n.statsHeatmapTitle,
+                    hint: l10n.statsHeatmapHint),
+                const SizedBox(height: 10),
+                HeatmapGrid(values: stats.heatmap, start: stats.heatmapStart),
+                const SizedBox(height: 24),
+                _SectionTitle(l10n.statsWeeksTitle, hint: l10n.statsWeeksHint),
+                const SizedBox(height: 10),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
+                    child: WeekRateBars(weeks: stats.weeks),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _ChartCard(
+                        title: l10n.statsWeekdaysTitle,
+                        child: WeekdayBars(
+                          weekdays: stats.weekdays,
+                          best: stats.bestWeekday,
+                          worst: stats.worstWeekday,
+                        ),
+                      ),
+                    ),
+                    if (stats.minutesByChallenge.isNotEmpty) ...[
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _ChartCard(
+                          title: l10n.statsTimeTitle,
+                          hint: l10n.statsTimeHint,
+                          child: MinutesList(
+                            items: stats.minutesByChallenge,
+                            total: stats.totalMinutes,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 24),
                 _SectionTitle(l10n.statsPerRitual),
                 const SizedBox(height: 8),
                 _PerRitual(stats: stats, clock: clock),
@@ -158,15 +201,62 @@ class _Body extends StatelessWidget {
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.title);
+  const _SectionTitle(this.title, {this.hint});
 
   final String title;
+  final String? hint;
 
   @override
-  Widget build(BuildContext context) => Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge,
-      );
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Expanded(child: Text(title, style: text.titleLarge)),
+        if (hint case final h?)
+          Text(h,
+              style:
+                  text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+      ],
+    );
+  }
+}
+
+/// Kleine Karte mit Überschrift für Wochentage und Zeit.
+class _ChartCard extends StatelessWidget {
+  const _ChartCard({required this.title, required this.child, this.hint});
+
+  final String title;
+  final String? hint;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: text.titleSmall),
+            const SizedBox(height: 10),
+            child,
+            if (hint case final h?) ...[
+              const SizedBox(height: 6),
+              Text(h,
+                  style:
+                      text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// Vier Kacheln in zwei Reihen.

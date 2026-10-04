@@ -1430,5 +1430,66 @@
   "statsEmpty": "Noch keine Zahlen – starte dein erstes Ritual unter „Entdecken“. Hier siehst du dann, was du geschafft hast.",
   "@statsEmpty": {
     "description": "Leerhinweis Statistik"
+  },
+  "statsHeatmapTitle": "Letzte Wochen",
+  "@statsHeatmapTitle": {
+    "description": "Abschnitt Heatmap"
+  },
+  "statsHeatmapHint": "Anteil erledigt pro Tag",
+  "@statsHeatmapHint": {
+    "description": "Erklärung Heatmap"
+  },
+  "statsLess": "weniger",
+  "@statsLess": {
+    "description": "Legende Heatmap"
+  },
+  "statsMore": "mehr",
+  "@statsMore": {
+    "description": "Legende Heatmap"
+  },
+  "statsWeeksTitle": "Erfolgsquote pro Woche",
+  "@statsWeeksTitle": {
+    "description": "Abschnitt Wochenbalken"
+  },
+  "statsWeeksHint": "erledigt / fällig",
+  "@statsWeeksHint": {
+    "description": "Erklärung Wochenbalken"
+  },
+  "statsWeekShort": "W{week}",
+  "@statsWeekShort": {
+    "description": "Kalenderwoche kurz",
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "statsWeekdaysTitle": "Wochentage",
+  "@statsWeekdaysTitle": {
+    "description": "Abschnitt Wochentage"
+  },
+  "statsWeekdaysBestWorst": "Stärkster Tag: {best} · schwächster: {worst}",
+  "@statsWeekdaysBestWorst": {
+    "description": "Zeile unter den Wochentag-Balken",
+    "placeholders": {
+      "best": {
+        "type": "String"
+      },
+      "worst": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTimeTitle": "Zeit",
+  "@statsTimeTitle": {
+    "description": "Abschnitt Zeit-Summen"
+  },
+  "statsTimeHint": "aus Wochenziel-Ritualen",
+  "@statsTimeHint": {
+    "description": "Erklärung Zeit-Summen"
+  },
+  "statsTotal": "Gesamt",
+  "@statsTotal": {
+    "description": "Summenzeile"
   }
 }

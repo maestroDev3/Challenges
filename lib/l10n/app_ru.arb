@@ -283,5 +283,17 @@
   "statsPerRitual": "По ритуалам",
   "statsStreakLabel": "Серия",
   "statsBadgeChip": "{days} · {title}",
-  "statsEmpty": "Пока нет данных – начни первый ритуал в разделе «Обзор». Здесь ты увидишь, чего добился."
+  "statsEmpty": "Пока нет данных – начни первый ритуал в разделе «Обзор». Здесь ты увидишь, чего добился.",
+  "statsHeatmapTitle": "Последние недели",
+  "statsHeatmapHint": "доля выполненного за день",
+  "statsLess": "меньше",
+  "statsMore": "больше",
+  "statsWeeksTitle": "Доля успеха по неделям",
+  "statsWeeksHint": "выполнено / положено",
+  "statsWeekShort": "Н{week}",
+  "statsWeekdaysTitle": "Дни недели",
+  "statsWeekdaysBestWorst": "Сильный день: {best} · слабый: {worst}",
+  "statsTimeTitle": "Время",
+  "statsTimeHint": "из ритуалов с недельной целью",
+  "statsTotal": "Итого"
 }
