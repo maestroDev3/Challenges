@@ -8,6 +8,14 @@ DateTime weekStartOf(DateTime day) {
   return d.subtract(Duration(days: d.weekday - DateTime.monday));
 }
 
+/// ISO-Kalenderwoche (die Woche, die den Donnerstag enthält).
+int isoWeekNumber(DateTime day) {
+  final d = dayOf(day);
+  final thursday = d.add(Duration(days: DateTime.thursday - d.weekday));
+  final dayOfYear = thursday.difference(DateTime.utc(thursday.year)).inDays;
+  return dayOfYear ~/ 7 + 1;
+}
+
 /// Montag der Woche, die der Rückblick zeigt: sonntags die laufende Woche,
 /// an allen anderen Tagen die vergangene.
 DateTime reviewWeekFor(DateTime today) {
