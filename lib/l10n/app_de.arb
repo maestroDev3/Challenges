@@ -1491,5 +1491,52 @@
   "statsTotal": "Gesamt",
   "@statsTotal": {
     "description": "Summenzeile"
+  },
+  "detailNextMilestone": "Nächster Meilenstein",
+  "@detailNextMilestone": {
+    "description": "Karte in der Detailansicht"
+  },
+  "detailDaysLeft": "{count, plural, =1{noch 1 Tag} other{noch {count} Tage}}",
+  "@detailDaysLeft": {
+    "description": "Verbleibende Tage bis zum Meilenstein",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailMilestoneDate": "Der nächste Marker fällt am {date}.",
+  "@detailMilestoneDate": {
+    "description": "Satz unter der Meilenstein-Leiste",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "milestoneReached": "erreicht",
+  "@milestoneReached": {
+    "description": "Semantics Marker"
+  },
+  "milestoneNext": "nächster",
+  "@milestoneNext": {
+    "description": "Semantics Marker"
+  },
+  "milestoneOpen": "offen",
+  "@milestoneOpen": {
+    "description": "Semantics Marker"
+  },
+  "legendMilestone": "Meilenstein",
+  "@legendMilestone": {
+    "description": "Legende Kalender"
+  },
+  "calendarMilestone": "Meilenstein {days}",
+  "@calendarMilestone": {
+    "description": "Semantics Kalendertag",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   }
 }

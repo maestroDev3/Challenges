@@ -21,3 +21,29 @@ int? milestoneReached(ActiveChallenge before, ActiveChallenge after) {
 List<int> badges(ActiveChallenge c) => (c.kind is DailyKind || c.kind is JournalKind)
     ? [for (final m in milestones) if (c.bestStreak >= m) m]
     : const [];
+
+/// Der nächste Meilenstein: Länge, verbleibende Tage und der Tag, an dem er
+/// bei lückenloser Serie fällt.
+typedef NextMilestone = ({int days, int remaining, DateTime date});
+
+/// Nächster Meilenstein ab der aktuellen Serie – oder null bei einmaligen
+/// und Wochenziel-Challenges, nach 100 Tagen oder wenn das Ziel einer
+/// X-Tage-Challenge vorher erreicht ist.
+NextMilestone? nextMilestone(ActiveChallenge c, DateTime today) {
+  final kind = c.kind;
+  if (kind is! DailyKind && kind is! JournalKind) return null;
+  final t = dayOf(today);
+  final streak = c.currentStreak(t);
+  final todayDone = c.checkInOn(t)?.status == CheckInStatus.done;
+  for (final m in milestones) {
+    if (streak >= m) continue;
+    if (kind case DailyKind(days: final goal?) when m > goal) return null;
+    final remaining = m - streak;
+    return (
+      days: m,
+      remaining: remaining,
+      date: t.add(Duration(days: todayDone ? remaining : remaining - 1)),
+    );
+  }
+  return null;
+}
