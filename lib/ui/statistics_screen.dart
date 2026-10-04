@@ -252,11 +252,8 @@ class _Tile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label.toUpperCase(),
-            style: text.labelSmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-              letterSpacing: 0.8,
-            ),
+            label,
+            style: text.labelMedium?.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 4),
           Text(

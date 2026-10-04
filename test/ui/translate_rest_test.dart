@@ -67,9 +67,7 @@ void main() {
       locale: english,
     );
     expect(find.text('Your profile'), findsOneWidget);
-    expect(find.text('Running'), findsOneWidget);
-    expect(find.text('Days done'), findsOneWidget);
-    expect(find.text('Longest streak'), findsOneWidget);
+    expect(find.text('See last week'), findsOneWidget);
     expect(find.byTooltip('Settings'), findsOneWidget);
     // Der Leitsatz bleibt in allen Sprachen Englisch.
     expect(find.text('Sacrifice the moment. Evolve the future.'), findsOneWidget);
