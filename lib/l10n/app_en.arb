@@ -246,5 +246,20 @@
   "planSuggestWakeUp": "After waking up",
   "planSuggestBreakfast": "After breakfast",
   "planSuggestWork": "After work",
-  "planSuggestBed": "Before bed"
+  "planSuggestBed": "Before bed",
+  "weekReviewTitle": "Your week",
+  "weekReviewRatio": "{done} of {due}",
+  "weekReviewDoneLabel": "done",
+  "weekReviewRateLabel": "Rate",
+  "weekReviewMinutesLabel": "Time",
+  "weekReviewEmpty": "No ritual ran this week.",
+  "weekReviewGoalReached": "Goal reached",
+  "weekReviewGoalMissed": "Goal missed",
+  "weekReviewJokers": "{count, plural, =1{1 joker} other{{count} jokers}}",
+  "weekReviewBadge": "New badge: {days} · {title}",
+  "weekReviewBestStreak": "Longest streak: {count}",
+  "weekReviewClose": "Close the week",
+  "durationHoursMinutes": "{hours} h {minutes}",
+  "durationMinutes": "{minutes} min",
+  "profileLastWeek": "See last week"
 }

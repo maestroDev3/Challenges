@@ -8,6 +8,15 @@ DateTime weekStartOf(DateTime day) {
   return d.subtract(Duration(days: d.weekday - DateTime.monday));
 }
 
+/// Montag der Woche, die der Rückblick zeigt: sonntags die laufende Woche,
+/// an allen anderen Tagen die vergangene.
+DateTime reviewWeekFor(DateTime today) {
+  final start = weekStartOf(today);
+  return dayOf(today).weekday == DateTime.sunday
+      ? start
+      : start.subtract(const Duration(days: 7));
+}
+
 /// Ein Meilenstein, der in der betrachteten Woche erreicht wurde.
 class WeekBadge {
   const WeekBadge({required this.challenge, required this.milestone});

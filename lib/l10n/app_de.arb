@@ -1217,5 +1217,104 @@
   "planSuggestBed": "Vor dem Schlafengehen",
   "@planSuggestBed": {
     "description": "Vorschlag für „Wann?“"
+  },
+  "weekReviewTitle": "Deine Woche",
+  "@weekReviewTitle": {
+    "description": "Überschrift Wochenrückblick"
+  },
+  "weekReviewRatio": "{done} von {due}",
+  "@weekReviewRatio": {
+    "description": "Erledigt von fällig",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "weekReviewDoneLabel": "erledigt",
+  "@weekReviewDoneLabel": {
+    "description": "Beschriftung Kennzahl"
+  },
+  "weekReviewRateLabel": "Quote",
+  "@weekReviewRateLabel": {
+    "description": "Beschriftung Kennzahl"
+  },
+  "weekReviewMinutesLabel": "Zeit",
+  "@weekReviewMinutesLabel": {
+    "description": "Beschriftung Kennzahl Minuten"
+  },
+  "weekReviewEmpty": "In dieser Woche lief kein Ritual.",
+  "@weekReviewEmpty": {
+    "description": "Leerhinweis"
+  },
+  "weekReviewGoalReached": "Ziel erreicht",
+  "@weekReviewGoalReached": {
+    "description": "Wochenziel geschafft"
+  },
+  "weekReviewGoalMissed": "Ziel verfehlt",
+  "@weekReviewGoalMissed": {
+    "description": "Wochenziel nicht geschafft"
+  },
+  "weekReviewJokers": "{count, plural, =1{1 Joker} other{{count} Joker}}",
+  "@weekReviewJokers": {
+    "description": "Verbrauchte Joker in der Woche",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekReviewBadge": "Neues Abzeichen: {days} · {title}",
+  "@weekReviewBadge": {
+    "description": "Meilenstein der Woche",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "weekReviewBestStreak": "Längste Serie: {count}",
+  "@weekReviewBestStreak": {
+    "description": "Beste aktuelle Serie",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekReviewClose": "Woche abschließen",
+  "@weekReviewClose": {
+    "description": "Knopf"
+  },
+  "durationHoursMinutes": "{hours} h {minutes}",
+  "@durationHoursMinutes": {
+    "description": "Dauer ab einer Stunde, z. B. 3 h 40",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "description": "Dauer unter einer Stunde",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "profileLastWeek": "Letzte Woche ansehen",
+  "@profileLastWeek": {
+    "description": "Einstieg zum Wochenrückblick"
   }
 }

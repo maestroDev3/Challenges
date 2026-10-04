@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/profile.dart';
 import '../domain/settings.dart';
+import '../domain/week_review.dart';
 import 'l10n.dart';
 import 'theme.dart';
+import 'week_review_screen.dart';
 
 /// Profil mit Name und Übersicht über alle Challenges.
 class ProfileScreen extends StatelessWidget {
@@ -13,10 +16,12 @@ class ProfileScreen extends StatelessWidget {
     required this.repository,
     required this.settings,
     this.onOpenSettings,
+    this.clock = DateTime.now,
   });
 
   final ChallengeRepository repository;
   final SettingsRepository settings;
+  final Clock clock;
 
   /// Öffnet die Einstellungen; ohne Callback gibt es kein Zahnrad.
   final VoidCallback? onOpenSettings;
@@ -75,6 +80,22 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      if (!stats.isEmpty) ...[
+                        OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => WeekReviewScreen(
+                                repository: repository,
+                                weekStart: reviewWeekFor(clock()),
+                                clock: clock,
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.history_outlined),
+                          label: Text(context.l10n.profileLastWeek),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       if (stats.isEmpty)
                         Text(
                           context.l10n.profileEmpty,

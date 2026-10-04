@@ -91,6 +91,7 @@ class _HomeShellState extends State<HomeShell> {
           ProfileScreen(
             repository: widget.repository,
             settings: widget.settings ?? _defaultSettings,
+            clock: widget.clock,
             onOpenSettings: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => SettingsScreen(

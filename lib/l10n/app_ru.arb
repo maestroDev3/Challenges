@@ -246,5 +246,20 @@
   "planSuggestWakeUp": "После пробуждения",
   "planSuggestBreakfast": "После завтрака",
   "planSuggestWork": "После работы",
-  "planSuggestBed": "Перед сном"
+  "planSuggestBed": "Перед сном",
+  "weekReviewTitle": "Твоя неделя",
+  "weekReviewRatio": "{done} из {due}",
+  "weekReviewDoneLabel": "выполнено",
+  "weekReviewRateLabel": "Доля",
+  "weekReviewMinutesLabel": "Время",
+  "weekReviewEmpty": "На этой неделе ритуалов не было.",
+  "weekReviewGoalReached": "Цель достигнута",
+  "weekReviewGoalMissed": "Цель не достигнута",
+  "weekReviewJokers": "{count, plural, one{{count} джокер} few{{count} джокера} many{{count} джокеров} other{{count} джокера}}",
+  "weekReviewBadge": "Новый значок: {days} · {title}",
+  "weekReviewBestStreak": "Самая длинная серия: {count}",
+  "weekReviewClose": "Завершить неделю",
+  "durationHoursMinutes": "{hours} ч {minutes}",
+  "durationMinutes": "{minutes} мин",
+  "profileLastWeek": "Посмотреть прошлую неделю"
 }
