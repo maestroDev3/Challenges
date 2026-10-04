@@ -4,19 +4,19 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-10-02
+**Zuletzt aktualisiert:** 2026-10-05
 
 ## In Arbeit
 
-- #124 Wenn-Dann-Plan (Epic #104) – Branch `epic/planen`, alle Tasks erledigt
-  (#144, #145, #146). Wartet auf: Test der APK (Release „test“) durch den Nutzer,
-  dann Merge nach `main`.
-  Entscheidungen: zwei Felder „Wann?“/„Wo?“ mit Vorschlägen; der Plan ersetzt in
-  der Erinnerung die Frage „Hast du es heute geschafft?“.
+- #134 Wochenrückblick am Sonntagabend (Epic #36) – Branch `epic/statistik`
+  (abgezweigt vom getesteten Stand von `epic/planen`), danach dort #82
+  Dashboard und Kennzahlen. Eine Test-APK für beide zusammen.
+- #124 Wenn-Dann-Plan: vom Nutzer getestet (05.10.), PR #150 wartet auf Merge
+  nach `main` durch den Nutzer.
 
 ## Als Nächstes
 
-- Nach Test und Merge von #124: #33 Fortschrittsfotos (Epic #36) oder Story nach Wahl des Nutzers
+- #82 Dashboard und Kennzahlen (ready), danach #135 Abendliche Warnung
 
 ## Backlog nach Initiative → Epic
 
@@ -25,19 +25,21 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
 | #104 Planen und Vorbereiten | 1 von 2 zu | #124 Wenn-Dann-Plan (in Arbeit) |
-| #36 Motivation und Dranbleiben | 1 von 5 zu | #33 Fortschrittsfotos → #134 Wochenrückblick → #82 Dashboard und Kennzahlen → #135 Warnung vor dem Serienende |
+| #36 Motivation und Dranbleiben | 1 von 7 zu | #134 Wochenrückblick (in Arbeit) → #82 Dashboard und Kennzahlen (ready) → #135 Warnung vor dem Serienende → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
 
 **#138 Challenges gestalten**
 
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
 | #137 Programme | 0 von 1 zu | #136 Challenge-Programme (z. B. 75 Hard) |
+| #161 Fehltag-Regeln für alle Arten | 0 von 1 zu | #162 Regel „Hart“ für fortlaufende Challenges |
 
 **#140 App und Daten**
 
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
 | #142 App startet immer | 0 von 1 zu | #143 Start übersteht unerwartete Daten und Fehler |
+| #151 Technik und Qualität | 0 von 1 zu | #152 Smoke-Test prüft bis zum Heute-Screen |
 
 **#141 Gemeinsam**
 
@@ -56,5 +58,10 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## Offene Entscheidungen (nur der Nutzer)
 
+- #161 Fehltag-Regeln für alle Arten (Epic in #138): neu angelegt – bitte bestätigen oder umsortieren
 - #142 App startet immer (Epic in #140): neu angelegt – bitte bestätigen oder umsortieren
+- #151 Technik und Qualität (Epic in #140): neu angelegt – bitte bestätigen oder
+  umsortieren. Der Nutzer wünscht ein dauerhaftes Sammelbecken für Technik-Themen;
+  laut Konvention sind Epics endlich. Alternative: eigene Initiative „Technik und
+  Qualität“ mit Epics je Vorhaben.
 - Backend für „Gemeinsam“ (z. B. Firebase, Supabase)
