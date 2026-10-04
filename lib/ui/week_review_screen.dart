@@ -263,6 +263,8 @@ class _EntryRow extends StatelessWidget {
                 if (i > 0) const SizedBox(width: 6),
                 Expanded(
                   child: Semantics(
+                    container: true,
+                    excludeSemantics: true,
                     label: '${weekdayShort(l10n, i + 1)} '
                         '${dayStatusLabel(l10n, d)}',
                     child: Container(
