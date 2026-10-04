@@ -71,6 +71,15 @@ void main() {
     });
   });
 
+  group('reviewWeekFor', () {
+    test('sonntags die laufende Woche, sonst die vergangene', () {
+      expect(reviewWeekFor(sunday), dayOf(monday));
+      expect(reviewWeekFor(day(7)), dayOf(monday));
+      expect(reviewWeekFor(day(10)), dayOf(monday));
+      expect(reviewWeekFor(day(13)), dayOf(day(7)));
+    });
+  });
+
   group('WeekReview.of', () {
     test('tägliche Challenge mit 6 von 7 Tagen: done 6, due 7, rate 6/7', () {
       final c = daily(done: [0, 1, 2, 3, 4, 5], missed: [6]);

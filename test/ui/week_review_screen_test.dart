@@ -1,11 +1,14 @@
 import 'package:challenges/domain/active_challenge.dart';
 import 'package:challenges/domain/catalog.dart';
 import 'package:challenges/domain/challenge.dart';
+import 'package:challenges/domain/settings.dart';
+import 'package:challenges/ui/profile_screen.dart';
 import 'package:challenges/ui/week_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fake_repository.dart';
+import '../support/fake_settings_repository.dart';
 import '../support/pump_app.dart';
 
 /// Montag, 28.09.2026; der Rückblick läuft am Sonntag, 04.10. um 19 Uhr.
@@ -74,7 +77,8 @@ Widget screen(FakeChallengeRepository repo, {DateTime? now}) =>
     );
 
 void main() {
-  testWidgets('zeigt je Challenge eine Karte mit „x von y“', (tester) async {
+  testWidgets('zeigt je Challenge eine Karte mit „x von y“',
+      (tester) async {
     final repo = FakeChallengeRepository(initial: [
       daily('meditate-sleep', done: [0, 1, 2, 3, 4, 5], missed: [6]),
       sport([1, 4]),
@@ -127,7 +131,8 @@ void main() {
     );
   });
 
-  testWidgets('Minuten aus Wochenzielen stehen als „1 h 50“', (tester) async {
+  testWidgets('Minuten aus Wochenzielen stehen als „1 h 50“',
+      (tester) async {
     final repo = FakeChallengeRepository(initial: [nature({1: 60, 4: 50})]);
     await tester.pumpApp(screen(repo));
     expect(find.text('1 h 50'), findsOneWidget);
@@ -155,6 +160,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Deine Woche'), findsNothing);
     expect(find.text('Öffnen'), findsOneWidget);
+  });
+
+  testWidgets('aus dem Profil öffnet „Letzte Woche ansehen“ den Rückblick',
+      (tester) async {
+    final repo = FakeChallengeRepository(initial: [
+      daily('meditate-sleep', done: [0, 1, 2, 3, 4, 5, 6]),
+    ]);
+    await tester.pumpApp(ProfileScreen(
+      repository: repo,
+      settings: FakeSettingsRepository(const AppSettings(name: 'Mia')),
+      clock: () => day(9), // Mittwoch der Folgewoche → vergangene Woche
+    ));
+    await tester.tap(find.text('Letzte Woche ansehen'));
+    await tester.pumpAndSettle();
+    expect(find.text('Deine Woche'), findsOneWidget);
+    expect(find.text('7 von 7'), findsAtLeastNWidgets(1));
   });
 
   testWidgets('Texte gibt es auf Englisch und Russisch', (tester) async {
