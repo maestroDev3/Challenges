@@ -4,7 +4,7 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-10-03
+**Zuletzt aktualisiert:** 2026-10-04
 
 ## In Arbeit
 
@@ -14,7 +14,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## Als Nächstes
 
-- Nach Test und Merge von #124: #33 Fortschrittsfotos (Epic #36) oder Story nach Wahl des Nutzers
+- Nach Test und Merge von #124: #134 Wochenrückblick (ready), dann #82 Dashboard und Kennzahlen (ready) – Entwurf vom Nutzer abgenommen (04.10.)
 
 ## Backlog nach Initiative → Epic
 
@@ -23,7 +23,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
 | #104 Planen und Vorbereiten | 1 von 2 zu | #124 Wenn-Dann-Plan (in Arbeit) |
-| #36 Motivation und Dranbleiben | 1 von 5 zu | #33 Fortschrittsfotos → #134 Wochenrückblick → #82 Dashboard und Kennzahlen → #135 Warnung vor dem Serienende |
+| #36 Motivation und Dranbleiben | 1 von 7 zu | #134 Wochenrückblick (ready) → #82 Dashboard und Kennzahlen (ready) → #135 Warnung vor dem Serienende → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
 
 **#138 Challenges gestalten**
 
