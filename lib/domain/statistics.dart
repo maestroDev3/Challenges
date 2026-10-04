@@ -1,6 +1,6 @@
 import 'active_challenge.dart';
 import 'challenge.dart';
-import 'milestones.dart';
+import 'milestones.dart' as milestones;
 import 'week_review.dart';
 
 /// Zeitraum für Kopfzahlen und Zeit-Summen: laufender Kalendermonat oder
@@ -202,7 +202,8 @@ class Statistics {
       ],
       badges: [
         for (final c in all)
-          for (final m in badges(c)) BadgeStat(challenge: c, milestone: m),
+          for (final m in milestones.badges(c))
+            BadgeStat(challenge: c, milestone: m),
       ],
     );
   }
