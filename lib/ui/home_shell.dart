@@ -10,6 +10,7 @@ import 'catalog_screen.dart';
 import 'l10n.dart';
 import 'profile_screen.dart';
 import 'settings_screen.dart';
+import 'statistics_screen.dart';
 import 'today_screen.dart';
 import 'week_review_screen.dart';
 
@@ -100,6 +101,10 @@ class _HomeShellState extends State<HomeShell> {
               },
             ),
           ),
+          StatisticsScreen(
+            repository: widget.repository,
+            clock: widget.clock,
+          ),
           ProfileScreen(
             repository: widget.repository,
             settings: widget.settings ?? _defaultSettings,
@@ -131,6 +136,11 @@ class _HomeShellState extends State<HomeShell> {
             icon: const Icon(Icons.explore_outlined),
             selectedIcon: const Icon(Icons.explore),
             label: context.l10n.navDiscover,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.bar_chart_outlined),
+            selectedIcon: const Icon(Icons.bar_chart),
+            label: context.l10n.navStatistics,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),
