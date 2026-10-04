@@ -156,8 +156,10 @@ void main() {
         () {
       final nature = natureMinutes({1: 40, 3: 70});
       final sport = sportTimes(done: [2]);
-      final r = WeekReview.of([nature, sport], weekStart: monday, today: sunday);
-      final natureEntry = r.entries.firstWhere((e) => e.challenge.id == 'nature');
+      final r =
+          WeekReview.of([nature, sport], weekStart: monday, today: sunday);
+      final natureEntry =
+          r.entries.firstWhere((e) => e.challenge.id == 'nature');
       expect(natureEntry.minutes, 110);
       expect(r.totalMinutes, 110);
     });
@@ -191,8 +193,11 @@ void main() {
     });
 
     test('bestStreak ist die höchste aktuelle Serie am Ende der Woche', () {
-      final a = daily(id: 'meditate-sleep', startOffset: -5,
-          done: [for (var d = -5; d <= 6; d++) d]);
+      final a = daily(
+        id: 'meditate-sleep',
+        startOffset: -5,
+        done: [for (var d = -5; d <= 6; d++) d],
+      );
       final b = daily(id: 'eye-gaze', done: [0, 1, 2, 3, 4, 5, 6]);
       final r = WeekReview.of([a, b], weekStart: monday, today: sunday);
       expect(r.bestStreak, 12);
