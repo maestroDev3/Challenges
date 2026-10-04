@@ -104,12 +104,14 @@ void main() {
         missed: [2],
       ),
     ]);
+    final semantics = tester.ensureSemantics();
     await tester.pumpApp(screen(repo));
     // Tag 2 (Mi) vom Joker gerettet, Tag 5 (Sa) ohne Eintrag = verpasst.
     expect(find.bySemanticsLabel(RegExp(r'^Mi.*Joker$')), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp(r'^Sa.*verpasst$')), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp(r'^Mo.*erledigt$')), findsOneWidget);
     expect(find.text('1 Joker'), findsOneWidget);
+    semantics.dispose();
   });
 
   testWidgets('ohne Challenges erscheint ein Leerhinweis', (tester) async {
