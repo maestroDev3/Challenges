@@ -493,13 +493,15 @@ class _BadgeChip extends StatelessWidget {
                 size: 16, color: scheme.onPrimaryContainer),
             const SizedBox(width: 6),
           ],
-          Text(
-            label,
-            style: TextStyle(
-              color: earned
-                  ? scheme.onPrimaryContainer
-                  : scheme.onSurfaceVariant,
-              fontWeight: earned ? FontWeight.w600 : FontWeight.normal,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: earned
+                    ? scheme.onPrimaryContainer
+                    : scheme.onSurfaceVariant,
+                fontWeight: earned ? FontWeight.w600 : FontWeight.normal,
+              ),
             ),
           ),
         ],
