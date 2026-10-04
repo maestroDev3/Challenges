@@ -295,5 +295,13 @@
   "statsWeekdaysBestWorst": "Сильный день: {best} · слабый: {worst}",
   "statsTimeTitle": "Время",
   "statsTimeHint": "из ритуалов с недельной целью",
-  "statsTotal": "Итого"
+  "statsTotal": "Итого",
+  "detailNextMilestone": "Следующий рубеж",
+  "detailDaysLeft": "{count, plural, one{ещё {count} день} few{ещё {count} дня} many{ещё {count} дней} other{ещё {count} дня}}",
+  "detailMilestoneDate": "Следующая отметка выпадает на {date}.",
+  "milestoneReached": "достигнут",
+  "milestoneNext": "следующий",
+  "milestoneOpen": "впереди",
+  "legendMilestone": "Рубеж",
+  "calendarMilestone": "Рубеж {days}"
 }

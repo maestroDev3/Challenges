@@ -295,5 +295,13 @@
   "statsWeekdaysBestWorst": "Strongest day: {best} · weakest: {worst}",
   "statsTimeTitle": "Time",
   "statsTimeHint": "from weekly-goal rituals",
-  "statsTotal": "Total"
+  "statsTotal": "Total",
+  "detailNextMilestone": "Next milestone",
+  "detailDaysLeft": "{count, plural, =1{1 day to go} other{{count} days to go}}",
+  "detailMilestoneDate": "The next marker falls on {date}.",
+  "milestoneReached": "reached",
+  "milestoneNext": "next",
+  "milestoneOpen": "open",
+  "legendMilestone": "Milestone",
+  "calendarMilestone": "Milestone {days}"
 }
