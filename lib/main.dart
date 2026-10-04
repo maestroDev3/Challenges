@@ -15,6 +15,7 @@ import 'domain/challenge_repository.dart';
 import 'domain/reminders.dart';
 import 'domain/widget_data.dart';
 import 'ui/app.dart';
+import 'ui/home_shell.dart';
 
 /// Hält das Homescreen-Widget aktuell (in der gewählten Sprache); Fehler
 /// (z. B. kein Widget) sind egal.
@@ -83,9 +84,17 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final repository = LocalChallengeRepository(prefs);
 
+  final navigatorKey = GlobalKey<NavigatorState>();
   late final LocalNotificationScheduler scheduler;
   scheduler = await LocalNotificationScheduler.create(
     onResponse: (r) async {
+      if (isWeekReviewPayload(r.payload)) {
+        final context = navigatorKey.currentContext;
+        if (context != null) {
+          openWeekReview(context, repository, DateTime.now);
+        }
+        return;
+      }
       await handleNotificationAction(
         repository,
         actionId: r.actionId,
@@ -98,21 +107,30 @@ Future<void> main() async {
     onBackgroundResponse: onNotificationActionInBackground,
     texts: () => loadAppTexts(prefs),
   );
-  await syncReminders(repository, scheduler, now: DateTime.now());
-
-  await HomeWidget.registerInteractivityCallback(onWidgetTapped);
-  repository.watch().listen((_) => _refreshWidget(repository, prefs));
-
   final settings = LocalSettingsRepository(prefs);
   final initialSettings = await settings.load();
+  await syncReminders(repository, scheduler,
+      now: DateTime.now(), settings: initialSettings);
+
+  await HomeWidget.registerInteractivityCallback(onWidgetTapped);
+  repository.watch().listen((_) async {
+    await _refreshWidget(repository, prefs);
+    // Letzte Challenge archiviert → keine Sonntags-Benachrichtigung mehr.
+    await syncWeekReview(repository, scheduler,
+        now: DateTime.now(), settings: await settings.load());
+  });
+
   // Sprachwechsel: Widget-Texte sofort anpassen.
   settings.watch().skip(1).listen((_) => _refreshWidget(repository, prefs));
+  final openWeekReview = await scheduler.launchedByWeekReview();
 
   runApp(ChallengesApp(
     repository: repository,
     scheduler: scheduler,
     backupFiles: const AndroidBackupFiles(),
     settings: settings,
-    showIntro: initialSettings.showIntro,
+    showIntro: initialSettings.showIntro && !openWeekReview,
+    openWeekReview: openWeekReview,
+    navigatorKey: navigatorKey,
   ));
 }

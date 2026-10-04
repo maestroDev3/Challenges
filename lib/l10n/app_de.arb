@@ -1316,5 +1316,25 @@
   "profileLastWeek": "Letzte Woche ansehen",
   "@profileLastWeek": {
     "description": "Einstieg zum Wochenrückblick"
+  },
+  "settingsWeekReview": "Wochenrückblick am Sonntag",
+  "@settingsWeekReview": {
+    "description": "Schalter in den Einstellungen"
+  },
+  "settingsWeekReviewHint": "Sonntags eine Benachrichtigung „Deine Woche“ mit Bilanz.",
+  "@settingsWeekReviewHint": {
+    "description": "Erklärung zum Schalter"
+  },
+  "settingsWeekReviewTime": "Uhrzeit Wochenrückblick",
+  "@settingsWeekReviewTime": {
+    "description": "Uhrzeit der Sonntags-Benachrichtigung"
+  },
+  "weekReviewNotificationTitle": "Deine Woche",
+  "@weekReviewNotificationTitle": {
+    "description": "Titel der Sonntags-Benachrichtigung"
+  },
+  "weekReviewNotificationBody": "Zeit für die Bilanz – tippe für deinen Rückblick.",
+  "@weekReviewNotificationBody": {
+    "description": "Text der Sonntags-Benachrichtigung"
   }
 }

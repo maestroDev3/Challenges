@@ -5,11 +5,13 @@ import '../domain/backup_files.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/reminders.dart';
 import '../domain/settings.dart';
+import '../domain/week_review.dart';
 import 'catalog_screen.dart';
 import 'l10n.dart';
 import 'profile_screen.dart';
 import 'settings_screen.dart';
 import 'today_screen.dart';
+import 'week_review_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({
@@ -19,10 +21,14 @@ class HomeShell extends StatefulWidget {
     this.scheduler,
     this.backupFiles,
     this.settings,
+    this.openWeekReview = false,
   });
 
   final ChallengeRepository repository;
   final Clock clock;
+
+  /// Nach dem ersten Aufbau den Wochenrückblick öffnen.
+  final bool openWeekReview;
 
   /// Plant/storniert Erinnerungen; null in Tests ohne Erinnerungen.
   final ReminderScheduler? scheduler;
@@ -56,6 +62,12 @@ class _HomeShellState extends State<HomeShell> {
         setState(() {}); // neues „Heute“, falls über Mitternacht
       },
     );
+    if (widget.openWeekReview) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        openWeekReview(context, widget.repository, widget.clock);
+      });
+    }
   }
 
   @override
@@ -129,4 +141,18 @@ class _HomeShellState extends State<HomeShell> {
       ),
     );
   }
+}
+
+/// Öffnet den Rückblick auf die passende Woche (sonntags die laufende).
+void openWeekReview(
+    BuildContext context, ChallengeRepository repository, Clock clock) {
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => WeekReviewScreen(
+        repository: repository,
+        weekStart: reviewWeekFor(clock()),
+        clock: clock,
+      ),
+    ),
+  );
 }

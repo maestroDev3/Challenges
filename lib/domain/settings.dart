@@ -11,6 +11,8 @@ class AppSettings {
     this.defaultReminder,
     this.showIntro = true,
     this.language,
+    this.weekReviewEnabled = true,
+    this.weekReviewTime = const ReminderTime(19, 0),
   });
 
   /// Anzeigename im Profil; leer, solange der Nutzer keinen gesetzt hat.
@@ -26,6 +28,12 @@ class AppSettings {
   /// Gewählte Sprache (`de`, `en`, `ru`); `null` heißt Systemsprache.
   final String? language;
 
+  /// Sonntags-Benachrichtigung „Deine Woche“ mit dem Wochenrückblick.
+  final bool weekReviewEnabled;
+
+  /// Uhrzeit der Sonntags-Benachrichtigung.
+  final ReminderTime weekReviewTime;
+
   AppSettings copyWith({
     String? name,
     ReminderTime? defaultReminder,
@@ -33,6 +41,8 @@ class AppSettings {
     bool? showIntro,
     String? language,
     bool clearLanguage = false,
+    bool? weekReviewEnabled,
+    ReminderTime? weekReviewTime,
   }) =>
       AppSettings(
         name: name ?? this.name,
@@ -41,6 +51,8 @@ class AppSettings {
             : defaultReminder ?? this.defaultReminder,
         showIntro: showIntro ?? this.showIntro,
         language: clearLanguage ? null : language ?? this.language,
+        weekReviewEnabled: weekReviewEnabled ?? this.weekReviewEnabled,
+        weekReviewTime: weekReviewTime ?? this.weekReviewTime,
       );
 
   @override
@@ -49,10 +61,13 @@ class AppSettings {
       other.name == name &&
       other.defaultReminder == defaultReminder &&
       other.showIntro == showIntro &&
-      other.language == language;
+      other.language == language &&
+      other.weekReviewEnabled == weekReviewEnabled &&
+      other.weekReviewTime == weekReviewTime;
 
   @override
-  int get hashCode => Object.hash(name, defaultReminder, showIntro, language);
+  int get hashCode => Object.hash(name, defaultReminder, showIntro, language,
+      weekReviewEnabled, weekReviewTime);
 }
 
 /// Zugriff auf die Einstellungen; heute lokal gespeichert.
@@ -72,6 +87,11 @@ String encodeSettings(AppSettings settings) => jsonEncode({
         'defaultReminder': {'hour': reminder.hour, 'minute': reminder.minute},
       'showIntro': settings.showIntro,
       'language': ?settings.language,
+      'weekReviewEnabled': settings.weekReviewEnabled,
+      'weekReviewTime': {
+        'hour': settings.weekReviewTime.hour,
+        'minute': settings.weekReviewTime.minute,
+      },
     });
 
 /// Liest gespeicherte Einstellungen. Beschädigte Daten ergeben die
@@ -81,6 +101,7 @@ AppSettings decodeSettings(String text) {
     final json = jsonDecode(text);
     if (json is! Map<String, dynamic>) return const AppSettings();
     final reminder = json['defaultReminder'];
+    final review = json['weekReviewTime'];
     return AppSettings(
       name: json['name'] as String? ?? '',
       defaultReminder: reminder is Map<String, dynamic>
@@ -88,6 +109,10 @@ AppSettings decodeSettings(String text) {
           : null,
       showIntro: json['showIntro'] as bool? ?? true,
       language: json['language'] as String?,
+      weekReviewEnabled: json['weekReviewEnabled'] as bool? ?? true,
+      weekReviewTime: review is Map<String, dynamic>
+          ? ReminderTime(review['hour'] as int, review['minute'] as int)
+          : const ReminderTime(19, 0),
     );
   } on Object catch (_) {
     return const AppSettings();
