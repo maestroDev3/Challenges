@@ -63,10 +63,7 @@ StreakWarning? streakWarningFor(ActiveChallenge c, DateTime today) {
 
 /// Alle offenen Serien für die Zeile im Tab „Statistik“.
 List<StreakWarning> openStreaks(List<ActiveChallenge> all, DateTime today) =>
-    [
-      for (final c in all)
-        if (streakWarningFor(c, today) case final w?) w,
-    ];
+    [for (final c in all) ?streakWarningFor(c, today)];
 
 /// Zeitpunkte der Warn-Benachrichtigung: heute zur eingestellten Zeit, falls
 /// die Warnung gilt und die Zeit noch nicht vorbei ist; ist heute schon
