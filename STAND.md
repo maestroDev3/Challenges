@@ -9,11 +9,11 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 ## In Arbeit
 
 - #135 Abendliche Warnung vor dem Serienende (Epic #36) – Branch
-  `epic/warnung` (von `epic/statistik`). Entscheidungen 06.10.: nur ab
-  Serie ≥ 3, keine Zeile auf Heute, Regel Hart ohne eigenen Text.
-- Warten auf Merge durch den Nutzer: PR #150 (#124 Wenn-Dann-Plan, getestet)
-  und PR #170 (#134 Wochenrückblick + #82 Dashboard, Test-APK „test“).
-  Reihenfolge: #150 → #170 → danach `epic/warnung`.
+  `epic/warnung` (von `epic/statistik`), alle Tasks erledigt (#171–#173).
+  Wartet auf: Test der APK (Release „test“) durch den Nutzer, dann Merge.
+- Warten auf Merge durch den Nutzer, in dieser Reihenfolge: PR #150 (#124
+  Wenn-Dann-Plan, getestet) → PR #170 (#134 Wochenrückblick + #82 Dashboard)
+  → PR für `epic/warnung` (#135).
 
 ## Als Nächstes
 
