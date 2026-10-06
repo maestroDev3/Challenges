@@ -13,6 +13,8 @@ class AppSettings {
     this.language,
     this.weekReviewEnabled = true,
     this.weekReviewTime = const ReminderTime(19, 0),
+    this.streakWarningEnabled = true,
+    this.streakWarningTime = const ReminderTime(21, 0),
   });
 
   /// Anzeigename im Profil; leer, solange der Nutzer keinen gesetzt hat.
@@ -34,6 +36,12 @@ class AppSettings {
   /// Uhrzeit der Sonntags-Benachrichtigung.
   final ReminderTime weekReviewTime;
 
+  /// Abendliche Warnung, wenn eine Serie heute noch offen ist.
+  final bool streakWarningEnabled;
+
+  /// Uhrzeit der abendlichen Warnung.
+  final ReminderTime streakWarningTime;
+
   AppSettings copyWith({
     String? name,
     ReminderTime? defaultReminder,
@@ -43,6 +51,8 @@ class AppSettings {
     bool clearLanguage = false,
     bool? weekReviewEnabled,
     ReminderTime? weekReviewTime,
+    bool? streakWarningEnabled,
+    ReminderTime? streakWarningTime,
   }) =>
       AppSettings(
         name: name ?? this.name,
@@ -53,6 +63,8 @@ class AppSettings {
         language: clearLanguage ? null : language ?? this.language,
         weekReviewEnabled: weekReviewEnabled ?? this.weekReviewEnabled,
         weekReviewTime: weekReviewTime ?? this.weekReviewTime,
+        streakWarningEnabled: streakWarningEnabled ?? this.streakWarningEnabled,
+        streakWarningTime: streakWarningTime ?? this.streakWarningTime,
       );
 
   @override
@@ -63,11 +75,14 @@ class AppSettings {
       other.showIntro == showIntro &&
       other.language == language &&
       other.weekReviewEnabled == weekReviewEnabled &&
-      other.weekReviewTime == weekReviewTime;
+      other.weekReviewTime == weekReviewTime &&
+      other.streakWarningEnabled == streakWarningEnabled &&
+      other.streakWarningTime == streakWarningTime;
 
   @override
   int get hashCode => Object.hash(name, defaultReminder, showIntro, language,
-      weekReviewEnabled, weekReviewTime);
+      weekReviewEnabled, weekReviewTime, streakWarningEnabled,
+      streakWarningTime);
 }
 
 /// Zugriff auf die Einstellungen; heute lokal gespeichert.
@@ -92,6 +107,11 @@ String encodeSettings(AppSettings settings) => jsonEncode({
         'hour': settings.weekReviewTime.hour,
         'minute': settings.weekReviewTime.minute,
       },
+      'streakWarningEnabled': settings.streakWarningEnabled,
+      'streakWarningTime': {
+        'hour': settings.streakWarningTime.hour,
+        'minute': settings.streakWarningTime.minute,
+      },
     });
 
 /// Liest gespeicherte Einstellungen. Beschädigte Daten ergeben die
@@ -102,6 +122,7 @@ AppSettings decodeSettings(String text) {
     if (json is! Map<String, dynamic>) return const AppSettings();
     final reminder = json['defaultReminder'];
     final review = json['weekReviewTime'];
+    final warning = json['streakWarningTime'];
     return AppSettings(
       name: json['name'] as String? ?? '',
       defaultReminder: reminder is Map<String, dynamic>
@@ -113,6 +134,10 @@ AppSettings decodeSettings(String text) {
       weekReviewTime: review is Map<String, dynamic>
           ? ReminderTime(review['hour'] as int, review['minute'] as int)
           : const ReminderTime(19, 0),
+      streakWarningEnabled: json['streakWarningEnabled'] as bool? ?? true,
+      streakWarningTime: warning is Map<String, dynamic>
+          ? ReminderTime(warning['hour'] as int, warning['minute'] as int)
+          : const ReminderTime(21, 0),
     );
   } on Object catch (_) {
     return const AppSettings();

@@ -23,6 +23,21 @@ class FakeReminderScheduler implements ReminderScheduler {
   Future<void> clearSession(ActiveChallenge challenge) async =>
       sessionsCleared.add(challenge.id);
 
+  final streakWarnings = <String, List<DateTime>>{};
+  final streakWarningsCancelled = <String>[];
+
+  @override
+  Future<void> scheduleStreakWarning(
+      ActiveChallenge c, List<DateTime> times) async {
+    streakWarnings[c.id] = times;
+  }
+
+  @override
+  Future<void> cancelStreakWarning(ActiveChallenge c) async {
+    streakWarnings.remove(c.id);
+    streakWarningsCancelled.add(c.id);
+  }
+
   DateTime? weekReviewAt;
   var weekReviewCancelled = 0;
 
