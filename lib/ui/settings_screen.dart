@@ -6,6 +6,7 @@ import '../domain/challenge_repository.dart';
 import '../domain/language.dart';
 import '../domain/reminders.dart';
 import '../domain/settings.dart';
+import '../domain/streak_warning.dart';
 import 'adjust_sheet.dart';
 import 'backup_screen.dart';
 import 'l10n.dart';
@@ -66,6 +67,25 @@ class SettingsScreen extends StatelessWidget {
     if (picked == null) return;
     await _saveWeekReview(current.copyWith(
         weekReviewTime: ReminderTime(picked.hour, picked.minute)));
+  }
+
+  /// Speichert und plant die abendlichen Warnungen passend neu.
+  Future<void> _saveStreakWarning(AppSettings updated) async {
+    await settings.save(updated);
+    if (scheduler case final scheduler?) {
+      await syncStreakWarnings(repository, scheduler,
+          now: clock(), settings: updated);
+    }
+  }
+
+  Future<void> _pickStreakWarningTime(
+      BuildContext context, AppSettings current) async {
+    final initial = current.streakWarningTime;
+    final picked = await pickTime(
+        context, TimeOfDay(hour: initial.hour, minute: initial.minute));
+    if (picked == null) return;
+    await _saveStreakWarning(current.copyWith(
+        streakWarningTime: ReminderTime(picked.hour, picked.minute)));
   }
 
   Future<void> _pickLanguage(BuildContext context, AppSettings current) async {
@@ -140,6 +160,21 @@ class SettingsScreen extends StatelessWidget {
                   title: Text(context.l10n.settingsWeekReviewTime),
                   subtitle: Text(current.weekReviewTime.toString()),
                   onTap: () => _pickWeekReviewTime(context, current),
+                ),
+              SwitchListTile(
+                secondary: const Icon(Icons.local_fire_department_outlined),
+                title: Text(context.l10n.settingsStreakWarning),
+                subtitle: Text(context.l10n.settingsStreakWarningHint),
+                value: current.streakWarningEnabled,
+                onChanged: (value) => _saveStreakWarning(
+                    current.copyWith(streakWarningEnabled: value)),
+              ),
+              if (current.streakWarningEnabled)
+                ListTile(
+                  leading: const Icon(Icons.nightlight_outlined),
+                  title: Text(context.l10n.settingsStreakWarningTime),
+                  subtitle: Text(current.streakWarningTime.toString()),
+                  onTap: () => _pickStreakWarningTime(context, current),
                 ),
               _SectionTitle(context.l10n.settingsApp),
               ListTile(

@@ -1586,5 +1586,17 @@
         "type": "int"
       }
     }
+  },
+  "settingsStreakWarning": "Warnung vor dem Serienende",
+  "@settingsStreakWarning": {
+    "description": "Schalter in den Einstellungen"
+  },
+  "settingsStreakWarningHint": "Abends eine zweite Erinnerung, wenn eine Serie ab 3 Tagen heute noch offen ist.",
+  "@settingsStreakWarningHint": {
+    "description": "Erklärung zum Schalter"
+  },
+  "settingsStreakWarningTime": "Uhrzeit der Warnung",
+  "@settingsStreakWarningTime": {
+    "description": "Uhrzeit der Abend-Warnung"
   }
 }
