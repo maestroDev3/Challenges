@@ -4,7 +4,7 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-10-05
+**Zuletzt aktualisiert:** 2026-10-06
 
 ## In Arbeit
 
@@ -22,7 +22,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
-| #36 Motivation und Dranbleiben | 1 von 7 zu | #134 Wochenrückblick (in Arbeit) → #82 Dashboard und Kennzahlen (in Arbeit) → #135 Warnung vor dem Serienende → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
+| #36 Motivation und Dranbleiben | 3 von 7 zu | #135 Warnung vor dem Serienende (in Arbeit) → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
 
 **#138 Challenges gestalten**
 
