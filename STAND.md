@@ -4,19 +4,20 @@ Aktueller Projektstand für Planung und Claude-Projekte. Wird von Claude
 nach jeder Statusänderung gepflegt (siehe CLAUDE.md, Abschnitt „Stand pflegen“).
 Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
-**Zuletzt aktualisiert:** 2026-10-05
+**Zuletzt aktualisiert:** 2026-10-06
 
 ## In Arbeit
 
-- #134 Wochenrückblick und #82 Dashboard und Kennzahlen (Epic #36) – Branch
-  `epic/statistik`, alle Tasks erledigt (#153–#159). Wartet auf: Test der
-  APK (Release „test“) durch den Nutzer, dann Merge nach `main`.
-- #124 Wenn-Dann-Plan: vom Nutzer getestet (05.10.), PR #150 wartet auf Merge
-  nach `main` durch den Nutzer.
+- #135 Abendliche Warnung vor dem Serienende (Epic #36) – Branch
+  `epic/warnung` (von `epic/statistik`). Entscheidungen 06.10.: nur ab
+  Serie ≥ 3, keine Zeile auf Heute, Regel Hart ohne eigenen Text.
+- Warten auf Merge durch den Nutzer: PR #150 (#124 Wenn-Dann-Plan, getestet)
+  und PR #170 (#134 Wochenrückblick + #82 Dashboard, Test-APK „test“).
+  Reihenfolge: #150 → #170 → danach `epic/warnung`.
 
 ## Als Nächstes
 
-- Nach Test und Merge: #135 Abendliche Warnung vor dem Serienende (Epic #36)
+- #33 Fortschrittsfotos (Epic #36) oder Story nach Wahl des Nutzers
 
 ## Backlog nach Initiative → Epic
 
@@ -25,7 +26,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
 | #104 Planen und Vorbereiten | 1 von 2 zu | #124 Wenn-Dann-Plan (in Arbeit) |
-| #36 Motivation und Dranbleiben | 1 von 7 zu | #134 Wochenrückblick (in Arbeit) → #82 Dashboard und Kennzahlen (in Arbeit) → #135 Warnung vor dem Serienende → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
+| #36 Motivation und Dranbleiben | 1 von 7 zu | #134 Wochenrückblick (in Arbeit) → #82 Dashboard und Kennzahlen (in Arbeit) → #135 Warnung vor dem Serienende (in Arbeit) → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
 
 **#138 Challenges gestalten**
 
