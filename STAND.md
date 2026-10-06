@@ -8,9 +8,11 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## In Arbeit
 
-- #124 Wenn-Dann-Plan (Epic #104) – Branch `epic/planen`.
-  Entscheidungen: zwei Felder „Wann?“/„Wo?“; der Plan ersetzt in der Erinnerung
-  die Frage „Hast du es heute geschafft?“.
+- #124 Wenn-Dann-Plan (Epic #104) – Branch `epic/planen`, alle Tasks erledigt
+  (#144, #145, #146). Wartet auf: Test der APK (Release „test“) durch den Nutzer,
+  dann Merge nach `main`.
+  Entscheidungen: zwei Felder „Wann?“/„Wo?“ mit Vorschlägen; der Plan ersetzt in
+  der Erinnerung die Frage „Hast du es heute geschafft?“.
 
 ## Als Nächstes
 

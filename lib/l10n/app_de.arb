@@ -1181,5 +1181,41 @@
   "startsTomorrow": "morgen",
   "@startsTomorrow": {
     "description": "Start am nächsten Tag"
+  },
+  "planHeading": "Wenn-Dann-Plan (optional)",
+  "@planHeading": {
+    "description": "Überschrift der Plan-Felder"
+  },
+  "planExplain": "Wann und wo genau? Dann musst du im Moment nicht mehr entscheiden.",
+  "@planExplain": {
+    "description": "Erklärung unter der Überschrift"
+  },
+  "planWhenLabel": "Wann?",
+  "@planWhenLabel": {
+    "description": "Feld: Auslöser"
+  },
+  "planWhereLabel": "Wo?",
+  "@planWhereLabel": {
+    "description": "Feld: Ort"
+  },
+  "planWhereHint": "z. B. im Bad",
+  "@planWhereHint": {
+    "description": "Beispiel im Feld „Wo?“"
+  },
+  "planSuggestWakeUp": "Nach dem Aufstehen",
+  "@planSuggestWakeUp": {
+    "description": "Vorschlag für „Wann?“"
+  },
+  "planSuggestBreakfast": "Nach dem Frühstück",
+  "@planSuggestBreakfast": {
+    "description": "Vorschlag für „Wann?“"
+  },
+  "planSuggestWork": "Nach der Arbeit",
+  "@planSuggestWork": {
+    "description": "Vorschlag für „Wann?“"
+  },
+  "planSuggestBed": "Vor dem Schlafengehen",
+  "@planSuggestBed": {
+    "description": "Vorschlag für „Wann?“"
   }
 }

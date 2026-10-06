@@ -237,5 +237,14 @@
   "plannedStartsOn": "начнётся {date} · {relative}",
   "startsIn": "{count, plural, one{через {count} день} few{через {count} дня} many{через {count} дней} other{через {count} дня}}",
   "changeStartDate": "Изменить дату начала",
-  "startsTomorrow": "завтра"
+  "startsTomorrow": "завтра",
+  "planHeading": "План «если — то» (необязательно)",
+  "planExplain": "Когда и где именно? Тогда не придётся решать в моменте.",
+  "planWhenLabel": "Когда?",
+  "planWhereLabel": "Где?",
+  "planWhereHint": "напр. в ванной",
+  "planSuggestWakeUp": "После пробуждения",
+  "planSuggestBreakfast": "После завтрака",
+  "planSuggestWork": "После работы",
+  "planSuggestBed": "Перед сном"
 }

@@ -8,6 +8,7 @@ import 'adjust_sheet.dart';
 import 'catalog_screen.dart';
 import 'format.dart';
 import 'l10n.dart';
+import 'plan_fields.dart';
 import 'rule_selector.dart';
 
 /// Auswahl für eigene Challenges – bewusst kurz gehalten.
@@ -55,6 +56,8 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
   final _weeklyTimes = TextEditingController(text: '3');
   final _weeklyMinutes = TextEditingController(text: '120');
   final _newStep = TextEditingController();
+  final _planWhen = TextEditingController();
+  final _planWhere = TextEditingController();
   late final _target = TextEditingController(
       text: widget.initial?.targetDuration?.inMinutes.toString() ?? '');
   late final List<String> _steps = [...?widget.initial?.steps];
@@ -108,6 +111,8 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
       _weeklyMinutes,
       _newStep,
       _target,
+      _planWhen,
+      _planWhere,
     ]) {
       c.dispose();
     }
@@ -182,7 +187,10 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
     await widget.repository.saveTemplate(template);
     if (!_isEdit) {
       final c = await widget.repository.start(template, _reminder,
-          rule: _rule, startOn: canPlanStart(template.kind) ? _startOn : null);
+          rule: _rule,
+          startOn: canPlanStart(template.kind) ? _startOn : null,
+          planWhen: _planWhen.text,
+          planWhere: _planWhere.text);
       await widget.onStarted?.call(c);
     }
     if (mounted) Navigator.of(context).pop();
@@ -377,6 +385,10 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
                 ),
                 onTap: _pickStart,
               ),
+            if (!_isEdit) ...[
+              const SizedBox(height: 16),
+              PlanFields(when: _planWhen, where: _planWhere),
+            ],
             const SizedBox(height: 16),
             FilledButton(
               onPressed: valid && !_busy ? _save : null,
