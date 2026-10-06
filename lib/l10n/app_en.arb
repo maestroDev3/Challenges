@@ -311,5 +311,8 @@
   "streakWarningWeeklyBody": "Until midnight: {done} of {target} done.",
   "settingsStreakWarning": "Streak-ending warning",
   "settingsStreakWarningHint": "A second reminder in the evening when a streak of 3+ days is still open today.",
-  "settingsStreakWarningTime": "Warning time"
+  "settingsStreakWarningTime": "Warning time",
+  "statsOpenStreak": "{title}: still open today",
+  "statsOpenStreakSerie": "Streak {count}",
+  "statsOpenWeekly": "Weekly goal · {done} of {target}"
 }

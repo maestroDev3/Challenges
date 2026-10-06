@@ -5,6 +5,7 @@ import '../domain/challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/milestones.dart';
 import '../domain/statistics.dart';
+import '../domain/streak_warning.dart';
 import '../l10n/template_text.dart';
 import 'detail_screen.dart';
 import 'l10n.dart';
@@ -52,6 +53,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               final stats = Statistics.of(all, today: today, period: period);
               return _Body(
                 stats: stats,
+                open: openStreaks(store.active, today),
                 period: period,
                 today: today,
                 onPeriod: (p) => _period.value = p,
@@ -68,6 +70,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 class _Body extends StatelessWidget {
   const _Body({
     required this.stats,
+    required this.open,
     required this.period,
     required this.today,
     required this.onPeriod,
@@ -75,6 +78,9 @@ class _Body extends StatelessWidget {
   });
 
   final Statistics stats;
+
+  /// Serien, die heute noch offen sind (Zeile oben, siehe #135).
+  final List<StreakWarning> open;
   final StatsPeriod period;
   final DateTime today;
   final ValueChanged<StatsPeriod> onPeriod;
@@ -136,6 +142,11 @@ class _Body extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
+              for (final w in open) ...[
+                _OpenStreakLine(warning: w, clock: clock),
+                const SizedBox(height: 10),
+              ],
+              if (open.isNotEmpty) const SizedBox(height: 10),
               if (isEmpty)
                 Text(l10n.statsEmpty, style: text.bodyLarge)
               else ...[
@@ -196,6 +207,60 @@ class _Body extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Ruhige Zeile „‹Ritual›: heute noch offen“; Tippen öffnet das Detail.
+class _OpenStreakLine extends StatelessWidget {
+  const _OpenStreakLine({required this.warning, required this.clock});
+
+  final StreakWarning warning;
+  final Clock clock;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final c = warning.challenge;
+    final detail = switch ((warning.weeklyDone, warning.weeklyTarget)) {
+      (final d?, final t?) => l10n.statsOpenWeekly(d, t),
+      _ => l10n.statsOpenStreakSerie(warning.streak),
+    };
+    return Material(
+      color: scheme.tertiaryContainer,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => ChallengeDetailScreen(challenge: c, clock: clock),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Icon(Icons.local_fire_department_outlined,
+                  size: 20, color: scheme.onTertiaryContainer),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.statsOpenStreak(c.template.titleIn(l10n)),
+                  style: TextStyle(
+                    color: scheme.onTertiaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(detail,
+                  style: TextStyle(color: scheme.onTertiaryContainer)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
