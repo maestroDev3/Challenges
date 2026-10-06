@@ -13,6 +13,7 @@ import 'data/local_notification_scheduler.dart';
 import 'data/local_settings_repository.dart';
 import 'domain/challenge_repository.dart';
 import 'domain/reminders.dart';
+import 'domain/streak_warning.dart';
 import 'domain/widget_data.dart';
 import 'ui/app.dart';
 import 'ui/home_shell.dart';
@@ -65,8 +66,19 @@ Future<void> _reschedule(
   if (c == null) return;
   if (c.isArchived) {
     await scheduler.cancel(c);
+    await scheduler.cancelStreakWarning(c);
   } else {
     await scheduler.schedule(c);
+    // Nach dem Abhaken: Warnung für heute weg, ggf. morgen geplant.
+    final settings = await LocalSettingsRepository(
+            await SharedPreferences.getInstance())
+        .load();
+    final times = upcomingStreakWarnings(c, DateTime.now(), settings);
+    if (times.isEmpty) {
+      await scheduler.cancelStreakWarning(c);
+    } else {
+      await scheduler.scheduleStreakWarning(c, times);
+    }
   }
 }
 
@@ -115,9 +127,13 @@ Future<void> main() async {
   await HomeWidget.registerInteractivityCallback(onWidgetTapped);
   repository.watch().listen((_) async {
     await _refreshWidget(repository, prefs);
-    // Letzte Challenge archiviert → keine Sonntags-Benachrichtigung mehr.
+    // Letzte Challenge archiviert → keine Sonntags-Benachrichtigung mehr;
+    // Warnungen nach jedem Check-in neu.
+    final current = await settings.load();
     await syncWeekReview(repository, scheduler,
-        now: DateTime.now(), settings: await settings.load());
+        now: DateTime.now(), settings: current);
+    await syncStreakWarnings(repository, scheduler,
+        now: DateTime.now(), settings: current);
   });
 
   // Sprachwechsel: Widget-Texte sofort anpassen.
