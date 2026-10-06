@@ -9,11 +9,8 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 ## In Arbeit
 
 - #135 Abendliche Warnung vor dem Serienende (Epic #36) – Branch
-  `epic/warnung` (von `epic/statistik`), alle Tasks erledigt (#171–#173).
-  Wartet auf: Test der APK (Release „test“) durch den Nutzer, dann Merge.
-- Warten auf Merge durch den Nutzer, in dieser Reihenfolge: PR #150 (#124
-  Wenn-Dann-Plan, getestet) → PR #170 (#134 Wochenrückblick + #82 Dashboard)
-  → PR für `epic/warnung` (#135).
+  `epic/warnung`, alle Tasks erledigt (#171–#173). Wartet auf: Test der APK
+  (Release „test“) durch den Nutzer, dann Merge von PR #177 nach `main`.
 
 ## Als Nächstes
 
@@ -25,8 +22,7 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 | Epic | Stand | Stories (Reihenfolge) |
 |---|---|---|
-| #104 Planen und Vorbereiten | 1 von 2 zu | #124 Wenn-Dann-Plan (in Arbeit) |
-| #36 Motivation und Dranbleiben | 1 von 7 zu | #134 Wochenrückblick (in Arbeit) → #82 Dashboard und Kennzahlen (in Arbeit) → #135 Warnung vor dem Serienende (in Arbeit) → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
+| #36 Motivation und Dranbleiben | 3 von 7 zu | #135 Warnung vor dem Serienende (in Arbeit) → #33 Fortschrittsfotos → #160 Check-in-Uhrzeit |
 
 **#138 Challenges gestalten**
 
@@ -50,12 +46,11 @@ Maßgeblich sind die GitHub-Issues; diese Datei ist die Kurzfassung.
 
 ## Zuletzt erledigt
 
+- #82 Dashboard und Kennzahlen – Tab „Statistik“, Diagramme, Meilenstein-Leiste (PR #170)
+- #134 Wochenrückblick am Sonntagabend – Rückblick-Screen, Sonntags-Benachrichtigung (PR #170)
+- #124 Wenn-Dann-Plan – „Wann?“/„Wo?“, Plan in der Erinnerung (PR #150); Epic #104 geschlossen
 - #103 Startdatum planen – Starttag in der Zukunft, Abschnitt „Geplant“ (PR #133)
 - #79 Sprache wählbar – Deutsch, Englisch, Russisch (PR #123)
-- #78 Profil und Einstellungen – Tab „Profil“, Einstellungen, Daten sichern umgezogen (PR #109)
-- #32 Backup und Export – Sichern, CSV, Wiederherstellen, Seite „Daten sichern“ (PR #98)
-- #94 Startabsturz der Release-APK behoben (R8-Regel für WorkManager) +
-  Emulator-Starttest „Smoke“ in der CI (PR #95)
 
 ## Offene Entscheidungen (nur der Nutzer)
 
