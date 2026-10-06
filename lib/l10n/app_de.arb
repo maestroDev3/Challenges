@@ -1217,5 +1217,326 @@
   "planSuggestBed": "Vor dem Schlafengehen",
   "@planSuggestBed": {
     "description": "Vorschlag für „Wann?“"
+  },
+  "weekReviewTitle": "Deine Woche",
+  "@weekReviewTitle": {
+    "description": "Überschrift Wochenrückblick"
+  },
+  "weekReviewRatio": "{done} von {due}",
+  "@weekReviewRatio": {
+    "description": "Erledigt von fällig",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "weekReviewDoneLabel": "erledigt",
+  "@weekReviewDoneLabel": {
+    "description": "Beschriftung Kennzahl"
+  },
+  "weekReviewRateLabel": "Quote",
+  "@weekReviewRateLabel": {
+    "description": "Beschriftung Kennzahl"
+  },
+  "weekReviewMinutesLabel": "Zeit",
+  "@weekReviewMinutesLabel": {
+    "description": "Beschriftung Kennzahl Minuten"
+  },
+  "weekReviewEmpty": "In dieser Woche lief kein Ritual.",
+  "@weekReviewEmpty": {
+    "description": "Leerhinweis"
+  },
+  "weekReviewGoalReached": "Ziel erreicht",
+  "@weekReviewGoalReached": {
+    "description": "Wochenziel geschafft"
+  },
+  "weekReviewGoalMissed": "Ziel verfehlt",
+  "@weekReviewGoalMissed": {
+    "description": "Wochenziel nicht geschafft"
+  },
+  "weekReviewJokers": "{count, plural, =1{1 Joker} other{{count} Joker}}",
+  "@weekReviewJokers": {
+    "description": "Verbrauchte Joker in der Woche",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekReviewBadge": "Neues Abzeichen: {days} · {title}",
+  "@weekReviewBadge": {
+    "description": "Meilenstein der Woche",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "weekReviewBestStreak": "Längste Serie: {count}",
+  "@weekReviewBestStreak": {
+    "description": "Beste aktuelle Serie",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekReviewClose": "Woche abschließen",
+  "@weekReviewClose": {
+    "description": "Knopf"
+  },
+  "durationHoursMinutes": "{hours} h {minutes}",
+  "@durationHoursMinutes": {
+    "description": "Dauer ab einer Stunde, z. B. 3 h 40",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "description": "Dauer unter einer Stunde",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "profileLastWeek": "Letzte Woche ansehen",
+  "@profileLastWeek": {
+    "description": "Einstieg zum Wochenrückblick"
+  },
+  "settingsWeekReview": "Wochenrückblick am Sonntag",
+  "@settingsWeekReview": {
+    "description": "Schalter in den Einstellungen"
+  },
+  "settingsWeekReviewHint": "Sonntags eine Benachrichtigung „Deine Woche“ mit Bilanz.",
+  "@settingsWeekReviewHint": {
+    "description": "Erklärung zum Schalter"
+  },
+  "settingsWeekReviewTime": "Uhrzeit Wochenrückblick",
+  "@settingsWeekReviewTime": {
+    "description": "Uhrzeit der Sonntags-Benachrichtigung"
+  },
+  "weekReviewNotificationTitle": "Deine Woche",
+  "@weekReviewNotificationTitle": {
+    "description": "Titel der Sonntags-Benachrichtigung"
+  },
+  "weekReviewNotificationBody": "Zeit für die Bilanz – tippe für deinen Rückblick.",
+  "@weekReviewNotificationBody": {
+    "description": "Text der Sonntags-Benachrichtigung"
+  },
+  "navStatistics": "Statistik",
+  "@navStatistics": {
+    "description": "Tab Statistik"
+  },
+  "statsTitle": "Statistik",
+  "@statsTitle": {
+    "description": "Überschrift Tab Statistik"
+  },
+  "statsSubtitleMonth": "Dein {month}",
+  "@statsSubtitleMonth": {
+    "description": "Untertitel bei Zeitraum Monat",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "statsSubtitleYear": "Dein {year}",
+  "@statsSubtitleYear": {
+    "description": "Untertitel bei Zeitraum Jahr",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "statsPeriodMonth": "Monat",
+  "@statsPeriodMonth": {
+    "description": "Umschalter Zeitraum"
+  },
+  "statsPeriodYear": "Jahr",
+  "@statsPeriodYear": {
+    "description": "Umschalter Zeitraum"
+  },
+  "statsDaysDone": "Tage erledigt",
+  "@statsDaysDone": {
+    "description": "Kachel"
+  },
+  "statsDaysDoneHint": "über alle Rituale",
+  "@statsDaysDoneHint": {
+    "description": "Kachel-Untertitel"
+  },
+  "statsLongestStreak": "Längste Serie",
+  "@statsLongestStreak": {
+    "description": "Kachel"
+  },
+  "statsRate": "Quote",
+  "@statsRate": {
+    "description": "Kachel"
+  },
+  "statsRateHint": "{done} von {due} fällig",
+  "@statsRateHint": {
+    "description": "Kachel-Untertitel",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "statsRituals": "Rituale",
+  "@statsRituals": {
+    "description": "Kachel"
+  },
+  "statsRitualsHint": "aktiv / geschafft",
+  "@statsRitualsHint": {
+    "description": "Kachel-Untertitel"
+  },
+  "statsPerRitual": "Pro Ritual",
+  "@statsPerRitual": {
+    "description": "Abschnitt"
+  },
+  "statsStreakLabel": "Serie",
+  "@statsStreakLabel": {
+    "description": "Beschriftung der Zahl je Ritual"
+  },
+  "statsBadgeChip": "{days} · {title}",
+  "@statsBadgeChip": {
+    "description": "Abzeichen mit Challenge",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statsEmpty": "Noch keine Zahlen – starte dein erstes Ritual unter „Entdecken“. Hier siehst du dann, was du geschafft hast.",
+  "@statsEmpty": {
+    "description": "Leerhinweis Statistik"
+  },
+  "statsHeatmapTitle": "Letzte Wochen",
+  "@statsHeatmapTitle": {
+    "description": "Abschnitt Heatmap"
+  },
+  "statsHeatmapHint": "Anteil erledigt pro Tag",
+  "@statsHeatmapHint": {
+    "description": "Erklärung Heatmap"
+  },
+  "statsLess": "weniger",
+  "@statsLess": {
+    "description": "Legende Heatmap"
+  },
+  "statsMore": "mehr",
+  "@statsMore": {
+    "description": "Legende Heatmap"
+  },
+  "statsWeeksTitle": "Erfolgsquote pro Woche",
+  "@statsWeeksTitle": {
+    "description": "Abschnitt Wochenbalken"
+  },
+  "statsWeeksHint": "erledigt / fällig",
+  "@statsWeeksHint": {
+    "description": "Erklärung Wochenbalken"
+  },
+  "statsWeekShort": "W{week}",
+  "@statsWeekShort": {
+    "description": "Kalenderwoche kurz",
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "statsWeekdaysTitle": "Wochentage",
+  "@statsWeekdaysTitle": {
+    "description": "Abschnitt Wochentage"
+  },
+  "statsWeekdaysBestWorst": "Stärkster Tag: {best} · schwächster: {worst}",
+  "@statsWeekdaysBestWorst": {
+    "description": "Zeile unter den Wochentag-Balken",
+    "placeholders": {
+      "best": {
+        "type": "String"
+      },
+      "worst": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTimeTitle": "Zeit",
+  "@statsTimeTitle": {
+    "description": "Abschnitt Zeit-Summen"
+  },
+  "statsTimeHint": "aus Wochenziel-Ritualen",
+  "@statsTimeHint": {
+    "description": "Erklärung Zeit-Summen"
+  },
+  "statsTotal": "Gesamt",
+  "@statsTotal": {
+    "description": "Summenzeile"
+  },
+  "detailNextMilestone": "Nächster Meilenstein",
+  "@detailNextMilestone": {
+    "description": "Karte in der Detailansicht"
+  },
+  "detailDaysLeft": "{count, plural, =1{noch 1 Tag} other{noch {count} Tage}}",
+  "@detailDaysLeft": {
+    "description": "Verbleibende Tage bis zum Meilenstein",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailMilestoneDate": "Der nächste Marker fällt am {date}.",
+  "@detailMilestoneDate": {
+    "description": "Satz unter der Meilenstein-Leiste",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "milestoneReached": "erreicht",
+  "@milestoneReached": {
+    "description": "Semantics Marker"
+  },
+  "milestoneNext": "nächster",
+  "@milestoneNext": {
+    "description": "Semantics Marker"
+  },
+  "milestoneOpen": "offen",
+  "@milestoneOpen": {
+    "description": "Semantics Marker"
+  },
+  "legendMilestone": "Meilenstein",
+  "@legendMilestone": {
+    "description": "Legende Kalender"
+  },
+  "calendarMilestone": "Meilenstein {days}",
+  "@calendarMilestone": {
+    "description": "Semantics Kalendertag",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -49,6 +49,25 @@ class SettingsScreen extends StatelessWidget {
         defaultReminder: ReminderTime(picked.hour, picked.minute)));
   }
 
+  /// Speichert und plant die Sonntags-Benachrichtigung passend neu.
+  Future<void> _saveWeekReview(AppSettings updated) async {
+    await settings.save(updated);
+    if (scheduler case final scheduler?) {
+      await syncWeekReview(repository, scheduler,
+          now: clock(), settings: updated);
+    }
+  }
+
+  Future<void> _pickWeekReviewTime(
+      BuildContext context, AppSettings current) async {
+    final initial = current.weekReviewTime;
+    final picked = await pickTime(
+        context, TimeOfDay(hour: initial.hour, minute: initial.minute));
+    if (picked == null) return;
+    await _saveWeekReview(current.copyWith(
+        weekReviewTime: ReminderTime(picked.hour, picked.minute)));
+  }
+
   Future<void> _pickLanguage(BuildContext context, AppSettings current) async {
     final choice = await showDialog<({String? language})>(
       context: context,
@@ -107,6 +126,21 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () => _pickReminder(context, current),
               ),
               _Hint(context.l10n.settingsNewChallengeTimeHint),
+              SwitchListTile(
+                secondary: const Icon(Icons.history_outlined),
+                title: Text(context.l10n.settingsWeekReview),
+                subtitle: Text(context.l10n.settingsWeekReviewHint),
+                value: current.weekReviewEnabled,
+                onChanged: (value) => _saveWeekReview(
+                    current.copyWith(weekReviewEnabled: value)),
+              ),
+              if (current.weekReviewEnabled)
+                ListTile(
+                  leading: const Icon(Icons.schedule_outlined),
+                  title: Text(context.l10n.settingsWeekReviewTime),
+                  subtitle: Text(current.weekReviewTime.toString()),
+                  onTap: () => _pickWeekReviewTime(context, current),
+                ),
               _SectionTitle(context.l10n.settingsApp),
               ListTile(
                 leading: const Icon(Icons.translate),

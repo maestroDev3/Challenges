@@ -23,6 +23,18 @@ class FakeReminderScheduler implements ReminderScheduler {
   Future<void> clearSession(ActiveChallenge challenge) async =>
       sessionsCleared.add(challenge.id);
 
+  DateTime? weekReviewAt;
+  var weekReviewCancelled = 0;
+
+  @override
+  Future<void> scheduleWeekReview(DateTime at) async => weekReviewAt = at;
+
+  @override
+  Future<void> cancelWeekReview() async {
+    weekReviewAt = null;
+    weekReviewCancelled++;
+  }
+
   @override
   Future<void> cancel(ActiveChallenge challenge) async {
     scheduled.remove(challenge.id);

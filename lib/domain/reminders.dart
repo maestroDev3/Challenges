@@ -1,10 +1,16 @@
 import 'active_challenge.dart';
 import 'challenge.dart';
 import 'challenge_repository.dart';
+import 'settings.dart';
 
 const actionDone = 'done';
 const actionMissed = 'missed';
 const actionStop = 'stop';
+
+/// Payload der Sonntags-Benachrichtigung; Tippen öffnet den Wochenrückblick.
+const weekReviewPayload = 'weekReview';
+
+bool isWeekReviewPayload(String? payload) => payload == weekReviewPayload;
 
 /// Plant und storniert Erinnerungen (Plattform-Implementierung in lib/data).
 abstract interface class ReminderScheduler {
@@ -16,6 +22,12 @@ abstract interface class ReminderScheduler {
   Future<void> showSession(ActiveChallenge challenge);
 
   Future<void> clearSession(ActiveChallenge challenge);
+
+  /// Einmalige Benachrichtigung „Deine Woche“ zu [at]; ersetzt eine
+  /// bereits geplante.
+  Future<void> scheduleWeekReview(DateTime at);
+
+  Future<void> cancelWeekReview();
 }
 
 /// Stabile, positive 31-Bit-Id pro Challenge (FNV-1a), unabhängig vom
@@ -35,6 +47,43 @@ DateTime nextReminder(DateTime now, ReminderTime time) {
   return today.isAfter(now)
       ? today
       : DateTime(now.year, now.month, now.day + 1, time.hour, time.minute);
+}
+
+/// Nächster Sonntag zur eingestellten Uhrzeit (heute, falls noch nicht
+/// vorbei) – oder null, wenn der Rückblick aus ist oder keine Challenge
+/// läuft.
+DateTime? nextWeekReview(
+  DateTime now,
+  AppSettings settings, {
+  required bool hasActive,
+}) {
+  if (!settings.weekReviewEnabled || !hasActive) return null;
+  final time = settings.weekReviewTime;
+  var day = DateTime(now.year, now.month, now.day);
+  while (day.weekday != DateTime.sunday) {
+    day = DateTime(day.year, day.month, day.day + 1);
+  }
+  var at = DateTime(day.year, day.month, day.day, time.hour, time.minute);
+  if (!at.isAfter(now)) {
+    at = DateTime(at.year, at.month, at.day + 7, time.hour, time.minute);
+  }
+  return at;
+}
+
+/// Plant die Sonntags-Benachrichtigung neu oder löscht sie.
+Future<void> syncWeekReview(
+  ChallengeRepository repository,
+  ReminderScheduler scheduler, {
+  required DateTime now,
+  required AppSettings settings,
+}) async {
+  final active = await repository.active();
+  final at = nextWeekReview(now, settings, hasActive: active.isNotEmpty);
+  if (at == null) {
+    await scheduler.cancelWeekReview();
+  } else {
+    await scheduler.scheduleWeekReview(at);
+  }
 }
 
 /// Welche Aktionen die Benachrichtigung anbietet.
@@ -159,6 +208,7 @@ Future<void> syncReminders(
   ChallengeRepository repository,
   ReminderScheduler scheduler, {
   required DateTime now,
+  AppSettings? settings,
 }) async {
   for (final c in await repository.active()) {
     if (upcomingReminders(c, now).isEmpty) {
@@ -166,5 +216,8 @@ Future<void> syncReminders(
     } else {
       await scheduler.schedule(c);
     }
+  }
+  if (settings != null) {
+    await syncWeekReview(repository, scheduler, now: now, settings: settings);
   }
 }

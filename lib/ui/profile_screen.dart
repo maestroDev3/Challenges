@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../domain/active_challenge.dart';
 import '../domain/challenge_repository.dart';
 import '../domain/profile.dart';
 import '../domain/settings.dart';
+import '../domain/week_review.dart';
 import 'l10n.dart';
 import 'theme.dart';
+import 'week_review_screen.dart';
 
 /// Profil mit Name und Übersicht über alle Challenges.
 class ProfileScreen extends StatelessWidget {
@@ -13,10 +16,12 @@ class ProfileScreen extends StatelessWidget {
     required this.repository,
     required this.settings,
     this.onOpenSettings,
+    this.clock = DateTime.now,
   });
 
   final ChallengeRepository repository;
   final SettingsRepository settings;
+  final Clock clock;
 
   /// Öffnet die Einstellungen; ohne Callback gibt es kein Zahnrad.
   final VoidCallback? onOpenSettings;
@@ -75,30 +80,26 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      if (!stats.isEmpty) ...[
+                        OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => WeekReviewScreen(
+                                repository: repository,
+                                weekStart: reviewWeekFor(clock()),
+                                clock: clock,
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.history_outlined),
+                          label: Text(context.l10n.profileLastWeek),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       if (stats.isEmpty)
                         Text(
                           context.l10n.profileEmpty,
                           style: text.bodyLarge,
-                        )
-                      else
-                        _StatGrid(
-                          children: [
-                            _Stat(
-                                label: context.l10n.statRunning,
-                                value: stats.running),
-                            _Stat(
-                                label: context.l10n.statCompleted,
-                                value: stats.completed),
-                            _Stat(
-                                label: context.l10n.statDaysDone,
-                                value: stats.doneDays),
-                            _Stat(
-                                label: context.l10n.statLongestStreak,
-                                value: stats.longestStreak),
-                            _Stat(
-                                label: context.l10n.badgesTitle,
-                                value: stats.badges),
-                          ],
                         ),
                     ],
                   );
@@ -106,74 +107,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Kacheln in Reihen zu je drei; alle gleich breit, eine Reihe gleich hoch.
-class _StatGrid extends StatelessWidget {
-  const _StatGrid({required this.children});
-
-  static const _columns = 3;
-  static const _gap = 12.0;
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = [
-      for (var i = 0; i < children.length; i += _columns)
-        children.sublist(i, (i + _columns).clamp(0, children.length)),
-    ];
-    return Column(
-      children: [
-        for (final (index, row) in rows.indexed) ...[
-          if (index > 0) const SizedBox(height: _gap),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var c = 0; c < _columns; c++) ...[
-                  if (c > 0) const SizedBox(width: _gap),
-                  Expanded(
-                    child: c < row.length ? row[c] : const SizedBox.shrink(),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value});
-
-  final String label;
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    return Container(
-      key: const ValueKey('stat-tile'),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('$value',
-              style: text.headlineSmall?.copyWith(color: scheme.primary)),
-          Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
         ],
       ),
     );

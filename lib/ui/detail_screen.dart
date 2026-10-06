@@ -43,6 +43,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     final first = DateTime.utc(dayOf(c.startedOn).year, dayOf(c.startedOn).month);
     final last = DateTime.utc(_end.year, _end.month);
     final kind = c.kind;
+    final next = c.isArchived ? null : nextMilestone(c, _end);
     return Scaffold(
       appBar: AppBar(),
       body: ListView(
@@ -75,6 +76,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             PlanLine(plan, style: text.titleMedium),
           ],
           const SizedBox(height: 24),
+          if (next case final next?) ...[
+            _MilestoneCard(next: next, streak: c.currentStreak(_end)),
+            const SizedBox(height: 16),
+          ],
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -162,7 +167,12 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               if (v > 200 && _month.isAfter(first)) _shiftMonth(-1);
               if (v < -200 && _month.isBefore(last)) _shiftMonth(1);
             },
-            child: _MonthGrid(month: _month, challenge: c, end: _end),
+            child: _MonthGrid(
+              month: _month,
+              challenge: c,
+              end: _end,
+              milestone: next,
+            ),
           ),
           const SizedBox(height: 12),
           const _Legend(),
@@ -227,11 +237,15 @@ class _MonthGrid extends StatelessWidget {
     required this.month,
     required this.challenge,
     required this.end,
+    this.milestone,
   });
 
   final DateTime month;
   final ActiveChallenge challenge;
   final DateTime end;
+
+  /// Nächster Meilenstein; sein Tag wird im Kalender markiert.
+  final NextMilestone? milestone;
 
   @override
   Widget build(BuildContext context) {
@@ -252,6 +266,9 @@ class _MonthGrid extends StatelessWidget {
           day: DateTime.utc(month.year, month.month, d),
           status: _statusFor(DateTime.utc(month.year, month.month, d), start),
           isToday: DateTime.utc(month.year, month.month, d) == end,
+          milestone: milestone?.date == DateTime.utc(month.year, month.month, d)
+              ? milestone?.days
+              : null,
         ),
     ];
     return GridView.count(
@@ -271,11 +288,19 @@ class _MonthGrid extends StatelessWidget {
 }
 
 class _DayCell extends StatelessWidget {
-  const _DayCell({required this.day, required this.status, required this.isToday});
+  const _DayCell({
+    required this.day,
+    required this.status,
+    required this.isToday,
+    this.milestone,
+  });
 
   final DateTime day;
   final DayStatus? status;
   final bool isToday;
+
+  /// Meilenstein (z. B. 21), der an diesem Tag fällt.
+  final int? milestone;
 
   @override
   Widget build(BuildContext context) {
@@ -288,10 +313,13 @@ class _DayCell extends StatelessWidget {
       DayStatus.open => (scheme.surfaceContainerHigh, scheme.onSurface),
       null => (Colors.transparent, scheme.onSurfaceVariant.withValues(alpha: 0.5)),
     };
-    final label = switch (status) {
-      final s? =>
+    final label = switch ((status, milestone)) {
+      (_, final m?) =>
+        '${formatWeekdayDate(context.l10n, day)}: '
+            '${context.l10n.calendarMilestone(m)}',
+      (final s?, null) =>
         '${formatWeekdayDate(context.l10n, day)}: ${dayStatusLabel(context.l10n, s)}',
-      null => formatWeekdayDate(context.l10n, day),
+      (null, null) => formatWeekdayDate(context.l10n, day),
     };
     return Semantics(
       label: label,
@@ -301,10 +329,18 @@ class _DayCell extends StatelessWidget {
         decoration: BoxDecoration(
           color: bg,
           shape: BoxShape.circle,
-          border: isToday ? Border.all(color: scheme.primary, width: 2) : null,
+          border: isToday
+              ? Border.all(color: scheme.primary, width: 2)
+              : milestone != null
+                  ? Border.all(color: scheme.primary.withValues(alpha: 0.7))
+                  : null,
         ),
         child: Text('${day.day}',
-            style: TextStyle(color: fg, fontWeight: FontWeight.w600)),
+            style: TextStyle(
+                color: milestone != null && status == null
+                    ? scheme.primary
+                    : fg,
+                fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -335,7 +371,157 @@ class _Legend extends StatelessWidget {
         item(scheme.errorContainer, context.l10n.statusMissed),
         item(scheme.secondaryContainer, context.l10n.joker),
         item(scheme.tertiaryContainer, context.l10n.statusPaused),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border:
+                    Border.all(color: scheme.primary.withValues(alpha: 0.7)),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(context.l10n.legendMilestone,
+                style: TextStyle(color: scheme.onSurfaceVariant)),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+/// Karte „Nächster Meilenstein“: Leiste 7 → 21 → 30 → 66 → 100 mit dem
+/// erreichten Stand, verbleibenden Tagen und dem Datum.
+class _MilestoneCard extends StatelessWidget {
+  const _MilestoneCard({required this.next, required this.streak});
+
+  final NextMilestone next;
+  final int streak;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Expanded(
+                child: Text(l10n.detailNextMilestone, style: text.titleMedium),
+              ),
+              Text(
+                l10n.detailDaysLeft(next.remaining),
+                style: TextStyle(color: scheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              for (final (i, m) in milestones.indexed) ...[
+                if (i > 0)
+                  Expanded(
+                    child: Container(
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: streak >= m
+                            ? scheme.primary
+                            : scheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                _MilestoneMarker(
+                  days: m,
+                  state: streak >= m
+                      ? _MarkerState.reached
+                      : m == next.days
+                          ? _MarkerState.next
+                          : _MarkerState.open,
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.detailMilestoneDate(formatDate(l10n, next.date)),
+            style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+enum _MarkerState { reached, next, open }
+
+class _MilestoneMarker extends StatelessWidget {
+  const _MilestoneMarker({required this.days, required this.state});
+
+  final int days;
+  final _MarkerState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final stateLabel = switch (state) {
+      _MarkerState.reached => l10n.milestoneReached,
+      _MarkerState.next => l10n.milestoneNext,
+      _MarkerState.open => l10n.milestoneOpen,
+    };
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: '$days: $stateLabel',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: state == _MarkerState.reached ? scheme.primary : null,
+              border: switch (state) {
+                _MarkerState.reached => null,
+                _MarkerState.next =>
+                  Border.all(color: scheme.primary, width: 2),
+                _MarkerState.open =>
+                  Border.all(color: scheme.surfaceContainerHighest, width: 2),
+              },
+            ),
+            child: state == _MarkerState.reached
+                ? Icon(Icons.check, size: 14, color: scheme.onPrimary)
+                : null,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$days',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: state == _MarkerState.open
+                  ? scheme.onSurfaceVariant
+                  : scheme.onSurface,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

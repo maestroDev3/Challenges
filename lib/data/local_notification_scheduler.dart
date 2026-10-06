@@ -123,6 +123,47 @@ class LocalNotificationScheduler implements ReminderScheduler {
   int _sessionId(ActiveChallenge c) => notificationIdFor('session:${c.id}');
   int _targetId(ActiveChallenge c) => notificationIdFor('target:${c.id}');
 
+  static final _weekReviewId = notificationIdFor(weekReviewPayload);
+
+  @override
+  Future<void> scheduleWeekReview(DateTime at) async {
+    await cancelWeekReview();
+    if (!at.isAfter(DateTime.now())) return;
+    final exact = await _ensurePermissions();
+    final l10n = await _texts();
+    await _plugin.zonedSchedule(
+      id: _weekReviewId,
+      title: l10n.weekReviewNotificationTitle,
+      body: l10n.weekReviewNotificationBody,
+      payload: weekReviewPayload,
+      scheduledDate: tz.TZDateTime(
+          tz.local, at.year, at.month, at.day, at.hour, at.minute),
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          l10n.channelReminders,
+          channelDescription: l10n.channelRemindersDescription,
+          importance: Importance.high,
+          priority: Priority.high,
+          category: AndroidNotificationCategory.reminder,
+        ),
+      ),
+      androidScheduleMode: exact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
+    );
+  }
+
+  @override
+  Future<void> cancelWeekReview() => _plugin.cancel(id: _weekReviewId);
+
+  /// Ob die App gerade über die Sonntags-Benachrichtigung gestartet wurde.
+  Future<bool> launchedByWeekReview() async {
+    final details = await _plugin.getNotificationAppLaunchDetails();
+    return details?.didNotificationLaunchApp == true &&
+        isWeekReviewPayload(details?.notificationResponse?.payload);
+  }
+
   @override
   Future<void> showSession(ActiveChallenge challenge) async {
     final start = challenge.sessionStartedAt;
