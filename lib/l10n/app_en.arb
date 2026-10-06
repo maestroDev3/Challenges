@@ -303,5 +303,16 @@
   "milestoneNext": "next",
   "milestoneOpen": "open",
   "legendMilestone": "Milestone",
-  "calendarMilestone": "Milestone {days}"
+  "calendarMilestone": "Milestone {days}",
+  "streakWarningTitle": "Your {count}-day streak ends at midnight.",
+  "streakWarningBody": "{title} is still open today – check it off now.",
+  "streakWarningJokerBody": "{title} is still open today. A joker would save it.",
+  "streakWarningWeeklyTitle": "{title}: weekly goal still open",
+  "streakWarningWeeklyBody": "Until midnight: {done} of {target} done.",
+  "settingsStreakWarning": "Streak-ending warning",
+  "settingsStreakWarningHint": "A second reminder in the evening when a streak of 3+ days is still open today.",
+  "settingsStreakWarningTime": "Warning time",
+  "statsOpenStreak": "{title}: still open today",
+  "statsOpenStreakSerie": "Streak {count}",
+  "statsOpenWeekly": "Weekly goal · {done} of {target}"
 }

@@ -303,5 +303,16 @@
   "milestoneNext": "следующий",
   "milestoneOpen": "впереди",
   "legendMilestone": "Рубеж",
-  "calendarMilestone": "Рубеж {days}"
+  "calendarMilestone": "Рубеж {days}",
+  "streakWarningTitle": "Твоя серия из {count} дней закончится в полночь.",
+  "streakWarningBody": "{title} сегодня ещё не отмечен – отметь сейчас.",
+  "streakWarningJokerBody": "{title} сегодня ещё не отмечен. Джокер спас бы серию.",
+  "streakWarningWeeklyTitle": "{title}: недельная цель ещё открыта",
+  "streakWarningWeeklyBody": "До полуночи: {done} из {target} выполнено.",
+  "settingsStreakWarning": "Предупреждение о конце серии",
+  "settingsStreakWarningHint": "Второе напоминание вечером, если серия от 3 дней сегодня ещё открыта.",
+  "settingsStreakWarningTime": "Время предупреждения",
+  "statsOpenStreak": "{title}: сегодня ещё открыт",
+  "statsOpenStreakSerie": "Серия {count}",
+  "statsOpenWeekly": "Недельная цель · {done} из {target}"
 }
