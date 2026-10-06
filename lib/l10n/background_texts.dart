@@ -1,6 +1,7 @@
 import '../domain/challenge.dart';
 import '../domain/csv_export.dart';
 import '../domain/reminders.dart';
+import '../domain/streak_warning.dart';
 import 'app_localizations.dart';
 import 'template_text.dart';
 
@@ -34,6 +35,28 @@ ReminderTexts reminderTexts(
       journalAction: l10n.reminderJournalAction,
       journalInput: l10n.reminderJournalInput,
     );
+
+/// Titel und Text der abendlichen Warnung; die Knöpfe kommen aus
+/// [reminderTexts].
+({String title, String body}) streakWarningTexts(
+  AppLocalizations l10n,
+  StreakWarning warning,
+) {
+  final title = warning.challenge.template.titleIn(l10n);
+  if (warning
+      case StreakWarning(weeklyDone: final d?, weeklyTarget: final t?)) {
+    return (
+      title: l10n.streakWarningWeeklyTitle(title),
+      body: l10n.streakWarningWeeklyBody(d, t),
+    );
+  }
+  return (
+    title: l10n.streakWarningTitle(warning.streak),
+    body: warning.jokerAvailable
+        ? l10n.streakWarningJokerBody(title)
+        : l10n.streakWarningBody(title),
+  );
+}
 
 /// Texte der CSV-Tabelle in der gewählten Sprache.
 CsvTexts csvTextsFor(AppLocalizations l10n) => CsvTexts(

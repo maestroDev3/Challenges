@@ -5,6 +5,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../domain/active_challenge.dart';
 import '../domain/reminders.dart';
+import '../domain/streak_warning.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/background_texts.dart';
 import '../l10n/template_text.dart';
@@ -122,6 +123,82 @@ class LocalNotificationScheduler implements ReminderScheduler {
 
   int _sessionId(ActiveChallenge c) => notificationIdFor('session:${c.id}');
   int _targetId(ActiveChallenge c) => notificationIdFor('target:${c.id}');
+
+  static const _maxWarningSlots = 2;
+  int _warningId(ActiveChallenge c, int slot) =>
+      notificationIdFor('warn:${c.id}:$slot');
+
+  @override
+  Future<void> scheduleStreakWarning(
+      ActiveChallenge c, List<DateTime> times) async {
+    await cancelStreakWarning(c);
+    final now = DateTime.now();
+    final upcoming = [
+      for (final t in times)
+        if (t.isAfter(now)) t,
+    ].take(_maxWarningSlots).toList();
+    if (upcoming.isEmpty) return;
+    final exact = await _ensurePermissions();
+    final l10n = await _texts();
+    final reminder = reminderTexts(l10n, c.template, plan: c.plan);
+    final actions = switch (reminderActionsFor(c.template.kind)) {
+      ReminderActions.journalInput => [
+          AndroidNotificationAction(
+            actionDone,
+            reminder.journalAction,
+            inputs: [
+              AndroidNotificationActionInput(label: reminder.journalInput)
+            ],
+          ),
+        ],
+      ReminderActions.none => const <AndroidNotificationAction>[],
+      ReminderActions.doneMissed => [
+          AndroidNotificationAction(actionDone, reminder.done),
+          AndroidNotificationAction(actionMissed, reminder.missed),
+        ],
+    };
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        _channelId,
+        l10n.channelReminders,
+        channelDescription: l10n.channelRemindersDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        category: AndroidNotificationCategory.reminder,
+        actions: actions,
+      ),
+    );
+    for (final (i, at) in upcoming.indexed) {
+      // Text zum Stand am Warntag (Serie bis dahin um einen Tag länger).
+      final day = DateTime(at.year, at.month, at.day);
+      final warning = streakWarningFor(c, day) ??
+          StreakWarning(
+            challenge: c,
+            streak: c.currentStreak(now) + 1,
+            jokerAvailable: c.rule == StreakRule.joker && c.jokers(now) > 0,
+          );
+      final texts = streakWarningTexts(l10n, warning);
+      await _plugin.zonedSchedule(
+        id: _warningId(c, i),
+        title: texts.title,
+        body: texts.body,
+        payload: c.id,
+        scheduledDate: tz.TZDateTime(
+            tz.local, at.year, at.month, at.day, at.hour, at.minute),
+        notificationDetails: details,
+        androidScheduleMode: exact
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    }
+  }
+
+  @override
+  Future<void> cancelStreakWarning(ActiveChallenge c) async {
+    for (var i = 0; i < _maxWarningSlots; i++) {
+      await _plugin.cancel(id: _warningId(c, i));
+    }
+  }
 
   static final _weekReviewId = notificationIdFor(weekReviewPayload);
 

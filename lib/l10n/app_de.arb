@@ -1538,5 +1538,53 @@
         "type": "int"
       }
     }
+  },
+  "streakWarningTitle": "Deine {count}-Tage-Serie endet um Mitternacht.",
+  "@streakWarningTitle": {
+    "description": "Titel der Abend-Warnung",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakWarningBody": "{title} ist heute noch offen – jetzt abhaken.",
+  "@streakWarningBody": {
+    "description": "Text der Abend-Warnung",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "streakWarningJokerBody": "{title} ist heute noch offen. Ein Joker würde sie retten.",
+  "@streakWarningJokerBody": {
+    "description": "Text der Abend-Warnung mit Joker",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "streakWarningWeeklyTitle": "{title}: Wochenziel noch offen",
+  "@streakWarningWeeklyTitle": {
+    "description": "Titel der Warnung bei Wochenzielen (sonntags)",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "streakWarningWeeklyBody": "Bis Mitternacht: {done} von {target} geschafft.",
+  "@streakWarningWeeklyBody": {
+    "description": "Text der Warnung bei Wochenzielen",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
   }
 }

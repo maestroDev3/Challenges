@@ -2,6 +2,7 @@ import 'active_challenge.dart';
 import 'challenge.dart';
 import 'challenge_repository.dart';
 import 'settings.dart';
+import 'streak_warning.dart';
 
 const actionDone = 'done';
 const actionMissed = 'missed';
@@ -28,6 +29,11 @@ abstract interface class ReminderScheduler {
   Future<void> scheduleWeekReview(DateTime at);
 
   Future<void> cancelWeekReview();
+
+  /// Abendliche Warnungen „Serie endet“ zu [times]; ersetzt geplante.
+  Future<void> scheduleStreakWarning(ActiveChallenge c, List<DateTime> times);
+
+  Future<void> cancelStreakWarning(ActiveChallenge c);
 }
 
 /// Stabile, positive 31-Bit-Id pro Challenge (FNV-1a), unabhängig vom
@@ -219,5 +225,7 @@ Future<void> syncReminders(
   }
   if (settings != null) {
     await syncWeekReview(repository, scheduler, now: now, settings: settings);
+    await syncStreakWarnings(repository, scheduler,
+        now: now, settings: settings);
   }
 }
