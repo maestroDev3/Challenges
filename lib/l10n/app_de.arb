@@ -1598,5 +1598,35 @@
   "settingsStreakWarningTime": "Uhrzeit der Warnung",
   "@settingsStreakWarningTime": {
     "description": "Uhrzeit der Abend-Warnung"
+  },
+  "statsOpenStreak": "{title}: heute noch offen",
+  "@statsOpenStreak": {
+    "description": "Zeile im Statistik-Tab",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statsOpenStreakSerie": "Serie {count}",
+  "@statsOpenStreakSerie": {
+    "description": "Zusatz zur Zeile",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsOpenWeekly": "Wochenziel · {done} von {target}",
+  "@statsOpenWeekly": {
+    "description": "Zusatz zur Zeile bei Wochenzielen",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
   }
 }

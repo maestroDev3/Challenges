@@ -311,5 +311,8 @@
   "streakWarningWeeklyBody": "До полуночи: {done} из {target} выполнено.",
   "settingsStreakWarning": "Предупреждение о конце серии",
   "settingsStreakWarningHint": "Второе напоминание вечером, если серия от 3 дней сегодня ещё открыта.",
-  "settingsStreakWarningTime": "Время предупреждения"
+  "settingsStreakWarningTime": "Время предупреждения",
+  "statsOpenStreak": "{title}: сегодня ещё открыт",
+  "statsOpenStreakSerie": "Серия {count}",
+  "statsOpenWeekly": "Недельная цель · {done} из {target}"
 }
